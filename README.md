@@ -1,17 +1,24 @@
-# Weinsammlung
+# Grapani
 
 Private Weinsammlungs-App als installierbare PWA (iPhone + iPad). Kostenlos im Betrieb: Supabase Free-Tier (Datenbank, Foto-Speicher, Login) + Vercel Free-Tier (Hosting) + Tesseract.js (Etikett-Texterkennung laeuft im Browser, keine bezahlte API).
 
 ## Funktionen
 
-- Übersicht mit Suche, Filter (Jahrgang/Region/Rebsorte), Sortierung, Favoriten-Filter
-- Detailansicht, Bearbeiten, Löschen (mit Bestätigung)
-- Wein hinzufügen: Live-Kamera direkt in der App oder Foto aus der Galerie, sowie komplett manuelle Eingabe ohne Foto
-- Etikett-Texterkennung (Tesseract.js) schlägt Name/Produzent/Jahrgang/Rebsorte/Region vor - abgeglichen gegen eine echte Referenzliste aus Wikidata (~2100 Rebsorten, ~1600 Weingüter, ~780 Regionen) - immer nur als editierbarer Vorschlag, nie automatisch gespeichert
-- Favoriten (Herz) und Anzahl Flaschen pro Wein
+- Übersicht (Raster/Liste umschaltbar) mit Suche, Filter (Jahrgang/Region/Subregion/Land/Rebsorte/Typ/Flaschengrösse/Bewertung), mehreren Sortierungen, Favoriten-Filter, Tabs für Vorrat/Wunschliste/Getrunken
+- Detailansicht mit Fotokarussell (Vollbildzoom), Bearbeiten, Löschen (mit Bestätigung)
+- Wein hinzufügen: Live-Kamera direkt in der App, Foto aus der Galerie, mehrere Fotos pro Wein, oder komplett manuelle Eingabe ohne Foto - Platzhalter-Flasche mit dem Weinnamen, solange kein Foto vorhanden ist
+- Barcode-/QR-Code-Scanner (funktioniert auch auf iOS): sucht bei einem EAN-Treffer in einer freien Produktdatenbank (Open Food Facts) nach Angaben und ggf. einem Foto-Vorschlag - alles nur als Vorschlag, nichts wird automatisch übernommen
+- Etikett-Texterkennung (Tesseract.js, läuft komplett im Browser) schlägt Name/Produzent/Jahrgang/Rebsorte/Region vor - erkennt auch mehrwortige Namen (z. B. "Domaine de Chevalier") als zusammenhängende Phrase, abgeglichen gegen eine echte, mehrsprachige Referenzliste aus Wikidata (~4300 Rebsorten inkl. Synonymen wie Shiraz/Syrah, ~2900 Weingüter, ~2100 Regionen) - immer nur als editierbarer Vorschlag, nie automatisch gespeichert
+- Duplikat-Erkennung beim Anlegen und beim CSV-Import (fasst exakt gleiche Weine automatisch zusammen, statt Zeilen zu verdoppeln)
+- Trinkfenster, Lagerort, strukturierte Verkostungsnotizen, externe Bewertungen/Kritiker-Punkte, Essensempfehlung
+- Favoriten (Herz), Anzahl Flaschen pro Wein, Wunschliste (zählt nicht zum Bestand)
+- "Getrunken markieren" mit Bestätigungsabfrage, Trinkverlauf im Rückblick (Statistik der letzten 12 Monate, meistgetrunkene Region/Rebsorte)
+- Statistik-Seite (Aufschlüsselung nach Typ, Land, Wert der Sammlung)
+- Weinlexikon: über 1000 Rebsorten und mehrere hundert Regionen mit echter Kurzbeschreibung (Wikipedia) zum Nachschlagen
+- CSV-Import (z. B. aus Vivino-Export) und PDF-/Druckexport der Sammlung
 - Helles/dunkles Thema (manueller Umschalter)
-- Einstellungen: Abmelden, Sammlung als Datei sichern/importieren
-- Weinlexikon: ca. 1160 Rebsorten und 520 Regionen mit echter Kurzbeschreibung (Wikipedia) zum Nachschlagen
+- Einstellungen: Abmelden, Sammlung als Datei sichern/importieren, ganze Sammlung löschen (mit Sicherheitsabfrage)
+- Backup-Erinnerung (alle 4 Wochen) und einmaliges Feedback-Popup
 
 ## 1. Voraussetzungen lokal
 
@@ -75,7 +82,7 @@ Spaetere Aenderungen: einfach neuen Commit pushen, Vercel deployt automatisch ne
 
 1. Die Vercel-URL in **Safari** auf dem iPhone/iPad oeffnen (muss Safari sein, nicht Chrome).
 2. Unten das **Teilen-Symbol** antippen (Quadrat mit Pfeil nach oben).
-3. **"Zum Home-Bildschirm"** waehlen, Namen bestaetigen ("Weine").
+3. **"Zum Home-Bildschirm"** waehlen, Namen bestaetigen ("Grapani").
 4. Die App erscheint als eigenes Icon auf dem Home-Bildschirm und startet im Vollbild wie eine native App.
 5. Login (E-Mail/Passwort aus Schritt 2.4) - danach bleibt man angemeldet, auch nach Neustart.
 
