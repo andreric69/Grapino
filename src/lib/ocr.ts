@@ -200,7 +200,7 @@ export async function recognizeWineLabel(image: Blob): Promise<OcrSuggestions> {
   return await parseRecognitionResult(data.words ?? []);
 }
 
-interface RecognizedWord {
+export interface RecognizedWord {
   text: string;
   confidence: number;
   bbox: { x0: number; y0: number; x1: number; y1: number };
@@ -244,7 +244,7 @@ function closeEnough(a: RecognizedWord, b: RecognizedWord): boolean {
  * Luecke an ihrer Stelle beendet die Phrase automatisch, ohne dass sie extra
  * behandelt werden muss.
  */
-function buildPhrases(orderedWords: RecognizedWord[]): PhraseCandidate[] {
+export function buildPhrases(orderedWords: RecognizedWord[]): PhraseCandidate[] {
   const phrases: PhraseCandidate[] = [];
   let current: RecognizedWord[] = [];
   for (const word of orderedWords) {
