@@ -15,6 +15,27 @@ interface LexiconData {
 
 type Tab = 'grapes' | 'regions';
 
+// Wie in wineReference.ts (loadIndex): einmal pro Sitzung geladen und
+// gecacht, statt bei jedem Seitenbesuch die ~400KB grosse Datei erneut vom
+// Netz zu holen - setzt sich bei einem Fehler zurueck, damit "Erneut
+// versuchen" tatsaechlich einen neuen Versuch macht.
+let lexiconPromise: Promise<LexiconData> | null = null;
+
+function loadLexicon(): Promise<LexiconData> {
+  if (!lexiconPromise) {
+    lexiconPromise = fetch('/data/wine-lexicon.json')
+      .then((res) => {
+        if (!res.ok) throw new Error('nicht erreichbar');
+        return res.json() as Promise<LexiconData>;
+      })
+      .catch((e) => {
+        lexiconPromise = null;
+        throw e;
+      });
+  }
+  return lexiconPromise;
+}
+
 export function WineLexiconPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -28,9 +49,7 @@ export function WineLexiconPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/data/wine-lexicon.json');
-      if (!res.ok) throw new Error('nicht erreichbar');
-      setData(await res.json());
+      setData(await loadLexicon());
     } catch {
       setError('Weinlexikon konnte nicht geladen werden. Bitte Internetverbindung pruefen und erneut versuchen.');
     } finally {
