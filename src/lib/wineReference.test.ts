@@ -20,8 +20,9 @@ const FAKE_PRODUCER_COUNTRIES = [
   { producer: 'Château Giscours', country: 'Frankreich' },
   { producer: 'Château Montrose', country: 'Frankreich' },
 ];
+const FAKE_REGION_PARENTS: { region: string; parent: string }[] = [];
 
-function mockFetchResponses() {
+function mockFetchResponses(regionParents: { region: string; parent: string }[] = FAKE_REGION_PARENTS) {
   vi.stubGlobal(
     'fetch',
     vi.fn(async (url: string) => {
@@ -33,7 +34,9 @@ function mockFetchResponses() {
             ? FAKE_GRAPE_COLORS
             : url.includes('producer-countries.json')
               ? FAKE_PRODUCER_COUNTRIES
-              : null;
+              : url.includes('region-parents.json')
+                ? regionParents
+                : null;
       return { ok: true, json: async () => body } as Response;
     }),
   );
@@ -90,5 +93,42 @@ describe('wineReference matching', () => {
     const mod = await import('./wineReference');
     const result = await mod.matchWineReferences('Irgendein Text ohne Bezug');
     expect(result).toEqual({});
+  });
+});
+
+describe('wineReference Region-Hierarchie (region/subregion)', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    mockFetchResponses([{ region: 'Margaux', parent: 'Bordeaux' }]);
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('loest eine spezifische Appellation zur uebergeordneten Region auf (Margaux -> Bordeaux)', async () => {
+    const mod = await import('./wineReference');
+    const result = await mod.matchWineReferences('Château Giscours Margaux 2020');
+    expect(result.region).toBe('Bordeaux');
+    expect(result.subregion).toBe('Margaux');
+    expect(result.country).toBe('Frankreich');
+  });
+
+  it('laesst Regionen ohne bekannte uebergeordnete Region unveraendert (kein Subregion-Vorschlag)', async () => {
+    const mod = await import('./wineReference');
+    const result = await mod.matchWineReferences('Barossa Valley Shiraz 2019');
+    expect(result.region).toBe('Barossa Valley');
+    expect(result.subregion).toBeUndefined();
+  });
+
+  it('lookupRegionHierarchy loest eine bekannte Appellation direkt auf', async () => {
+    const mod = await import('./wineReference');
+    const result = await mod.lookupRegionHierarchy('Margaux');
+    expect(result).toEqual({ region: 'Bordeaux', subregion: 'Margaux' });
+  });
+
+  it('lookupRegionHierarchy laesst unbekannte Regionen unveraendert', async () => {
+    const mod = await import('./wineReference');
+    const result = await mod.lookupRegionHierarchy('Saint-Estèphe');
+    expect(result).toEqual({ region: 'Saint-Estèphe' });
   });
 });

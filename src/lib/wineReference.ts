@@ -26,6 +26,11 @@ interface RegionCountryEntry {
   country: string;
 }
 
+interface RegionParentEntry {
+  region: string;
+  parent: string;
+}
+
 interface ProducerCountryEntry {
   producer: string;
   country: string;
@@ -56,6 +61,8 @@ interface ReferenceIndex {
   regionCountries: LookupIndex<string>[];
   grapeColors: LookupIndex<WineType>[];
   producerCountries: LookupIndex<string>[];
+  /** Appellation/Gemeinde -> uebergeordnete, bekannte Weinregion (z. B. "Margaux" -> "Bordeaux"). */
+  regionParents: LookupIndex<string>[];
 }
 
 const MIN_MATCH_LENGTH = 4;
@@ -111,8 +118,9 @@ function loadIndex(): Promise<ReferenceIndex> {
       fetchJson<RegionCountryEntry[]>('/data/region-countries.json'),
       fetchJson<GrapeColorData>('/data/grape-colors.json'),
       fetchJson<ProducerCountryEntry[]>('/data/producer-countries.json'),
+      fetchJson<RegionParentEntry[]>('/data/region-parents.json'),
     ])
-      .then(([reference, regionCountries, grapeColors, producerCountries]) => ({
+      .then(([reference, regionCountries, grapeColors, producerCountries, regionParents]) => ({
         grapeVarieties: buildIndex(reference.grapeVarieties),
         wineries: buildIndex(reference.wineries),
         regions: buildIndex(reference.regions),
@@ -122,11 +130,20 @@ function loadIndex(): Promise<ReferenceIndex> {
           ...grapeColors.weiss.map((g): [string, WineType] => [g, 'weiss']),
         ]),
         producerCountries: buildLookupIndex(producerCountries.map((e) => [e.producer, e.country])),
+        regionParents: buildLookupIndex(regionParents.map((e) => [e.region, e.parent])),
       }))
       .catch((e) => {
         console.error('Wein-Referenzdaten konnten nicht geladen werden:', e);
         indexPromise = null;
-        return { grapeVarieties: [], wineries: [], regions: [], regionCountries: [], grapeColors: [], producerCountries: [] };
+        return {
+          grapeVarieties: [],
+          wineries: [],
+          regions: [],
+          regionCountries: [],
+          grapeColors: [],
+          producerCountries: [],
+          regionParents: [],
+        };
       });
   }
   return indexPromise;
@@ -150,10 +167,27 @@ function findBestLookup<T>(normalizedText: string, index: LookupIndex<T>[]): T |
   return null;
 }
 
+/**
+ * Manche erkannten Regionen sind spezifische Appellationen/Gemeinden
+ * innerhalb einer bekannteren, uebergeordneten Weinregion (z. B. "Margaux"
+ * innerhalb "Bordeaux") - in dem Fall wird die uebergeordnete Region als
+ * Region gefuehrt und die erkannte Appellation als Subregion, statt die
+ * Appellation faelschlich als "die Region" zu behandeln. Ist keine
+ * uebergeordnete Region bekannt (z. B. "Rioja", "Ribera del Duero" - selbst
+ * schon die uebliche oberste Bezeichnung), bleibt die erkannte Region
+ * unveraendert.
+ */
+function resolveRegionHierarchy(region: string, index: ReferenceIndex): { region: string; subregion?: string } {
+  const parent = findBestLookup(normalize(region), index.regionParents);
+  return parent ? { region: parent, subregion: region } : { region };
+}
+
 export interface WineReferenceMatches {
   producer?: string;
   grapeVariety?: string;
   region?: string;
+  /** Nur gesetzt, wenn die erkannte Region eine bekannte, spezifischere Appellation innerhalb einer uebergeordneten Weinregion ist (z. B. "Margaux" -> Region "Bordeaux", Subregion "Margaux"). */
+  subregion?: string;
   /** Aus der erkannten Region abgeleitetes Herkunftsland (z. B. Pauillac -> Frankreich). */
   country?: string;
   /** Aus der erkannten Rebsorte abgeleiteter Wein-Typ (z. B. Nebbiolo -> Rot). Nur ein Vorschlag. */
@@ -179,7 +213,9 @@ export async function matchWineReferences(ocrText: string): Promise<WineReferenc
 
   const region = findBestMatch(normalizedText, index.regions);
   if (region) {
-    matches.region = region;
+    const { region: resolvedRegion, subregion } = resolveRegionHierarchy(region, index);
+    matches.region = resolvedRegion;
+    if (subregion) matches.subregion = subregion;
     const country = findBestLookup(normalize(region), index.regionCountries);
     if (country) matches.country = country;
   }
@@ -202,6 +238,16 @@ export async function lookupCountryForRegion(regionText: string): Promise<string
   const normalized = normalize(regionText);
   if (!normalized) return null;
   return findBestLookup(normalized, index.regionCountries);
+}
+
+/**
+ * Loest eine bereits bekannte Regionsangabe (z. B. direkt vom Etikett
+ * abgelesen, nicht ueber den Datenbank-Abgleich gefunden) gegen die
+ * Region-Hierarchie auf - siehe resolveRegionHierarchy oben.
+ */
+export async function lookupRegionHierarchy(regionText: string): Promise<{ region: string; subregion?: string }> {
+  const index = await loadIndex();
+  return resolveRegionHierarchy(regionText, index);
 }
 
 export async function lookupTypeForGrape(grapeText: string): Promise<WineType | null> {

@@ -1,5 +1,5 @@
 import { createWorker, PSM, type Worker } from 'tesseract.js';
-import { matchWineReferences, lookupCountryForRegion } from './wineReference';
+import { matchWineReferences, lookupCountryForRegion, lookupRegionHierarchy } from './wineReference';
 import type { WineType } from '../types';
 
 // Weinetiketten sind ueberwiegend Deutsch/Englisch, Franzoesisch, Italienisch
@@ -50,6 +50,8 @@ export interface OcrSuggestions {
   vintage?: number;
   grapeVariety?: string;
   region?: string;
+  /** Nur gesetzt, wenn "region" aus einer spezifischeren Appellation/Gemeinde aufgeloest wurde (z. B. Region "Bordeaux", Subregion "Margaux"). */
+  subregion?: string;
   /** Aus der erkannten Region abgeleitet (z. B. Pauillac -> Frankreich). */
   country?: string;
   /** Aus der erkannten Rebsorte abgeleitet (z. B. Nebbiolo -> Rot) - nur ein Vorschlag. */
@@ -272,13 +274,33 @@ async function parseRecognitionResult(words: RecognizedWord[]): Promise<OcrSugge
   // Ergebnis wird gleich benutzt, um genau diese Woerter von der
   // Name/Produzent-Heuristik auszuschliessen (siehe claimedNormalized unten).
   const referenceMatches = await matchWineReferences(fullText);
-  const region = labeledRegion ?? referenceMatches.region;
 
-  // Land aus der TATSAECHLICH verwendeten Region ableiten (nicht blind aus
-  // referenceMatches.country uebernehmen) - falls "region" von der
-  // Etikett-Regel (labeledRegion) statt vom Datenbank-Abgleich stammt, muss
-  // das Land trotzdem zu genau diesem Regionsnamen passen.
-  const country = region ? await lookupCountryForRegion(region) : null;
+  // Die konkret erkannte, noch nicht aufgeloeste Regionsangabe (z. B.
+  // "Margaux") - fuer die Landbestimmung und um sie von Name/Produzent
+  // auszuschliessen (siehe claimedNormalized unten).
+  const specificRegion = labeledRegion ?? referenceMatches.subregion ?? referenceMatches.region;
+
+  // Manche spezifischen Regionen sind Appellationen/Gemeinden innerhalb
+  // einer bekannteren, uebergeordneten Weinregion (z. B. "Margaux" innerhalb
+  // "Bordeaux") - matchWineReferences loest das fuer den Datenbank-Abgleich
+  // bereits auf; kommt die Region stattdessen direkt vom Etikett
+  // (labeledRegion), muss sie hier noch aufgeloest werden.
+  let region: string | undefined;
+  let subregion: string | undefined;
+  if (labeledRegion) {
+    const resolved = await lookupRegionHierarchy(labeledRegion);
+    region = resolved.region;
+    subregion = resolved.subregion;
+  } else {
+    region = referenceMatches.region;
+    subregion = referenceMatches.subregion;
+  }
+
+  // Land aus der TATSAECHLICH erkannten (spezifischen) Region ableiten -
+  // falls "region" von der Etikett-Regel (labeledRegion) statt vom
+  // Datenbank-Abgleich stammt, muss das Land trotzdem zu genau diesem
+  // Regionsnamen passen.
+  const country = specificRegion ? await lookupCountryForRegion(specificRegion) : null;
 
   // Was schon als Region/Weingut erkannt wurde, darf nicht NOCHMAL als
   // Wein-Name vorgeschlagen werden - genau das war der gemeldete Bug: eine
@@ -287,7 +309,9 @@ async function parseRecognitionResult(words: RecognizedWord[]): Promise<OcrSugge
   // vorgeschlagen. Die Rebsorte wird bewusst NICHT ausgeschlossen - viele
   // einfache Weine heissen tatsaechlich genau wie ihre Rebsorte (z. B. ein
   // schlichter "Riesling").
-  const claimedNormalized = [region, referenceMatches.producer].filter((v): v is string => !!v).map(normalize);
+  const claimedNormalized = [specificRegion, region, referenceMatches.producer]
+    .filter((v): v is string => !!v)
+    .map(normalize);
 
   // Erst einzelne Woerter aussieben (Vertrauen/Jahrgang/Stopwoerter/bereits
   // erkannte Region-Produzent-Woerter) - danach werden die UEBRIGGEBLIEBENEN
@@ -318,6 +342,7 @@ async function parseRecognitionResult(words: RecognizedWord[]): Promise<OcrSugge
   const chipSet = new Set<string>();
   if (vintage) chipSet.add(String(vintage));
   if (region) chipSet.add(region);
+  if (subregion) chipSet.add(subregion);
   if (referenceMatches.grapeVariety) chipSet.add(referenceMatches.grapeVariety);
   if (referenceMatches.producer) chipSet.add(referenceMatches.producer);
   for (const c of candidates) chipSet.add(c.text.trim());
@@ -329,6 +354,7 @@ async function parseRecognitionResult(words: RecognizedWord[]): Promise<OcrSugge
     vintage,
     grapeVariety: referenceMatches.grapeVariety,
     region,
+    subregion,
     country: country ?? undefined,
     wineType: referenceMatches.wineType,
     chips,

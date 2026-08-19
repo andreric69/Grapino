@@ -66,6 +66,10 @@ export function useBarcodeLookup({
             next.region = matches.region;
             nextSuggested.add('region');
           }
+          if (matches.subregion && !next.subregion.trim()) {
+            next.subregion = matches.subregion;
+            nextSuggested.add('subregion');
+          }
           if (matches.country && !next.country.trim()) {
             next.country = matches.country;
             nextSuggested.add('country');

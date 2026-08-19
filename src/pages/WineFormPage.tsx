@@ -29,7 +29,7 @@ import { useDuplicateCheck } from '../hooks/useDuplicateCheck';
 // jedem Formular-Aufruf.
 const BarcodeScanner = lazy(() => import('../components/BarcodeScanner'));
 
-export type SuggestedField = 'name' | 'producer' | 'vintage' | 'grapeVariety' | 'region' | 'country' | 'wineType';
+export type SuggestedField = 'name' | 'producer' | 'vintage' | 'grapeVariety' | 'region' | 'subregion' | 'country' | 'wineType';
 
 export interface FormState {
   name: string;
@@ -352,6 +352,10 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
           next.region = suggestions.region;
           nextSuggested.add('region');
         }
+        if (suggestions.subregion && !next.subregion.trim()) {
+          next.subregion = suggestions.subregion;
+          nextSuggested.add('subregion');
+        }
         if (suggestions.country) {
           next.country = suggestions.country;
           nextSuggested.add('country');
@@ -404,7 +408,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
       clearSuggestion('vintage');
       return;
     }
-    if (field === 'name' || field === 'producer' || field === 'grapeVariety' || field === 'region') {
+    if (field === 'name' || field === 'producer' || field === 'grapeVariety' || field === 'region' || field === 'subregion') {
       updateField(field, text);
       clearSuggestion(field);
     }
@@ -894,7 +898,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
             >
               <input
                 className="input"
-                placeholder="z. B. Medoc"
+                placeholder="z. B. Bordeaux"
                 value={form.region}
                 onChange={(e) => {
                   updateField('region', e.target.value);
@@ -904,12 +908,20 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
             </FormField>
           </div>
           <div style={{ flex: 1 }}>
-            <FormField label="Subregion">
+            <FormField
+              label="Subregion"
+              suggested={suggested.has('subregion')}
+              dropField="subregion"
+              hovered={hoveredDropField === 'subregion'}
+            >
               <input
                 className="input"
                 placeholder="z. B. Pauillac"
                 value={form.subregion}
-                onChange={(e) => updateField('subregion', e.target.value)}
+                onChange={(e) => {
+                  updateField('subregion', e.target.value);
+                  clearSuggestion('subregion');
+                }}
               />
             </FormField>
           </div>
