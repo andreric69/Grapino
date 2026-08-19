@@ -22,6 +22,7 @@ import { ErrorBanner } from '../components/ErrorBanner';
 import { TastingNotesInput } from '../components/TastingNotesInput';
 import { HAS_CAMERA_SCANNER } from '../lib/cameraSupport';
 import { useBarcodeLookup } from '../hooks/useBarcodeLookup';
+import { useDuplicateCheck } from '../hooks/useDuplicateCheck';
 
 // Code-Splitting: die Scanner-Bibliothek (ZXing) ist relativ gross und wird
 // so nur geladen, wenn der Nutzer den Scanner tatsaechlich oeffnet, statt bei
@@ -120,12 +121,15 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  // Fuer die Duplikat-Erkennung beim Anlegen - einmal geladen, rein lokal
-  // verglichen (kein zusaetzlicher Server-Aufruf pro Tastendruck).
-  const [existingWinesForCheck, setExistingWinesForCheck] = useState<Wine[]>([]);
-  const [duplicateWine, setDuplicateWine] = useState<Wine | null>(null);
-  const [duplicateBusy, setDuplicateBusy] = useState(false);
-  const skipDuplicateCheckRef = useRef(false);
+  const {
+    setExistingWinesForCheck,
+    duplicateWine,
+    setDuplicateWine,
+    duplicateBusy,
+    skipDuplicateCheckRef,
+    findDuplicate,
+    handleIncreaseDuplicateInstead,
+  } = useDuplicateCheck({ navigate, setSaveError });
 
   // Wird gesetzt, wenn der Nutzer die Texterkennung ueberspringt - ein spaeter
   // eintreffendes OCR-Ergebnis darf dann die manuell eingetragenen Werte nicht
@@ -406,47 +410,12 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
     }
   }
 
-  // Sucht unter den bereits vorhandenen Weinen einen mit gleichem Namen,
-  // Produzent und Jahrgang (Vorrat, kein Wunschlisten-Eintrag) - dient nur
-  // als Hinweis, verhindert das Speichern nicht zwingend.
-  function findDuplicate(): Wine | null {
-    const normName = form.name.trim().toLowerCase();
-    if (!normName) return null;
-    const normProducer = form.producer.trim().toLowerCase();
-    const vintageNum = form.vintage ? Number(form.vintage) : null;
-    return (
-      existingWinesForCheck.find(
-        (w) =>
-          w.name.trim().toLowerCase() === normName &&
-          (w.producer ?? '').trim().toLowerCase() === normProducer &&
-          w.vintage === vintageNum &&
-          !w.is_wishlist,
-      ) ?? null
-    );
-  }
-
-  async function handleIncreaseDuplicateInstead() {
-    if (!duplicateWine) return;
-    setDuplicateBusy(true);
-    try {
-      const addQty = form.quantity ? Math.max(1, Math.round(Number(form.quantity))) : 1;
-      const updated = await updateWine(duplicateWine.id, {
-        quantity: duplicateWine.quantity + addQty,
-        is_consumed: false,
-      });
-      navigate(`/wine/${updated.id}`);
-    } catch (e) {
-      setSaveError(e instanceof Error ? e.message : NETWORK_ERROR_MESSAGE);
-      setDuplicateBusy(false);
-    }
-  }
-
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!form.name.trim()) return;
 
     if (mode === 'create' && !skipDuplicateCheckRef.current) {
-      const dup = findDuplicate();
+      const dup = findDuplicate(form.name, form.producer, form.vintage);
       if (dup) {
         setDuplicateWine(dup);
         return;
@@ -699,7 +668,14 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
               {duplicateWine.quantity === 1 ? 'Flasche' : 'Flaschen'} erfasst.
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <button type="button" className="btn btn-primary" disabled={duplicateBusy} onClick={handleIncreaseDuplicateInstead}>
+              <button
+                type="button"
+                className="btn btn-primary"
+                disabled={duplicateBusy}
+                onClick={() =>
+                  handleIncreaseDuplicateInstead(form.quantity ? Math.max(1, Math.round(Number(form.quantity))) : 1)
+                }
+              >
                 {duplicateBusy ? 'Wird gespeichert ...' : 'Stattdessen Bestand erhoehen'}
               </button>
               <button
