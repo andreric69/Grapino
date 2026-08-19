@@ -1,4 +1,4 @@
-# Grapani
+# Grapino
 
 Private Weinsammlungs-App als installierbare PWA (iPhone + iPad). Kostenlos im Betrieb: Supabase Free-Tier (Datenbank, Foto-Speicher, Login) + Vercel Free-Tier (Hosting) + Tesseract.js (Etikett-Texterkennung laeuft im Browser, keine bezahlte API).
 
@@ -82,7 +82,7 @@ Spaetere Aenderungen: einfach neuen Commit pushen, Vercel deployt automatisch ne
 
 1. Die Vercel-URL in **Safari** auf dem iPhone/iPad oeffnen (muss Safari sein, nicht Chrome).
 2. Unten das **Teilen-Symbol** antippen (Quadrat mit Pfeil nach oben).
-3. **"Zum Home-Bildschirm"** waehlen, Namen bestaetigen ("Grapani").
+3. **"Zum Home-Bildschirm"** waehlen, Namen bestaetigen ("Grapino").
 4. Die App erscheint als eigenes Icon auf dem Home-Bildschirm und startet im Vollbild wie eine native App.
 5. Login (E-Mail/Passwort aus Schritt 2.4) - danach bleibt man angemeldet, auch nach Neustart.
 

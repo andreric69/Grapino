@@ -42,7 +42,7 @@ export function FeedbackModal({ onSubmitted }: { onSubmitted: () => void }) {
   return (
     <div className="dialog-backdrop">
       <div className="dialog" onClick={(e) => e.stopPropagation()}>
-        <div className="dialog-title">Wie gefaellt dir Grapani?</div>
+        <div className="dialog-title">Wie gefaellt dir Grapino?</div>
         <div className="dialog-body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <StarRating value={rating} onChange={setRating} size={30} />

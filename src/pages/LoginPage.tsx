@@ -33,7 +33,7 @@ export function LoginPage() {
           <div className="kicker" style={{ fontSize: 10, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--color-accent)', marginBottom: 6 }}>
             Private Sammlung
           </div>
-          <h1 style={{ fontSize: 32, marginBottom: 24 }}>Grapani</h1>
+          <h1 style={{ fontSize: 32, marginBottom: 24 }}>Grapino</h1>
 
           <form onSubmit={handleSubmit}>
             <div className="field" style={{ marginBottom: 14 }}>

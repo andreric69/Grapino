@@ -9,8 +9,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icons/apple-touch-icon.png', 'icons/favicon.svg'],
       manifest: {
-        name: 'Grapani',
-        short_name: 'Grapani',
+        name: 'Grapino',
+        short_name: 'Grapino',
         description: 'Private Weinsammlung',
         theme_color: '#7c2d3a',
         background_color: '#f3f2f2',
