@@ -49,10 +49,6 @@ export async function setFavorite(id: string, isFavorite: boolean): Promise<Wine
   return updateWine(id, { is_favorite: isFavorite });
 }
 
-export async function setConsumed(id: string, isConsumed: boolean): Promise<Wine> {
-  return updateWine(id, { is_consumed: isConsumed });
-}
-
 /**
  * Schreibt einen Eintrag in den Trinkverlauf (fuer die Rueckblick-Seite) -
  * ein Aufruf pro getrunkener Flasche. Wird von drinkOneBottle IMMER
@@ -181,11 +177,6 @@ export async function uploadWinePhotos(wineId: string, photos: Blob[]): Promise<
     paths.push(path);
   }
   return paths;
-}
-
-export async function deleteWinePhotos(paths: string[]): Promise<void> {
-  if (paths.length === 0) return;
-  await supabase.storage.from(WINE_PHOTOS_BUCKET).remove(paths);
 }
 
 export async function getSignedPhotoUrl(path: string, expiresInSeconds = 3600): Promise<string | null> {
