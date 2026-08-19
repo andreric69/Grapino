@@ -28,3 +28,7 @@ dist-ssr
 # Lokale, maschinenspezifische Session-/Launch-Konfiguration (Claude Code) -
 # enthaelt absolute Pfade und Laufzeit-Status, nicht fuer Versionskontrolle.
 .claude/
+
+# Lokale Datenbank-Sicherungen (echte, persoenliche Sammlungsdaten) - gehoeren
+# nicht in die Versionskontrolle.
+backups/
