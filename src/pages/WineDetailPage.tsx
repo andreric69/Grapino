@@ -1,14 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import {
-  addOneBottle,
-  deleteWine,
-  drinkOneBottle,
-  getSignedPhotoUrls,
-  getWine,
-  restoreToStock,
-  setFavorite,
-} from '../lib/wineRepository';
+import { addOneBottle, deleteWine, drinkOneBottle, getSignedPhotoUrls, getWine } from '../lib/wineRepository';
+import { useWineActions } from '../hooks/useWineActions';
 import { WINE_TYPE_LABELS, splitCommaList, type Wine } from '../types';
 import { StarRating } from '../components/StarRating';
 import { LoadingSpinner } from '../components/LoadingSpinner';
@@ -63,15 +56,16 @@ export function WineDetailPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
+  const { toggleFavorite: toggleFavoriteAction, toggleConsumed: toggleConsumedAction } = useWineActions({
+    applyUpdate: (wineId, updater) => setWine((w) => (w && w.id === wineId ? updater(w) : w)),
+    rollback: (_wineId, previous) => setWine(previous),
+    showToast,
+    onError: (msg) => setQuantityError(msg),
+  });
+
   async function handleToggleFavorite() {
     if (!wine) return;
-    const nextValue = !wine.is_favorite;
-    setWine({ ...wine, is_favorite: nextValue });
-    try {
-      await setFavorite(wine.id, nextValue);
-    } catch {
-      setWine((w) => (w ? { ...w, is_favorite: !nextValue } : w));
-    }
+    await toggleFavoriteAction(wine);
   }
 
   // Getrunken-Icon: bei mehreren Flaschen geht nur eine weg (Bestand -1),
@@ -79,32 +73,8 @@ export function WineDetailPage() {
   // Getrunken-Bereich aus antippen holt ihn wieder in den Vorrat zurueck.
   async function handleToggleConsumed() {
     if (!wine) return;
-    const previous = wine;
     setQuantityError(null);
-    if (wine.is_consumed) {
-      setWine({ ...wine, is_consumed: false, quantity: Math.max(1, wine.quantity) });
-      showToast(`"${wine.name}" wieder im Vorrat.`);
-      try {
-        await restoreToStock(wine);
-      } catch (e) {
-        setWine(previous);
-        setQuantityError(e instanceof Error ? e.message : 'Konnte nicht zurueckgeholt werden.');
-      }
-      return;
-    }
-    const nextQuantity = Math.max(0, wine.quantity - 1);
-    setWine({ ...wine, quantity: nextQuantity, is_consumed: nextQuantity === 0 });
-    showToast(
-      nextQuantity === 0
-        ? `"${wine.name}" komplett getrunken - jetzt im Bereich "Getrunken".`
-        : `Eine Flasche gebucht - noch ${nextQuantity} im Vorrat.`,
-    );
-    try {
-      await drinkOneBottle(wine);
-    } catch (e) {
-      setWine(previous);
-      setQuantityError(e instanceof Error ? e.message : 'Konnte nicht gespeichert werden.');
-    }
+    await toggleConsumedAction(wine);
   }
 
   async function handleQuantityChange(delta: number) {

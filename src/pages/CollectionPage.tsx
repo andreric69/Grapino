@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { listWines, getSignedPhotoUrls, setFavorite, drinkOneBottle, restoreToStock } from '../lib/wineRepository';
+import { listWines, getSignedPhotoUrls } from '../lib/wineRepository';
 import { isBackupOverdue } from '../lib/backupReminder';
 import { hasFeedbackBeenSubmitted, isFeedbackDelayOver, markFeedbackSubmitted } from '../lib/feedbackReminder';
+import { useWineActions } from '../hooks/useWineActions';
 import { WINE_TYPE_LABELS, splitCommaList, type SortOption, type Wine } from '../types';
 import { WineCard } from '../components/WineCard';
 import { SearchBar } from '../components/SearchBar';
@@ -217,49 +218,12 @@ export function CollectionPage() {
   );
   const bottleCount = useMemo(() => tabWines.reduce((sum, w) => sum + w.quantity, 0), [tabWines]);
 
-  async function handleToggleFavorite(wine: Wine) {
-    const nextValue = !wine.is_favorite;
-    // Optimistisch aktualisieren - fuehlt sich sofort an, bei Fehler wird zurueckgesetzt.
-    setWines((ws) => ws.map((w) => (w.id === wine.id ? { ...w, is_favorite: nextValue } : w)));
-    try {
-      await setFavorite(wine.id, nextValue);
-    } catch {
-      setWines((ws) => ws.map((w) => (w.id === wine.id ? { ...w, is_favorite: !nextValue } : w)));
-    }
-  }
-
-  // Antippen des Getrunken-Icons: bei mehreren Flaschen geht nur eine weg
-  // (Bestand -1, Wein bleibt im Vorrat). Erst bei der letzten Flasche wandert
-  // der Wein in den "Getrunken"-Bereich. Vom Getrunken-Bereich aus antippen
-  // holt den Wein wieder in den Vorrat zurueck (mind. 1 Flasche).
-  async function handleToggleConsumed(wine: Wine) {
-    const previous = wine;
-    if (wine.is_consumed) {
-      const restored = { ...wine, is_consumed: false, quantity: Math.max(1, wine.quantity) };
-      setWines((ws) => ws.map((w) => (w.id === wine.id ? restored : w)));
-      showToast(`"${wine.name}" wieder im Vorrat.`);
-      try {
-        await restoreToStock(wine);
-      } catch {
-        setWines((ws) => ws.map((w) => (w.id === wine.id ? previous : w)));
-      }
-      return;
-    }
-
-    const nextQuantity = Math.max(0, wine.quantity - 1);
-    const updated = { ...wine, quantity: nextQuantity, is_consumed: nextQuantity === 0 };
-    setWines((ws) => ws.map((w) => (w.id === wine.id ? updated : w)));
-    showToast(
-      nextQuantity === 0
-        ? `"${wine.name}" komplett getrunken - jetzt im Bereich "Getrunken".`
-        : `Eine Flasche "${wine.name}" gebucht - noch ${nextQuantity} im Vorrat.`,
-    );
-    try {
-      await drinkOneBottle(wine);
-    } catch {
-      setWines((ws) => ws.map((w) => (w.id === wine.id ? previous : w)));
-    }
-  }
+  const { toggleFavorite: handleToggleFavorite, toggleConsumed: handleToggleConsumed } = useWineActions({
+    applyUpdate: (wineId, updater) =>
+      setWines((ws) => ws.map((w) => (w.id === wineId ? updater(w) : w))),
+    rollback: (wineId, previous) => setWines((ws) => ws.map((w) => (w.id === wineId ? previous : w))),
+    showToast,
+  });
 
   return (
     <div className="app-screen">
