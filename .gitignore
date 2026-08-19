@@ -1,0 +1,30 @@
+node_modules
+dist
+dist-ssr
+*.local
+.tsbuild
+*.tsbuildinfo
+
+# Von Tesseract.js bei Node-basierten Testlaeufen im Projektordner abgelegt
+*.traineddata
+
+.env
+.env.local
+.env.*.local
+
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+.vercel
+.env*
+
+# Lokale, maschinenspezifische Session-/Launch-Konfiguration (Claude Code) -
+# enthaelt absolute Pfade und Laufzeit-Status, nicht fuer Versionskontrolle.
+.claude/

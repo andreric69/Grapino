@@ -1,0 +1,7590 @@
+[
+ {
+  "region": "AOC Blaye",
+  "country": "France"
+ },
+ {
+  "region": "AOC Carinena",
+  "country": "Spain"
+ },
+ {
+  "region": "AOC Cariñena",
+  "country": "Spain"
+ },
+ {
+  "region": "AOC Coteaux De Pierrevert",
+  "country": "France"
+ },
+ {
+  "region": "AOC Cotes de Blaye",
+  "country": "France"
+ },
+ {
+  "region": "AOC Côtes de Blaye",
+  "country": "France"
+ },
+ {
+  "region": "AOC Fitou",
+  "country": "France"
+ },
+ {
+  "region": "AOC Listrac-Medoc",
+  "country": "France"
+ },
+ {
+  "region": "AOC Listrac-Médoc",
+  "country": "France"
+ },
+ {
+  "region": "AOC Medoc",
+  "country": "France"
+ },
+ {
+  "region": "AOC Moulis en Medoc",
+  "country": "France"
+ },
+ {
+  "region": "AOC Moulis en Médoc",
+  "country": "France"
+ },
+ {
+  "region": "AOC Moulis en-Medoc",
+  "country": "France"
+ },
+ {
+  "region": "AOC Moulis en-Médoc",
+  "country": "France"
+ },
+ {
+  "region": "AOC Moulis-en-Medoc",
+  "country": "France"
+ },
+ {
+  "region": "AOC Moulis-en-Médoc",
+  "country": "France"
+ },
+ {
+  "region": "AOC Médoc",
+  "country": "France"
+ },
+ {
+  "region": "AOC Pernand-Vergelesses",
+  "country": "France"
+ },
+ {
+  "region": "AOC Pessac Leognan",
+  "country": "France"
+ },
+ {
+  "region": "AOC Pessac Léognan",
+  "country": "France"
+ },
+ {
+  "region": "AOC Pessac-Leognan",
+  "country": "France"
+ },
+ {
+  "region": "AOC Pessac-Léognan",
+  "country": "France"
+ },
+ {
+  "region": "AOC Pommard",
+  "country": "France"
+ },
+ {
+  "region": "AOC Puligny-Montrachet",
+  "country": "France"
+ },
+ {
+  "region": "AOC Saint-Estephe",
+  "country": "France"
+ },
+ {
+  "region": "AOC Saint-Estèphe",
+  "country": "France"
+ },
+ {
+  "region": "AOC Saint-Véran",
+  "country": "France"
+ },
+ {
+  "region": "AOC Viré-Clessé",
+  "country": "France"
+ },
+ {
+  "region": "AOC Volnay",
+  "country": "France"
+ },
+ {
+  "region": "AOC de Beaune",
+  "country": "France"
+ },
+ {
+  "region": "AOC des Graves",
+  "country": "France"
+ },
+ {
+  "region": "AOC meursault",
+  "country": "France"
+ },
+ {
+  "region": "AOP Somontano",
+  "country": "Spain"
+ },
+ {
+  "region": "AVA Augusta",
+  "country": "United States"
+ },
+ {
+  "region": "AVA Napa Valley",
+  "country": "United States"
+ },
+ {
+  "region": "Abona",
+  "country": "Spain"
+ },
+ {
+  "region": "Aconcagua",
+  "country": "Chile"
+ },
+ {
+  "region": "Adelaida District AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Adelaide Plains",
+  "country": "Australia"
+ },
+ {
+  "region": "Adelaide Plains wine region",
+  "country": "Australia"
+ },
+ {
+  "region": "Adimari",
+  "country": "Italy"
+ },
+ {
+  "region": "Ahlgren Vineyard",
+  "country": "United States"
+ },
+ {
+  "region": "Ahr",
+  "country": "Germany"
+ },
+ {
+  "region": "Ahr (region vinicola)",
+  "country": "Germany"
+ },
+ {
+  "region": "Ahr (region vinícola)",
+  "country": "Germany"
+ },
+ {
+  "region": "Ahr (región vinicola)",
+  "country": "Germany"
+ },
+ {
+  "region": "Ahr (región vinícola)",
+  "country": "Germany"
+ },
+ {
+  "region": "Ahr region vinicola",
+  "country": "Germany"
+ },
+ {
+  "region": "Ahrwein",
+  "country": "Germany"
+ },
+ {
+  "region": "Albese",
+  "country": "Italy"
+ },
+ {
+  "region": "Albury Organic Vineyard",
+  "country": "United Kingdom"
+ },
+ {
+  "region": "Alcamo",
+  "country": "Italy"
+ },
+ {
+  "region": "Alentejano VR",
+  "country": "Portugal"
+ },
+ {
+  "region": "Alentejo",
+  "country": "Portugal"
+ },
+ {
+  "region": "Alentejo (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Alentejo (Wein)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Alentejo DOC",
+  "country": "Portugal"
+ },
+ {
+  "region": "Alentejo wine",
+  "country": "Portugal"
+ },
+ {
+  "region": "Alexander Valley",
+  "country": "United States"
+ },
+ {
+  "region": "Alexander Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Alexandria Lakes AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Alisos Canyon AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Almeirim (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Alpine Valleys",
+  "country": "Australia"
+ },
+ {
+  "region": "Alsace",
+  "country": "France"
+ },
+ {
+  "region": "Alsace wine region",
+  "country": "France"
+ },
+ {
+  "region": "Alsazia",
+  "country": "France"
+ },
+ {
+  "region": "Alta Mesa AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Alta Val d'Agri",
+  "country": "Italy"
+ },
+ {
+  "region": "Alto Adige",
+  "country": "Italy"
+ },
+ {
+  "region": "Alto Douro",
+  "country": "Portugal"
+ },
+ {
+  "region": "Alto Douro Vinhateiro",
+  "country": "Portugal"
+ },
+ {
+  "region": "Alto Douro Wine Region",
+  "country": "Portugal"
+ },
+ {
+  "region": "Alto Duero",
+  "country": "Portugal"
+ },
+ {
+  "region": "Alto Piemonte",
+  "country": "Italy"
+ },
+ {
+  "region": "Altus AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Ancient Lakes of the Columbia Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Ancre Hill Estates",
+  "country": "United Kingdom"
+ },
+ {
+  "region": "Ancre Hill Vineyard",
+  "country": "United Kingdom"
+ },
+ {
+  "region": "Anderson Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Anjou",
+  "country": "France"
+ },
+ {
+  "region": "Anjou (Weinbaugebiet)",
+  "country": "France"
+ },
+ {
+  "region": "Anjou Gamay",
+  "country": "France"
+ },
+ {
+  "region": "Anjou Gamay (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Anjou mousseux",
+  "country": "France"
+ },
+ {
+  "region": "Anjou pétillant",
+  "country": "France"
+ },
+ {
+  "region": "Anjou wine",
+  "country": "France"
+ },
+ {
+  "region": "Anjou-gamay (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Antelope Valley of the California High Desert AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Aoc saint emilion",
+  "country": "France"
+ },
+ {
+  "region": "Apostelhoeve",
+  "country": "Netherlands"
+ },
+ {
+  "region": "Appalachian High Country AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Applegate Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Arbois",
+  "country": "France"
+ },
+ {
+  "region": "Arbois Pupillin",
+  "country": "France"
+ },
+ {
+  "region": "Arbois mousseux",
+  "country": "France"
+ },
+ {
+  "region": "Arbois mousseux Pupillin",
+  "country": "France"
+ },
+ {
+  "region": "Arborea",
+  "country": "Italy"
+ },
+ {
+  "region": "Arilds vingård",
+  "country": "Sweden"
+ },
+ {
+  "region": "Arkansas Mountain AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Armagnac-Tenareze",
+  "country": "France"
+ },
+ {
+  "region": "Armagnac-Ténarèze",
+  "country": "France"
+ },
+ {
+  "region": "Arroyo Grande Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Arroyo Seco AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Arruda (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Arruda DOC",
+  "country": "Portugal"
+ },
+ {
+  "region": "Arrábida (IPR)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Assisi",
+  "country": "Italy"
+ },
+ {
+  "region": "Astigiano",
+  "country": "Italy"
+ },
+ {
+  "region": "Atina",
+  "country": "Italy"
+ },
+ {
+  "region": "Atlas Peak",
+  "country": "United States"
+ },
+ {
+  "region": "Atlas Peak AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Auckland",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Auckland GI",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Auckland wine",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Auckland wine region",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Augusta",
+  "country": "United States"
+ },
+ {
+  "region": "Augusta AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Außenanlagen der Wettinshöhe",
+  "country": "Germany"
+ },
+ {
+  "region": "Aversa",
+  "country": "Italy"
+ },
+ {
+  "region": "Badacsony",
+  "country": "Hungary"
+ },
+ {
+  "region": "Badacsony (vignoble)",
+  "country": "Hungary"
+ },
+ {
+  "region": "Badacsony (vino)",
+  "country": "Hungary"
+ },
+ {
+  "region": "Badacsony wine",
+  "country": "Hungary"
+ },
+ {
+  "region": "Baden",
+  "country": "Germany"
+ },
+ {
+  "region": "Badischer Wein",
+  "country": "Germany"
+ },
+ {
+  "region": "Bairrada (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Balatonboglar",
+  "country": "Hungary"
+ },
+ {
+  "region": "Balatonboglár",
+  "country": "Hungary"
+ },
+ {
+  "region": "Balatonboglár (vignoble)",
+  "country": "Hungary"
+ },
+ {
+  "region": "Balatonboglár Wine Region",
+  "country": "Hungary"
+ },
+ {
+  "region": "Balatonfüred-Csopak",
+  "country": "Hungary"
+ },
+ {
+  "region": "Balatonfüred-Csopak Wine Region",
+  "country": "Hungary"
+ },
+ {
+  "region": "Ballard Canyon AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Banquette de Rutherford",
+  "country": "United States"
+ },
+ {
+  "region": "Barbagia",
+  "country": "Italy"
+ },
+ {
+  "region": "Barbaresco",
+  "country": "Italy"
+ },
+ {
+  "region": "Bardolino",
+  "country": "Italy"
+ },
+ {
+  "region": "Barletta",
+  "country": "Italy"
+ },
+ {
+  "region": "Barolo",
+  "country": "Italy"
+ },
+ {
+  "region": "Barossa Valley",
+  "country": "Australia"
+ },
+ {
+  "region": "Barsac",
+  "country": "France"
+ },
+ {
+  "region": "Bas-Armagnac",
+  "country": "France"
+ },
+ {
+  "region": "Bat Shlomo vineyards",
+  "country": "Israel"
+ },
+ {
+  "region": "Battifarano",
+  "country": "Italy"
+ },
+ {
+  "region": "Bearn AOC",
+  "country": "France"
+ },
+ {
+  "region": "Beaujolais vineyard",
+  "country": "France"
+ },
+ {
+  "region": "Beaune",
+  "country": "France"
+ },
+ {
+  "region": "Beaune wine",
+  "country": "France"
+ },
+ {
+  "region": "Beira Interior (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Beira interior (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Beiras (VR)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Bell Mountain AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Ben Lomond Mountain AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Benmore Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Bennett Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Bercy vineyard",
+  "country": "France"
+ },
+ {
+  "region": "Bereich Burg Cochem",
+  "country": "Germany"
+ },
+ {
+  "region": "Bereich Siebengebirge",
+  "country": "Germany"
+ },
+ {
+  "region": "Bergland",
+  "country": "Austria"
+ },
+ {
+  "region": "Beyerskloof Wine Estate",
+  "country": "South Africa"
+ },
+ {
+  "region": "Biddenden Vineyards",
+  "country": "United Kingdom"
+ },
+ {
+  "region": "Bierzo",
+  "country": "Spain"
+ },
+ {
+  "region": "Bierzo DOP",
+  "country": "Spain"
+ },
+ {
+  "region": "Biferno",
+  "country": "Italy"
+ },
+ {
+  "region": "Big Valley District-Lake County AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Biscoitos (IPR)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Biscoitos (vino)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Bivongi",
+  "country": "Italy"
+ },
+ {
+  "region": "Bivongi DOC",
+  "country": "Italy"
+ },
+ {
+  "region": "Bizeljsko-Sremič Weinanbaugebiet",
+  "country": "Slovenia"
+ },
+ {
+  "region": "Bizeljsko-Sremič Weinbaugebiet",
+  "country": "Slovenia"
+ },
+ {
+  "region": "Bizeljsko-Sremič Weingebiet",
+  "country": "Slovenia"
+ },
+ {
+  "region": "Bizeljsko-Sremič Wine District",
+  "country": "Slovenia"
+ },
+ {
+  "region": "Blaye",
+  "country": "France"
+ },
+ {
+  "region": "Blaye-côtes-de-bordeaux",
+  "country": "France"
+ },
+ {
+  "region": "Bodegas Launa",
+  "country": "Spain"
+ },
+ {
+  "region": "Bolgheri",
+  "country": "Italy"
+ },
+ {
+  "region": "Bonnezeaux",
+  "country": "France"
+ },
+ {
+  "region": "Bonnezeaux (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Borba (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Bordeaux",
+  "country": "France"
+ },
+ {
+  "region": "Bordeaux wine region",
+  "country": "France"
+ },
+ {
+  "region": "Bordeauxwein",
+  "country": "France"
+ },
+ {
+  "region": "Bordelais",
+  "country": "France"
+ },
+ {
+  "region": "Borden Ranch AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Boschendal",
+  "country": "South Africa"
+ },
+ {
+  "region": "Botobolar Vineyard",
+  "country": "Australia"
+ },
+ {
+  "region": "Bourg",
+  "country": "France"
+ },
+ {
+  "region": "Bourgogne",
+  "country": "France"
+ },
+ {
+  "region": "Bourgogne hautes-côtes-de-beaune",
+  "country": "France"
+ },
+ {
+  "region": "Bourgogne hautes-côtes-de-beaune (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Breaky Bottom vineyard",
+  "country": "United Kingdom"
+ },
+ {
+  "region": "Breedekloof",
+  "country": "South Africa"
+ },
+ {
+  "region": "Breedekloof wine district",
+  "country": "South Africa"
+ },
+ {
+  "region": "Breganze",
+  "country": "Italy"
+ },
+ {
+  "region": "Bride Valley Vineyard",
+  "country": "United Kingdom"
+ },
+ {
+  "region": "Bridge Pa",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Bridge Pa Triangle",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Brindisi",
+  "country": "Italy"
+ },
+ {
+  "region": "Brunello di Montalcino",
+  "country": "Italy"
+ },
+ {
+  "region": "Buitenverwachting",
+  "country": "South Africa"
+ },
+ {
+  "region": "Burdeos",
+  "country": "France"
+ },
+ {
+  "region": "Burgberg",
+  "country": "Germany"
+ },
+ {
+  "region": "Burgberg (Olewig)",
+  "country": "Germany"
+ },
+ {
+  "region": "Burgeois",
+  "country": "France"
+ },
+ {
+  "region": "Burgund",
+  "country": "France"
+ },
+ {
+  "region": "Burgundy",
+  "country": "France"
+ },
+ {
+  "region": "Burgundy wine region",
+  "country": "France"
+ },
+ {
+  "region": "Béarn",
+  "country": "France"
+ },
+ {
+  "region": "Béarn (Weinbaugebiet)",
+  "country": "France"
+ },
+ {
+  "region": "Béarn AOC",
+  "country": "France"
+ },
+ {
+  "region": "Böddiger Berg",
+  "country": "Germany"
+ },
+ {
+  "region": "Cabernet d'anjou (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Cachapoal Valley",
+  "country": "Chile"
+ },
+ {
+  "region": "Cadillac",
+  "country": "France"
+ },
+ {
+  "region": "Cadillac AOC",
+  "country": "France"
+ },
+ {
+  "region": "Calatayud",
+  "country": "Spain"
+ },
+ {
+  "region": "Calatayud (Weinbaugebiet)",
+  "country": "Spain"
+ },
+ {
+  "region": "Calatayud AOP",
+  "country": "Spain"
+ },
+ {
+  "region": "Calatayud D.O.",
+  "country": "Spain"
+ },
+ {
+  "region": "Calatayud DO",
+  "country": "Spain"
+ },
+ {
+  "region": "Calatayud PDO",
+  "country": "Spain"
+ },
+ {
+  "region": "Calatayud denominación de origen",
+  "country": "Spain"
+ },
+ {
+  "region": "California Shenandoah Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "California wine",
+  "country": "United States"
+ },
+ {
+  "region": "California wines",
+  "country": "United States"
+ },
+ {
+  "region": "Californian wines",
+  "country": "United States"
+ },
+ {
+  "region": "Calistoga AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Campi Flegrei",
+  "country": "Italy"
+ },
+ {
+  "region": "Campidano",
+  "country": "Italy"
+ },
+ {
+  "region": "Campo Rotaliano",
+  "country": "Italy"
+ },
+ {
+  "region": "Campo de Borja (DO)",
+  "country": "Spain"
+ },
+ {
+  "region": "Campo de Borja (vino)",
+  "country": "Spain"
+ },
+ {
+  "region": "Canavese",
+  "country": "Italy"
+ },
+ {
+  "region": "Canberra District",
+  "country": "Australia"
+ },
+ {
+  "region": "Canberra District wine region",
+  "country": "Australia"
+ },
+ {
+  "region": "Canelli",
+  "country": "Italy"
+ },
+ {
+  "region": "Canon-Fronsac",
+  "country": "France"
+ },
+ {
+  "region": "Cantina dei Siriti",
+  "country": "Italy"
+ },
+ {
+  "region": "Cantine Taverna",
+  "country": "Italy"
+ },
+ {
+  "region": "Capay Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Cape Agulhas",
+  "country": "South Africa"
+ },
+ {
+  "region": "Cape May Peninsula AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Cape Point",
+  "country": "South Africa"
+ },
+ {
+  "region": "Capite de vigne de Verbant",
+  "country": "Switzerland"
+ },
+ {
+  "region": "Capite sur Verbant",
+  "country": "Switzerland"
+ },
+ {
+  "region": "Capo Milazzo",
+  "country": "Italy"
+ },
+ {
+  "region": "Capri",
+  "country": "Italy"
+ },
+ {
+  "region": "Carinena",
+  "country": "Spain"
+ },
+ {
+  "region": "Carinena DO",
+  "country": "Spain"
+ },
+ {
+  "region": "Carinena Designation of Origin",
+  "country": "Spain"
+ },
+ {
+  "region": "Cariñena",
+  "country": "Spain"
+ },
+ {
+  "region": "Cariñena DO",
+  "country": "Spain"
+ },
+ {
+  "region": "Carmel Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Carmignano",
+  "country": "Italy"
+ },
+ {
+  "region": "Carneros AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Carnuntum",
+  "country": "Austria"
+ },
+ {
+  "region": "Carso",
+  "country": "Italy"
+ },
+ {
+  "region": "Cartaxo (IPR)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Caserta",
+  "country": "Italy"
+ },
+ {
+  "region": "Castel del Monte",
+  "country": "Italy"
+ },
+ {
+  "region": "Castelo Rodrigo (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Castilla y Leon",
+  "country": "Spain"
+ },
+ {
+  "region": "Castilla y Leon,Vino de la Tierra",
+  "country": "Spain"
+ },
+ {
+  "region": "Castilla y León",
+  "country": "Spain"
+ },
+ {
+  "region": "Catoctin AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Caves Bailly Lapierre",
+  "country": "France"
+ },
+ {
+  "region": "Cayuga Lake AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Central Coast AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Central Delaware Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Central Otago",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Central Otago GI",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Central Otago wine region",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Cerasuolo di Vittoria",
+  "country": "Italy"
+ },
+ {
+  "region": "Cerons",
+  "country": "France"
+ },
+ {
+  "region": "Cerveteri",
+  "country": "Italy"
+ },
+ {
+  "region": "CerzaSerra Wine",
+  "country": "Italy"
+ },
+ {
+  "region": "Cesanese",
+  "country": "Italy"
+ },
+ {
+  "region": "Chablis",
+  "country": "France"
+ },
+ {
+  "region": "Chalk Hill AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Chalone AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Chambertin",
+  "country": "France"
+ },
+ {
+  "region": "Champagne",
+  "country": "France"
+ },
+ {
+  "region": "Champagne region",
+  "country": "France"
+ },
+ {
+  "region": "Chamusca (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Chanturgue",
+  "country": "France"
+ },
+ {
+  "region": "Chappellet Vineyard",
+  "country": "United States"
+ },
+ {
+  "region": "Chappellet Winery",
+  "country": "United States"
+ },
+ {
+  "region": "Chassagne-Montrachet wine",
+  "country": "France"
+ },
+ {
+  "region": "Chassagne-montrachet",
+  "country": "France"
+ },
+ {
+  "region": "Chateau Ksara",
+  "country": "Lebanon"
+ },
+ {
+  "region": "Chateau La Tour Figeac",
+  "country": "France"
+ },
+ {
+  "region": "Chateau des Laurets",
+  "country": "France"
+ },
+ {
+  "region": "Chateau-Chalon (vin)",
+  "country": "France"
+ },
+ {
+  "region": "Chateau-Chalon AOC",
+  "country": "France"
+ },
+ {
+  "region": "Chateauneuf-du-Pape",
+  "country": "France"
+ },
+ {
+  "region": "Chehalem Mountains AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Chenas",
+  "country": "France"
+ },
+ {
+  "region": "Chenas (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Chianti",
+  "country": "Italy"
+ },
+ {
+  "region": "Chianti Classico",
+  "country": "Italy"
+ },
+ {
+  "region": "Chiles Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Chiroubles",
+  "country": "France"
+ },
+ {
+  "region": "Chiusa Sotto La Timpa Di Lippolis Laura",
+  "country": "Italy"
+ },
+ {
+  "region": "Churchill Vineyards",
+  "country": "United States"
+ },
+ {
+  "region": "Château Bernadotte",
+  "country": "France"
+ },
+ {
+  "region": "Château Ksara",
+  "country": "Lebanon"
+ },
+ {
+  "region": "Château La Tour Figeac",
+  "country": "France"
+ },
+ {
+  "region": "Château La Tour-Figeac",
+  "country": "France"
+ },
+ {
+  "region": "Château Tourril",
+  "country": "France"
+ },
+ {
+  "region": "Château des Laurets",
+  "country": "France"
+ },
+ {
+  "region": "Château-Chalon",
+  "country": "France"
+ },
+ {
+  "region": "Château-Chalon (Vin)",
+  "country": "France"
+ },
+ {
+  "region": "Château-Chalon AOC",
+  "country": "France"
+ },
+ {
+  "region": "Château-chalon",
+  "country": "France"
+ },
+ {
+  "region": "Châteaumeillant",
+  "country": "France"
+ },
+ {
+  "region": "Châteaumeillant (AOVDQS)",
+  "country": "France"
+ },
+ {
+  "region": "Châteaumeillant (Weinbaugebiet)",
+  "country": "France"
+ },
+ {
+  "region": "Chénas",
+  "country": "France"
+ },
+ {
+  "region": "Chénas (Weinbaugebiet)",
+  "country": "France"
+ },
+ {
+  "region": "Cienega Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Cilaos (IGP)",
+  "country": "France"
+ },
+ {
+  "region": "Cilaos (vino)",
+  "country": "France"
+ },
+ {
+  "region": "Cilento",
+  "country": "Italy"
+ },
+ {
+  "region": "Cinque Terre",
+  "country": "Italy"
+ },
+ {
+  "region": "Circeo",
+  "country": "Italy"
+ },
+ {
+  "region": "Cirò",
+  "country": "Italy"
+ },
+ {
+  "region": "Clare Valley",
+  "country": "Australia"
+ },
+ {
+  "region": "Clare Valley region",
+  "country": "Australia"
+ },
+ {
+  "region": "Clare Valley tourism region",
+  "country": "Australia"
+ },
+ {
+  "region": "Clare Valley wine region",
+  "country": "Australia"
+ },
+ {
+  "region": "Clarksburg AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Clear Lake AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Clements Hills AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Clos Marey-Monge",
+  "country": "France"
+ },
+ {
+  "region": "Clos Morillons",
+  "country": "France"
+ },
+ {
+  "region": "Clos de Belleville",
+  "country": "France"
+ },
+ {
+  "region": "Clos de Bercy",
+  "country": "France"
+ },
+ {
+  "region": "Clos des Morillons",
+  "country": "France"
+ },
+ {
+  "region": "Clos des Zouaves",
+  "country": "Belgium"
+ },
+ {
+  "region": "Clos du Parc de Bercy",
+  "country": "France"
+ },
+ {
+  "region": "Codru",
+  "country": "Moldova"
+ },
+ {
+  "region": "Colchagua Valley",
+  "country": "Chile"
+ },
+ {
+  "region": "Cole Ranch",
+  "country": "United States"
+ },
+ {
+  "region": "Cole Ranch AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Colinas Euganeas",
+  "country": "Italy"
+ },
+ {
+  "region": "Colli Albani",
+  "country": "Italy"
+ },
+ {
+  "region": "Colli Berici",
+  "country": "Italy"
+ },
+ {
+  "region": "Colli Bolognesi",
+  "country": "Italy"
+ },
+ {
+  "region": "Colli Etruschi Viterbesi",
+  "country": "Italy"
+ },
+ {
+  "region": "Colli Euganei",
+  "country": "Italy"
+ },
+ {
+  "region": "Colli Martani",
+  "country": "Italy"
+ },
+ {
+  "region": "Colli Orientali del Friuli",
+  "country": "Italy"
+ },
+ {
+  "region": "Colli Pesaresi",
+  "country": "Italy"
+ },
+ {
+  "region": "Colli Piacentini (vino)",
+  "country": "Italy"
+ },
+ {
+  "region": "Colli Romagna Centrale DOC",
+  "country": "Italy"
+ },
+ {
+  "region": "Colli Tortonesi",
+  "country": "Italy"
+ },
+ {
+  "region": "Colli del Trasimeno",
+  "country": "Italy"
+ },
+ {
+  "region": "Colli di Conegliano",
+  "country": "Italy"
+ },
+ {
+  "region": "Colli di Faenza",
+  "country": "Italy"
+ },
+ {
+  "region": "Colli di Parma",
+  "country": "Italy"
+ },
+ {
+  "region": "Colli di Rimini",
+  "country": "Italy"
+ },
+ {
+  "region": "Colli piacentini",
+  "country": "Italy"
+ },
+ {
+  "region": "Colli piacentini (DOC)",
+  "country": "Italy"
+ },
+ {
+  "region": "Colline Lucchesi",
+  "country": "Italy"
+ },
+ {
+  "region": "Colline Novaresi",
+  "country": "Italy"
+ },
+ {
+  "region": "Colline Teramane",
+  "country": "Italy"
+ },
+ {
+  "region": "Colline del Prosecco di Conegliano e Valdobbiadene",
+  "country": "Italy"
+ },
+ {
+  "region": "Colline di Conegliano",
+  "country": "Italy"
+ },
+ {
+  "region": "Colline di Conegliano e Valdobbiadene",
+  "country": "Italy"
+ },
+ {
+  "region": "Colline di Gorizia",
+  "country": "Slovenia"
+ },
+ {
+  "region": "Collines du Prosecco de Conegliano et Valdobbiadene",
+  "country": "Italy"
+ },
+ {
+  "region": "Collio Goriziano",
+  "country": "Slovenia"
+ },
+ {
+  "region": "Columbia Gorge",
+  "country": "United States"
+ },
+ {
+  "region": "Columbia Gorge AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Columbia Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Conca vitata del Ronco",
+  "country": "Italy"
+ },
+ {
+  "region": "Conca vitata di Nevissano",
+  "country": "Italy"
+ },
+ {
+  "region": "Conegliano Valdobbiadene",
+  "country": "Italy"
+ },
+ {
+  "region": "Confrérie des Vignerons de la Chanteflûte",
+  "country": "France"
+ },
+ {
+  "region": "Contea di Sclafani",
+  "country": "Italy"
+ },
+ {
+  "region": "Contessa Entellina",
+  "country": "Italy"
+ },
+ {
+  "region": "Contra Costa AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Controguerra",
+  "country": "Italy"
+ },
+ {
+  "region": "Coombsville AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Corban Estate Arts Centre",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Corban's Winery and Mt Lebanon Vineyards",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Corban’s Winery and Mt Lebanon Vineyards (Former)",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Cordillera Mendocino",
+  "country": "United States"
+ },
+ {
+  "region": "Corsica wine",
+  "country": "France"
+ },
+ {
+  "region": "Coruche (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Costa Norte",
+  "country": "United States"
+ },
+ {
+  "region": "Costa d'Amalfi",
+  "country": "Italy"
+ },
+ {
+  "region": "Costa dei vigneti",
+  "country": "Italy"
+ },
+ {
+  "region": "Cosumnes River AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Cote Chalonnaise",
+  "country": "France"
+ },
+ {
+  "region": "Cote Roannaise",
+  "country": "France"
+ },
+ {
+  "region": "Cote de Beaune",
+  "country": "France"
+ },
+ {
+  "region": "Cote de Nuits",
+  "country": "France"
+ },
+ {
+  "region": "Coteaux de Pierrevert",
+  "country": "France"
+ },
+ {
+  "region": "Coteaux de Pierrevert AOC",
+  "country": "France"
+ },
+ {
+  "region": "Coteaux du Giennois",
+  "country": "France"
+ },
+ {
+  "region": "Coteaux du Languedoc",
+  "country": "France"
+ },
+ {
+  "region": "Coteaux du Loir",
+  "country": "France"
+ },
+ {
+  "region": "Coteaux du Lyonnais",
+  "country": "France"
+ },
+ {
+  "region": "Coteaux piacentins (DOC)",
+  "country": "Italy"
+ },
+ {
+  "region": "Coteaux-de-pierrevert",
+  "country": "France"
+ },
+ {
+  "region": "Coteaux-de-pierrevert (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Coteaux-du-giennois",
+  "country": "France"
+ },
+ {
+  "region": "Coteaux-du-giennois (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Coteaux-du-languedoc",
+  "country": "France"
+ },
+ {
+  "region": "Coteaux-du-languedoc (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Coteaux-du-loir",
+  "country": "France"
+ },
+ {
+  "region": "Coteaux-du-loir (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Coteaux-du-lyonnais",
+  "country": "France"
+ },
+ {
+  "region": "Coteaux-du-lyonnais (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Cotes de Blaye AOC",
+  "country": "France"
+ },
+ {
+  "region": "Cotes de Bourg",
+  "country": "France"
+ },
+ {
+  "region": "Cotes de Provence",
+  "country": "France"
+ },
+ {
+  "region": "Cotes de-Bourg",
+  "country": "France"
+ },
+ {
+  "region": "Cotes du Forez",
+  "country": "France"
+ },
+ {
+  "region": "Cotes du Jura wine",
+  "country": "France"
+ },
+ {
+  "region": "Cotes du Luberon",
+  "country": "France"
+ },
+ {
+  "region": "Cotes du Luberon AOC",
+  "country": "France"
+ },
+ {
+  "region": "Cotes du Rhone",
+  "country": "France"
+ },
+ {
+  "region": "Cotes du Rhone AOC",
+  "country": "France"
+ },
+ {
+  "region": "Cotes du Rhone Villages AOC",
+  "country": "France"
+ },
+ {
+  "region": "Cotes du Roussillon AOC",
+  "country": "France"
+ },
+ {
+  "region": "Cotes du Ventoux AOC",
+  "country": "France"
+ },
+ {
+  "region": "Cotes du Vivarais AOC",
+  "country": "France"
+ },
+ {
+  "region": "Cotes-de-Bourg",
+  "country": "France"
+ },
+ {
+  "region": "Cotes-de-saint-mont",
+  "country": "France"
+ },
+ {
+  "region": "Cotes-de-thongue",
+  "country": "France"
+ },
+ {
+  "region": "Cova da Beira (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Covelo AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Cowra",
+  "country": "Australia"
+ },
+ {
+  "region": "Cowra wine region",
+  "country": "Australia"
+ },
+ {
+  "region": "Creston District AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Cru saint veran",
+  "country": "France"
+ },
+ {
+  "region": "Cruet",
+  "country": "France"
+ },
+ {
+  "region": "Cruet AOC",
+  "country": "France"
+ },
+ {
+  "region": "Crystal Springs of Napa Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Cucamonga Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Cumberland Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Custoza",
+  "country": "Italy"
+ },
+ {
+  "region": "Côte",
+  "country": "Switzerland"
+ },
+ {
+  "region": "Côte Chalonnaise",
+  "country": "France"
+ },
+ {
+  "region": "Côte Roannaise",
+  "country": "France"
+ },
+ {
+  "region": "Côte de Beaune",
+  "country": "France"
+ },
+ {
+  "region": "Côte de Nuits",
+  "country": "France"
+ },
+ {
+  "region": "Côte roannaise (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Côte-roannaise",
+  "country": "France"
+ },
+ {
+  "region": "Côteaux du Giennois",
+  "country": "France"
+ },
+ {
+  "region": "Côteaux du Languedoc",
+  "country": "France"
+ },
+ {
+  "region": "Côtes Du Luberon",
+  "country": "France"
+ },
+ {
+  "region": "Côtes d'Auvergne",
+  "country": "France"
+ },
+ {
+  "region": "Côtes de Blaye",
+  "country": "France"
+ },
+ {
+  "region": "Côtes de Blaye AOC",
+  "country": "France"
+ },
+ {
+  "region": "Côtes de Bourg",
+  "country": "France"
+ },
+ {
+  "region": "Côtes de Millau",
+  "country": "France"
+ },
+ {
+  "region": "Côtes de Nuits",
+  "country": "France"
+ },
+ {
+  "region": "Côtes de Provence",
+  "country": "France"
+ },
+ {
+  "region": "Côtes de Saint-Mont",
+  "country": "France"
+ },
+ {
+  "region": "Côtes de Sambre et Meuse",
+  "country": "Belgium"
+ },
+ {
+  "region": "Côtes de-Bourg",
+  "country": "France"
+ },
+ {
+  "region": "Côtes du Forez",
+  "country": "France"
+ },
+ {
+  "region": "Côtes du Forez aovdqs",
+  "country": "France"
+ },
+ {
+  "region": "Côtes du Frontonnais",
+  "country": "France"
+ },
+ {
+  "region": "Côtes du Jura",
+  "country": "France"
+ },
+ {
+  "region": "Côtes du Jura (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Côtes du Jura wine",
+  "country": "France"
+ },
+ {
+  "region": "Côtes du Luberon AOC",
+  "country": "France"
+ },
+ {
+  "region": "Côtes du Lubéron",
+  "country": "France"
+ },
+ {
+  "region": "Côtes du Rhône",
+  "country": "France"
+ },
+ {
+  "region": "Côtes du Rhône AOC",
+  "country": "France"
+ },
+ {
+  "region": "Côtes du Rhône Villages",
+  "country": "France"
+ },
+ {
+  "region": "Côtes du Roussillon",
+  "country": "France"
+ },
+ {
+  "region": "Côtes du Roussillon AOC",
+  "country": "France"
+ },
+ {
+  "region": "Côtes du Ventoux",
+  "country": "France"
+ },
+ {
+  "region": "Côtes du Ventoux AOC",
+  "country": "France"
+ },
+ {
+  "region": "Côtes du Vivarais",
+  "country": "France"
+ },
+ {
+  "region": "Côtes du Vivarais AOC",
+  "country": "France"
+ },
+ {
+  "region": "Côtes d’Auvergne",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-d'auvergne",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-d'auvergne (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-d'auvergne (AOVDQS)",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-de-Bourg",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-de-blaye",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-de-blaye (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-de-bourg (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-de-millau",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-de-provence",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-de-provence (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-de-provence Notre-Dame-des-Anges",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-de-saint-mont",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-de-saint-mont (AOVDQS)",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-de-thongue",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-du-Frontonnais",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-du-Rhône",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-du-Rhône (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-du-Rhône Villages AOC",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-du-Roussillon (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-du-forez",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-du-forez (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-du-jura",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-du-jura (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-du-luberon",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-du-rhône 'AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-du-roussillon",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-du-vivarais",
+  "country": "France"
+ },
+ {
+  "region": "Côtes-du-vivarais (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "D O Bierzo",
+  "country": "Spain"
+ },
+ {
+  "region": "D O La Rioja",
+  "country": "Spain"
+ },
+ {
+  "region": "D O Rioja",
+  "country": "Spain"
+ },
+ {
+  "region": "D.O. Calatayud",
+  "country": "Spain"
+ },
+ {
+  "region": "D.O. Campo de Borja",
+  "country": "Spain"
+ },
+ {
+  "region": "D.O. Cariñena",
+  "country": "Spain"
+ },
+ {
+  "region": "D.O. Somontano",
+  "country": "Spain"
+ },
+ {
+  "region": "D.O.C. Rioja",
+  "country": "Spain"
+ },
+ {
+  "region": "D.O.P. Calatayud",
+  "country": "Spain"
+ },
+ {
+  "region": "DO Bierzo",
+  "country": "Spain"
+ },
+ {
+  "region": "DO Pla de Bages",
+  "country": "Spain"
+ },
+ {
+  "region": "DOC Tejo",
+  "country": "Portugal"
+ },
+ {
+  "region": "Dahlonega Plateau AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Dao",
+  "country": "Portugal"
+ },
+ {
+  "region": "Daunia",
+  "country": "Italy"
+ },
+ {
+  "region": "Delia Nivolelli",
+  "country": "Italy"
+ },
+ {
+  "region": "Denbies Wine Estate",
+  "country": "United Kingdom"
+ },
+ {
+  "region": "Denominacion de Origen Abona",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominacion de Origen Bierzo",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominacion de Origen Calificada Priorato",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominacion de Origen Calificada Rioja",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominacion de Origen Campo de Borja",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominacion de Origen Carinena",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominacion de Origen Cariñena",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominacion de Origen Pla de Bages",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominacion de Origen Priorato",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominacion de Origen Rioja",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominacion de Origen Somontano",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominacion de Origen Valle de La Orotava",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominacion de origen Pla de Bagés",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominacion de origen Plà de Bages",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominacion de origen Plà de Bagés",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominación de Origen Abona",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominación de Origen Bierzo",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominación de Origen Calificada Priorato",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominación de Origen Calificada Rioja",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominación de Origen Campo de Borja",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominación de Origen Carinena",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominación de Origen Cariñena",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominación de Origen Pla de Bages",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominación de Origen Somontano",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominación de Origen Valle de La Orotava",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominación de origen Pla de Bagés",
+  "country": "Spain"
+ },
+ {
+  "region": "Denominación de origen Plà de Bages",
+  "country": "Spain"
+ },
+ {
+  "region": "Designation of Origin",
+  "country": "Spain"
+ },
+ {
+  "region": "Designation of Origin Carinena",
+  "country": "Spain"
+ },
+ {
+  "region": "Designation of Origin Pla de Bages",
+  "country": "Spain"
+ },
+ {
+  "region": "Designation of Origin Pla de Bages (Wine Region)",
+  "country": "Spain"
+ },
+ {
+  "region": "Dezaley",
+  "country": "Switzerland"
+ },
+ {
+  "region": "Diablo Grande AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Diamond Mountain District AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Die Hügel des Prosecco zwischen Conegliano und Valdobbiadene",
+  "country": "Italy"
+ },
+ {
+  "region": "Die Weintraubenlandschaften von Piedmont: Langhe-Roero und Monferrato",
+  "country": "Italy"
+ },
+ {
+  "region": "Dingac",
+  "country": "Croatia"
+ },
+ {
+  "region": "Dingač",
+  "country": "Croatia"
+ },
+ {
+  "region": "Dinglingers Weinberg",
+  "country": "Germany"
+ },
+ {
+  "region": "Distelhäuser Kreuzberg",
+  "country": "Germany"
+ },
+ {
+  "region": "Dittwarer Ölkuchen",
+  "country": "Germany"
+ },
+ {
+  "region": "Do Tejo (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Dolenjska Weinanbaugebiet",
+  "country": "Slovenia"
+ },
+ {
+  "region": "Dolenjska Wine District",
+  "country": "Slovenia"
+ },
+ {
+  "region": "Domaine Henri Milan",
+  "country": "France"
+ },
+ {
+  "region": "Domaine Montrose",
+  "country": "France"
+ },
+ {
+  "region": "Domaine de Laborie",
+  "country": "France"
+ },
+ {
+  "region": "Don Valley",
+  "country": "Russia"
+ },
+ {
+  "region": "Donnici",
+  "country": "Italy"
+ },
+ {
+  "region": "Dos Rios AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Douro",
+  "country": "Portugal"
+ },
+ {
+  "region": "Douro (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Douro DOC",
+  "country": "Portugal"
+ },
+ {
+  "region": "Douro Wine Region",
+  "country": "Portugal"
+ },
+ {
+  "region": "Dry Creek Valley",
+  "country": "United States"
+ },
+ {
+  "region": "Dry Creek Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Dundee Hills AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Dunnigan Hills AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Durell Vineyard",
+  "country": "United States"
+ },
+ {
+  "region": "Dézaley",
+  "country": "Switzerland"
+ },
+ {
+  "region": "Dézaley grand cru",
+  "country": "Switzerland"
+ },
+ {
+  "region": "Eagle Foothills AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Eagle Peak Mendocino County AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Eastern Connecticut Highlands AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Eckartsberg",
+  "country": "Germany"
+ },
+ {
+  "region": "Eckartsberg (mountain)",
+  "country": "Germany"
+ },
+ {
+  "region": "Edelberg",
+  "country": "Germany"
+ },
+ {
+  "region": "Edelberg (Tauberbischofsheim)",
+  "country": "Germany"
+ },
+ {
+  "region": "Eden Valley",
+  "country": "Australia"
+ },
+ {
+  "region": "Eden Valley wine region",
+  "country": "Australia"
+ },
+ {
+  "region": "Edna Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Eger",
+  "country": "Hungary"
+ },
+ {
+  "region": "Eger (vignoble)",
+  "country": "Hungary"
+ },
+ {
+  "region": "Ehemals Weinberg",
+  "country": "Germany"
+ },
+ {
+  "region": "El Dorado AVA",
+  "country": "United States"
+ },
+ {
+  "region": "El Marco de Jerez",
+  "country": "Spain"
+ },
+ {
+  "region": "Elba",
+  "country": "Italy"
+ },
+ {
+  "region": "Elkton Oregon American Viticultural Area",
+  "country": "United States"
+ },
+ {
+  "region": "Eloro",
+  "country": "Italy"
+ },
+ {
+  "region": "Elsass",
+  "country": "France"
+ },
+ {
+  "region": "Entre deux mers",
+  "country": "France"
+ },
+ {
+  "region": "Entre-Deux-Mers",
+  "country": "France"
+ },
+ {
+  "region": "Eola-Amity Hills AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Eremitorio de Villacreces",
+  "country": "Spain"
+ },
+ {
+  "region": "Erice",
+  "country": "Italy"
+ },
+ {
+  "region": "Escondido Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Est Est Est",
+  "country": "Italy"
+ },
+ {
+  "region": "Etna",
+  "country": "Italy"
+ },
+ {
+  "region": "Etyek",
+  "country": "Hungary"
+ },
+ {
+  "region": "Euganean Hills",
+  "country": "Italy"
+ },
+ {
+  "region": "Euganeische Hügel",
+  "country": "Italy"
+ },
+ {
+  "region": "Fair Play AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Falciglia",
+  "country": "Italy"
+ },
+ {
+  "region": "Falerno del Massico",
+  "country": "Italy"
+ },
+ {
+  "region": "Fennville AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Fiddletown AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Finca Villacreces",
+  "country": "Spain"
+ },
+ {
+  "region": "Finger Lakes AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Fitou",
+  "country": "France"
+ },
+ {
+  "region": "Fitou AOC",
+  "country": "France"
+ },
+ {
+  "region": "Fort Ross-Seaview AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Forteto della Luja",
+  "country": "Italy"
+ },
+ {
+  "region": "Fountaingrove AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Fountaingrove District AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Francia Corta",
+  "country": "Italy"
+ },
+ {
+  "region": "Franciacorta",
+  "country": "Italy"
+ },
+ {
+  "region": "Franconia",
+  "country": "Germany"
+ },
+ {
+  "region": "Franken",
+  "country": "Germany"
+ },
+ {
+  "region": "Frankenwein",
+  "country": "Germany"
+ },
+ {
+  "region": "Frascati",
+  "country": "Italy"
+ },
+ {
+  "region": "Fredericksburg in the Texas Hill Country AVA",
+  "country": "United States"
+ },
+ {
+  "region": "French viticultural region",
+  "country": "France"
+ },
+ {
+  "region": "Friuli Annia",
+  "country": "Italy"
+ },
+ {
+  "region": "Friuli Annia DOC",
+  "country": "Italy"
+ },
+ {
+  "region": "Friuli Aquileia",
+  "country": "Italy"
+ },
+ {
+  "region": "Friuli Grave",
+  "country": "Italy"
+ },
+ {
+  "region": "Friuli Isonzo",
+  "country": "Italy"
+ },
+ {
+  "region": "Friuli Latisana",
+  "country": "Italy"
+ },
+ {
+  "region": "Fronsac",
+  "country": "France"
+ },
+ {
+  "region": "Fronton",
+  "country": "France"
+ },
+ {
+  "region": "Fronton AOC",
+  "country": "France"
+ },
+ {
+  "region": "Fürstlicher Weinberg",
+  "country": "Germany"
+ },
+ {
+  "region": "Gallura",
+  "country": "Italy"
+ },
+ {
+  "region": "Gambellara",
+  "country": "Italy"
+ },
+ {
+  "region": "Garda Bresciano",
+  "country": "Italy"
+ },
+ {
+  "region": "Garden",
+  "country": "Italy"
+ },
+ {
+  "region": "Gavi",
+  "country": "Italy"
+ },
+ {
+  "region": "Gerlachsheimer Herrenberg",
+  "country": "Germany"
+ },
+ {
+  "region": "Gerätehaus Goldener Wagen",
+  "country": "Germany"
+ },
+ {
+  "region": "Ghemme-Gattinara",
+  "country": "Italy"
+ },
+ {
+  "region": "Gimblett Gravels",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Gioia del Colle",
+  "country": "Italy"
+ },
+ {
+  "region": "Giurisdizione di Saint-Émilion",
+  "country": "France"
+ },
+ {
+  "region": "Goldener Wagen",
+  "country": "Germany"
+ },
+ {
+  "region": "Golfo del Tigullio",
+  "country": "Italy"
+ },
+ {
+  "region": "Gorizia Hills",
+  "country": "Slovenia"
+ },
+ {
+  "region": "Graciosa",
+  "country": "Portugal"
+ },
+ {
+  "region": "Graciosa (IPR)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Graciosa (vino)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Grampians",
+  "country": "Australia"
+ },
+ {
+  "region": "Granada",
+  "country": "Spain"
+ },
+ {
+  "region": "Granada (Weinbaugebiet)",
+  "country": "Spain"
+ },
+ {
+  "region": "Granada (vino)",
+  "country": "Spain"
+ },
+ {
+  "region": "Grand River Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Grand Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Grande Champagne",
+  "country": "France"
+ },
+ {
+  "region": "Granja-Amareleja (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Grape and Wine Region",
+  "country": "Brazil"
+ },
+ {
+  "region": "Graves",
+  "country": "France"
+ },
+ {
+  "region": "Graves AOC",
+  "country": "France"
+ },
+ {
+  "region": "Graves de Bordeaux",
+  "country": "France"
+ },
+ {
+  "region": "Great Southern",
+  "country": "Australia"
+ },
+ {
+  "region": "Greco di Bianco",
+  "country": "Italy"
+ },
+ {
+  "region": "Green Valley of Russian River Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Groote Post Vineyards",
+  "country": "South Africa"
+ },
+ {
+  "region": "Groote Post Winery",
+  "country": "South Africa"
+ },
+ {
+  "region": "Guenoc Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Gundagai",
+  "country": "Australia"
+ },
+ {
+  "region": "Gundagai wine region",
+  "country": "Australia"
+ },
+ {
+  "region": "Gwinllan Llanerch",
+  "country": "Wales"
+ },
+ {
+  "region": "Gwinllan Pant Du",
+  "country": "United Kingdom"
+ },
+ {
+  "region": "Gärtnerhaus Wettinshöhe",
+  "country": "Germany"
+ },
+ {
+  "region": "Hajos-Baja",
+  "country": "Hungary"
+ },
+ {
+  "region": "Hajos-Baja Wine Region",
+  "country": "Hungary"
+ },
+ {
+  "region": "Hajós-Baja",
+  "country": "Hungary"
+ },
+ {
+  "region": "Hajós-Baja Wine Region",
+  "country": "Hungary"
+ },
+ {
+  "region": "Hambledon Wine Estate",
+  "country": "United Kingdom"
+ },
+ {
+  "region": "Hames Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Hantzsch-Villa",
+  "country": "Germany"
+ },
+ {
+  "region": "Happy Canyon of Santa Barbara AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Harvey River Estate",
+  "country": "Australia"
+ },
+ {
+  "region": "Haus Bilz",
+  "country": "Germany"
+ },
+ {
+  "region": "Haus Nitzsche",
+  "country": "Germany"
+ },
+ {
+  "region": "Hautes-Cotes de Beaune",
+  "country": "France"
+ },
+ {
+  "region": "Hautes-Côtes de Beaune",
+  "country": "France"
+ },
+ {
+  "region": "Haw River Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Hawke's Bay",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Hawke's Bay wine region",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Heathcote",
+  "country": "Australia"
+ },
+ {
+  "region": "Heathcote wine region",
+  "country": "Australia"
+ },
+ {
+  "region": "Hegyalja",
+  "country": "Hungary"
+ },
+ {
+  "region": "Helderberg",
+  "country": "South Africa"
+ },
+ {
+  "region": "Hemel-en-Aarde Valley",
+  "country": "South Africa"
+ },
+ {
+  "region": "Hermann AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Herrenberg",
+  "country": "Germany"
+ },
+ {
+  "region": "Herrenberg (Gerlachsheim)",
+  "country": "Germany"
+ },
+ {
+  "region": "Hessische Bergstraße",
+  "country": "Germany"
+ },
+ {
+  "region": "Heuvelland",
+  "country": "Belgium"
+ },
+ {
+  "region": "High Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Hilltops",
+  "country": "Australia"
+ },
+ {
+  "region": "Hilltops wine region",
+  "country": "Australia"
+ },
+ {
+  "region": "Hoher Weinberg",
+  "country": "Germany"
+ },
+ {
+  "region": "Honeoye",
+  "country": "United States"
+ },
+ {
+  "region": "Honeoye, NY",
+  "country": "United States"
+ },
+ {
+  "region": "Honeoye, New York",
+  "country": "United States"
+ },
+ {
+  "region": "Horse Heaven Hills",
+  "country": "United States"
+ },
+ {
+  "region": "Horse Heaven Hills AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Howell Mountain AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Hudson River Region AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Hunter Valley",
+  "country": "Australia"
+ },
+ {
+  "region": "Indiana Uplands AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Irpinia",
+  "country": "Italy"
+ },
+ {
+  "region": "Ischia",
+  "country": "Italy"
+ },
+ {
+  "region": "Isle St. George AVA",
+  "country": "United States"
+ },
+ {
+  "region": "J.C. Weinberger Winery",
+  "country": "United States"
+ },
+ {
+  "region": "Jaderná vinice",
+  "country": "Czech Republic"
+ },
+ {
+  "region": "Jahant AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Jasnieres",
+  "country": "France"
+ },
+ {
+  "region": "Jasnières",
+  "country": "France"
+ },
+ {
+  "region": "Jasnières (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Jerez",
+  "country": "Spain"
+ },
+ {
+  "region": "Jerez-Xérès-Sherry",
+  "country": "Spain"
+ },
+ {
+  "region": "Jura",
+  "country": "France"
+ },
+ {
+  "region": "Jurisdiction of Saint-Emilion",
+  "country": "France"
+ },
+ {
+  "region": "Jägerberg",
+  "country": "Germany"
+ },
+ {
+  "region": "Jägerberg (Radebeul)",
+  "country": "Germany"
+ },
+ {
+  "region": "Kamptal",
+  "country": "Austria"
+ },
+ {
+  "region": "Kanawha River Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Karm Bou Yahya",
+  "country": "Lebanon"
+ },
+ {
+  "region": "Kelsey Bench-Lake County AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Kendall Jackson",
+  "country": "United States"
+ },
+ {
+  "region": "Kendall-Jackson",
+  "country": "United States"
+ },
+ {
+  "region": "Kendall-Jackson Vineyard Estates",
+  "country": "United States"
+ },
+ {
+  "region": "Kir-Yianni Amyntaio",
+  "country": "Greece"
+ },
+ {
+  "region": "Kir-Yianni Estate,Ktima Kir-Yianni Yianakohori,Kir-Yianni Naoussa",
+  "country": "Greece"
+ },
+ {
+  "region": "Kir-Yianni Yianakohori",
+  "country": "Greece"
+ },
+ {
+  "region": "Klein Constantia",
+  "country": "South Africa"
+ },
+ {
+  "region": "Knights Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Koelenhof",
+  "country": "South Africa"
+ },
+ {
+  "region": "Koshu Valley",
+  "country": "Japan"
+ },
+ {
+  "region": "Ksara",
+  "country": "Lebanon"
+ },
+ {
+  "region": "Ktima Kir-Yianni Amyntaio",
+  "country": "Greece"
+ },
+ {
+  "region": "Kunság",
+  "country": "Hungary"
+ },
+ {
+  "region": "Kunság (vignoble)",
+  "country": "Hungary"
+ },
+ {
+  "region": "Kunság Wine Region",
+  "country": "Hungary"
+ },
+ {
+  "region": "Königlicher Weinberg am Klausberg",
+  "country": "Germany"
+ },
+ {
+  "region": "Köppelberg",
+  "country": "Germany"
+ },
+ {
+  "region": "Künstliche Ruine (Jägerberg, Radebeul)",
+  "country": "Germany"
+ },
+ {
+  "region": "La Casaccia vineyards",
+  "country": "Italy"
+ },
+ {
+  "region": "La Clape",
+  "country": "France"
+ },
+ {
+  "region": "La Cote",
+  "country": "Switzerland"
+ },
+ {
+  "region": "La Côte",
+  "country": "Switzerland"
+ },
+ {
+  "region": "La Côte AOC",
+  "country": "Switzerland"
+ },
+ {
+  "region": "La Côte vaudoise",
+  "country": "Switzerland"
+ },
+ {
+  "region": "La Geria",
+  "country": "Spain"
+ },
+ {
+  "region": "La Gería",
+  "country": "Spain"
+ },
+ {
+  "region": "La Stella",
+  "country": "Canada"
+ },
+ {
+  "region": "La Tache AOC",
+  "country": "France"
+ },
+ {
+  "region": "La Tâche",
+  "country": "France"
+ },
+ {
+  "region": "La Tâche AOC",
+  "country": "France"
+ },
+ {
+  "region": "La viticoltura a Nierstein",
+  "country": "Germany"
+ },
+ {
+  "region": "La viticulture à Nierstein",
+  "country": "Germany"
+ },
+ {
+  "region": "Laborie Estate",
+  "country": "South Africa"
+ },
+ {
+  "region": "Lacrima di Morro d'Alba",
+  "country": "Italy"
+ },
+ {
+  "region": "Lafoes",
+  "country": "Portugal"
+ },
+ {
+  "region": "Lafões",
+  "country": "Portugal"
+ },
+ {
+  "region": "Lafões (IPR)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Lago di Corbara",
+  "country": "Italy"
+ },
+ {
+  "region": "Lake Chelan AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Lake Erie AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Lake Michigan Shore AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Lake Wisconsin AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Lalande de Pomerol",
+  "country": "France"
+ },
+ {
+  "region": "Lalande-de-Pomerol",
+  "country": "France"
+ },
+ {
+  "region": "Lalande-de-Pomerol (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Lalande-de-Pomerol AOC",
+  "country": "France"
+ },
+ {
+  "region": "Lambrusco di Sorbara",
+  "country": "Italy"
+ },
+ {
+  "region": "Lamezia",
+  "country": "Italy"
+ },
+ {
+  "region": "Lamorinda AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Lancaster Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Landscape of the Pico Island Vineyard Culture",
+  "country": "Portugal"
+ },
+ {
+  "region": "Landscape of the Pico Island Vineyard Culture – buffer zone",
+  "country": "Portugal"
+ },
+ {
+  "region": "Landscape of the Pico Island Vineyard Culture – part I",
+  "country": "Portugal"
+ },
+ {
+  "region": "Landscape of the Pico Island Vineyard Culture – part II",
+  "country": "Portugal"
+ },
+ {
+  "region": "Langhe",
+  "country": "Italy"
+ },
+ {
+  "region": "Langhorne Creek",
+  "country": "Australia"
+ },
+ {
+  "region": "Langhorne Creek wine region",
+  "country": "Australia"
+ },
+ {
+  "region": "Languedoc",
+  "country": "France"
+ },
+ {
+  "region": "Languedoc (Weinbaugebiet)",
+  "country": "France"
+ },
+ {
+  "region": "Languedoc-Roussillon wine",
+  "country": "France"
+ },
+ {
+  "region": "Launa",
+  "country": "Spain"
+ },
+ {
+  "region": "Laurelwood District AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Lautenbacher Berg",
+  "country": "Germany"
+ },
+ {
+  "region": "Le Colline del Prosecco di Conegliano e Valdobbiadene",
+  "country": "Italy"
+ },
+ {
+  "region": "Leelanau Peninsula AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Lehigh Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Leona Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Leonardo da Vinci's vineyard",
+  "country": "Italy"
+ },
+ {
+  "region": "Leonardo's vineyard",
+  "country": "Italy"
+ },
+ {
+  "region": "Les Collines du Prosecco de Conegliano et Valdobbiadene",
+  "country": "Italy"
+ },
+ {
+  "region": "Lessini",
+  "country": "Italy"
+ },
+ {
+  "region": "Lewis-Clark Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Lime Kiln Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Linganore AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Lipari",
+  "country": "Italy"
+ },
+ {
+  "region": "Lison-Pramaggiore",
+  "country": "Italy"
+ },
+ {
+  "region": "Listrac",
+  "country": "France"
+ },
+ {
+  "region": "Listrac Médoc (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Listrac-Médoc (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Listrac-medoc AOC",
+  "country": "France"
+ },
+ {
+  "region": "Listrac-médoc",
+  "country": "France"
+ },
+ {
+  "region": "Listrac-médoc AOC",
+  "country": "France"
+ },
+ {
+  "region": "Livermore Valley",
+  "country": "United States"
+ },
+ {
+  "region": "Livermore Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Llanerch Vineyard",
+  "country": "Wales"
+ },
+ {
+  "region": "Llanerch Vinyard",
+  "country": "Wales"
+ },
+ {
+  "region": "Locorotondo",
+  "country": "Italy"
+ },
+ {
+  "region": "Locride",
+  "country": "Italy"
+ },
+ {
+  "region": "Lodi AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Loess Hills District AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Loire",
+  "country": "France"
+ },
+ {
+  "region": "Loire Valley",
+  "country": "France"
+ },
+ {
+  "region": "Long Island AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Loramie Creek AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Los Carneros AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Los Olivos District AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Lourinhã",
+  "country": "Portugal"
+ },
+ {
+  "region": "Lourinhã (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Lourinhã (vino)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Lower Long Tom AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Luberon",
+  "country": "France"
+ },
+ {
+  "region": "Lucera",
+  "country": "Italy"
+ },
+ {
+  "region": "Lucien Arkas Vineyards",
+  "country": "Turkey"
+ },
+ {
+  "region": "Lugana",
+  "country": "Italy"
+ },
+ {
+  "region": "Lussac-Saint-Emilion",
+  "country": "France"
+ },
+ {
+  "region": "Lussac-Saint-Émilion",
+  "country": "France"
+ },
+ {
+  "region": "Madera AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Maipo Valley",
+  "country": "Chile"
+ },
+ {
+  "region": "Malibu Coast AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Malibu-Newton Canyon AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Malokarpatská vinohradnícka oblasť",
+  "country": "Slovakia"
+ },
+ {
+  "region": "Mamertino",
+  "country": "Italy"
+ },
+ {
+  "region": "Mandrolisai",
+  "country": "Italy"
+ },
+ {
+  "region": "Manduria",
+  "country": "Italy"
+ },
+ {
+  "region": "Mantovano",
+  "country": "Italy"
+ },
+ {
+  "region": "Marco de Jerez",
+  "country": "Spain"
+ },
+ {
+  "region": "Maremma",
+  "country": "Italy"
+ },
+ {
+  "region": "Margaret River",
+  "country": "Australia"
+ },
+ {
+  "region": "Margaux",
+  "country": "France"
+ },
+ {
+  "region": "Margaux AOC",
+  "country": "France"
+ },
+ {
+  "region": "Marino",
+  "country": "Italy"
+ },
+ {
+  "region": "Markgrafschaft Montferrat",
+  "country": "Italy"
+ },
+ {
+  "region": "Marlborough",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Marlborough wine region",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Marmilla",
+  "country": "Italy"
+ },
+ {
+  "region": "Marsala",
+  "country": "Italy"
+ },
+ {
+  "region": "Martha's Vineyard AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Martha’s Vineyard AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Matera",
+  "country": "Italy"
+ },
+ {
+  "region": "Matetic Vineyards",
+  "country": "Chile"
+ },
+ {
+  "region": "Mathildenhaus",
+  "country": "Germany"
+ },
+ {
+  "region": "Maury",
+  "country": "France"
+ },
+ {
+  "region": "Maury AOC",
+  "country": "France"
+ },
+ {
+  "region": "McDowell Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "McLaren Vale",
+  "country": "Australia"
+ },
+ {
+  "region": "McMinnville AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Medoc AOC",
+  "country": "France"
+ },
+ {
+  "region": "Melfese",
+  "country": "Italy"
+ },
+ {
+  "region": "Melissa",
+  "country": "Italy"
+ },
+ {
+  "region": "Mendocino",
+  "country": "United States"
+ },
+ {
+  "region": "Mendocino AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Mendocino County wine",
+  "country": "United States"
+ },
+ {
+  "region": "Mendocino Ridge AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Mendoza",
+  "country": "Argentina"
+ },
+ {
+  "region": "Menfi",
+  "country": "Italy"
+ },
+ {
+  "region": "Meranese",
+  "country": "Italy"
+ },
+ {
+  "region": "Mergelland",
+  "country": "Netherlands"
+ },
+ {
+  "region": "Merritt Island",
+  "country": "United States"
+ },
+ {
+  "region": "Merritt Island AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Mesilla Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Meursault",
+  "country": "France"
+ },
+ {
+  "region": "Meursault wine",
+  "country": "France"
+ },
+ {
+  "region": "Middle Rio Grande Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Middleburg AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Mimbres Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Minervois-La-Livinière",
+  "country": "France"
+ },
+ {
+  "region": "Minervois-la livinière",
+  "country": "France"
+ },
+ {
+  "region": "Mississippi Delta AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Missouri Rhineland",
+  "country": "United States"
+ },
+ {
+  "region": "Mittelburgenland",
+  "country": "Austria"
+ },
+ {
+  "region": "Mittelrhein",
+  "country": "Germany"
+ },
+ {
+  "region": "Miyakoen",
+  "country": "Japan"
+ },
+ {
+  "region": "Modena",
+  "country": "Italy"
+ },
+ {
+  "region": "Mokelumne River AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Monferrato",
+  "country": "Italy"
+ },
+ {
+  "region": "Monreale",
+  "country": "Italy"
+ },
+ {
+  "region": "Montagne de Reims",
+  "country": "France"
+ },
+ {
+  "region": "Montalcino",
+  "country": "Italy"
+ },
+ {
+  "region": "Monte Vista and Diamond Mountain Vineyard",
+  "country": "United States"
+ },
+ {
+  "region": "Montecarlo",
+  "country": "Italy"
+ },
+ {
+  "region": "Montefalco",
+  "country": "Italy"
+ },
+ {
+  "region": "Montello e Colli Asolani",
+  "country": "Italy"
+ },
+ {
+  "region": "Montepulciano",
+  "country": "Italy"
+ },
+ {
+  "region": "Montepulciano d'Abruzzo",
+  "country": "Italy"
+ },
+ {
+  "region": "Monterey AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Montferrat",
+  "country": "Italy"
+ },
+ {
+  "region": "Monthelie (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Monthelie wine",
+  "country": "France"
+ },
+ {
+  "region": "Monthélie",
+  "country": "France"
+ },
+ {
+  "region": "Monthélie wine",
+  "country": "France"
+ },
+ {
+  "region": "Monti del Chianti",
+  "country": "Italy"
+ },
+ {
+  "region": "Monticello AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Monticello Vineyards and Winery",
+  "country": "United States"
+ },
+ {
+  "region": "Monts Euganéens",
+  "country": "Italy"
+ },
+ {
+  "region": "Montsant",
+  "country": "Spain"
+ },
+ {
+  "region": "Moon Mountain District Sonoma County",
+  "country": "United States"
+ },
+ {
+  "region": "Morellino di Scansano",
+  "country": "Italy"
+ },
+ {
+  "region": "Mosel",
+  "country": "Germany"
+ },
+ {
+  "region": "Mosel Saar Ruwer",
+  "country": "Germany"
+ },
+ {
+  "region": "Mosel Saar-Ruwer",
+  "country": "Germany"
+ },
+ {
+  "region": "Mosel area",
+  "country": "Germany"
+ },
+ {
+  "region": "Mosel-Saar-Ruwer",
+  "country": "Germany"
+ },
+ {
+  "region": "Moselgebiet",
+  "country": "Germany"
+ },
+ {
+  "region": "Mosella",
+  "country": "Germany"
+ },
+ {
+  "region": "Moselle (région viticole)",
+  "country": "Germany"
+ },
+ {
+  "region": "Moselwein",
+  "country": "Germany"
+ },
+ {
+  "region": "Moulis",
+  "country": "France"
+ },
+ {
+  "region": "Moulis en Medoc",
+  "country": "France"
+ },
+ {
+  "region": "Moulis en Médoc",
+  "country": "France"
+ },
+ {
+  "region": "Moulis en Médoc (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Moulis en-Medoc",
+  "country": "France"
+ },
+ {
+  "region": "Moulis en-Médoc",
+  "country": "France"
+ },
+ {
+  "region": "Moulis-en-Medoc",
+  "country": "France"
+ },
+ {
+  "region": "Moulis-en-Médoc",
+  "country": "France"
+ },
+ {
+  "region": "Moulis-en-Médoc (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Mount Benson",
+  "country": "Australia"
+ },
+ {
+  "region": "Mount Gambier",
+  "country": "Australia"
+ },
+ {
+  "region": "Mount Gambier wine region",
+  "country": "Australia"
+ },
+ {
+  "region": "Mount Harlan AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Mount Pisgah, Polk County, Oregon AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Mount Veeder AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Moura (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Mt. Pleasant Winery Historic District",
+  "country": "United States"
+ },
+ {
+  "region": "Mt. Veeder AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Mudbrick Restaurant",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Mudbrick Vineyard and Restaurant",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Mudgee",
+  "country": "Australia"
+ },
+ {
+  "region": "Mudgee wine region",
+  "country": "Australia"
+ },
+ {
+  "region": "Muldersvlei bowl",
+  "country": "South Africa"
+ },
+ {
+  "region": "Muldersvlei district",
+  "country": "South Africa"
+ },
+ {
+  "region": "Murray Darling",
+  "country": "Australia"
+ },
+ {
+  "region": "Muscat de Samos",
+  "country": "Greece"
+ },
+ {
+  "region": "Mutěnice",
+  "country": "Czech Republic"
+ },
+ {
+  "region": "Mutěnice Wine Region",
+  "country": "Czech Republic"
+ },
+ {
+  "region": "Mátra",
+  "country": "Hungary"
+ },
+ {
+  "region": "Mátra (vino)",
+  "country": "Hungary"
+ },
+ {
+  "region": "Mátra Wine Region",
+  "country": "Hungary"
+ },
+ {
+  "region": "Mätressenschlösschen",
+  "country": "Germany"
+ },
+ {
+  "region": "Médoc",
+  "country": "France"
+ },
+ {
+  "region": "Médoc AOC",
+  "country": "France"
+ },
+ {
+  "region": "NYETIMBER VINEYARD LTD",
+  "country": "France"
+ },
+ {
+  "region": "Naches Heights AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Nagambie Lakes",
+  "country": "Australia"
+ },
+ {
+  "region": "Nagambie Lakes wine region",
+  "country": "Australia"
+ },
+ {
+  "region": "Nahe",
+  "country": "Germany"
+ },
+ {
+  "region": "Nahe (Weinbaugebiet)",
+  "country": "Germany"
+ },
+ {
+  "region": "Naoussa",
+  "country": "Greece"
+ },
+ {
+  "region": "Napa Valley",
+  "country": "United States"
+ },
+ {
+  "region": "Napa Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Nashoba Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Nemea",
+  "country": "Greece"
+ },
+ {
+  "region": "Nemea (vin)",
+  "country": "Greece"
+ },
+ {
+  "region": "Neu-Eberstein",
+  "country": "Germany"
+ },
+ {
+  "region": "Neue Weinberg am Hopfengarten",
+  "country": "Germany"
+ },
+ {
+  "region": "Neueberstein",
+  "country": "Germany"
+ },
+ {
+  "region": "Neufriedstein",
+  "country": "Germany"
+ },
+ {
+  "region": "New Mexico wine",
+  "country": "United States"
+ },
+ {
+  "region": "New Zealand wine",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Niagara Escarpment AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Nichelini Family Winery",
+  "country": "United States"
+ },
+ {
+  "region": "Nichelini Winery",
+  "country": "United States"
+ },
+ {
+  "region": "Niederlausitz",
+  "country": "Germany"
+ },
+ {
+  "region": "Nine Lakes of East Tennessee AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Nistreană",
+  "country": "Moldova"
+ },
+ {
+  "region": "Nitra",
+  "country": "Slovakia"
+ },
+ {
+  "region": "Nitra wine region",
+  "country": "Slovakia"
+ },
+ {
+  "region": "North Canterbury",
+  "country": "New Zealand"
+ },
+ {
+  "region": "North Canterbury wine region",
+  "country": "New Zealand"
+ },
+ {
+  "region": "North Coast AVA",
+  "country": "United States"
+ },
+ {
+  "region": "North East Victoria",
+  "country": "Australia"
+ },
+ {
+  "region": "North Fork of Long Island AVA",
+  "country": "United States"
+ },
+ {
+  "region": "North Fork of Roanoke AVA",
+  "country": "United States"
+ },
+ {
+  "region": "North Yuba AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Northern Neck George Washington Birthplace",
+  "country": "United States"
+ },
+ {
+  "region": "Northern Neck George Washington Birthplace AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Northern Sonoma AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Noto",
+  "country": "Italy"
+ },
+ {
+  "region": "Nuits-Saint-Georges wine",
+  "country": "France"
+ },
+ {
+  "region": "Nuits-saint-georges",
+  "country": "France"
+ },
+ {
+  "region": "Nuoro",
+  "country": "Italy"
+ },
+ {
+  "region": "Nurra",
+  "country": "Italy"
+ },
+ {
+  "region": "Nyetimber Vineyard",
+  "country": "France"
+ },
+ {
+  "region": "Oak Knoll District of Napa Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Oakville AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Odenwälder Weininsel",
+  "country": "Germany"
+ },
+ {
+  "region": "Offida",
+  "country": "Italy"
+ },
+ {
+  "region": "Ogliastra",
+  "country": "Italy"
+ },
+ {
+  "region": "Ohio River Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Ojai Mountain",
+  "country": "California"
+ },
+ {
+  "region": "Ojai Mountain Estate",
+  "country": "California"
+ },
+ {
+  "region": "Ojai Mountain Vineyard",
+  "country": "California"
+ },
+ {
+  "region": "Ojai Mountain Winery",
+  "country": "California"
+ },
+ {
+  "region": "Ojai Mountain Wines",
+  "country": "California"
+ },
+ {
+  "region": "Okanagan Valley",
+  "country": "Canada"
+ },
+ {
+  "region": "Old Mission Peninsula AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Old Vine",
+  "country": "Slovenia"
+ },
+ {
+  "region": "Old Walls Vineyard",
+  "country": "United Kingdom"
+ },
+ {
+  "region": "Oltradige",
+  "country": "Italy"
+ },
+ {
+  "region": "Oltrepò Pavese",
+  "country": "Italy"
+ },
+ {
+  "region": "Orange",
+  "country": "Australia"
+ },
+ {
+  "region": "Orange wine region",
+  "country": "Australia"
+ },
+ {
+  "region": "Oristanese",
+  "country": "Italy"
+ },
+ {
+  "region": "Orotava Valley",
+  "country": "Spain"
+ },
+ {
+  "region": "Orotava-Tal",
+  "country": "Spain"
+ },
+ {
+  "region": "Ortona",
+  "country": "Italy"
+ },
+ {
+  "region": "Orvieto",
+  "country": "Italy"
+ },
+ {
+  "region": "Outer Coastal Plain AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Ozark Highlands AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Ozark Mountain AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Pacheco Pass AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Padthaway",
+  "country": "Australia"
+ },
+ {
+  "region": "Padthaway wine region",
+  "country": "Australia"
+ },
+ {
+  "region": "Paesaggio della cultura vinicola dell'isola Pico",
+  "country": "Portugal"
+ },
+ {
+  "region": "Paesaggio vitivinicolo del Piemonte: Langhe-Roero e Monferrato",
+  "country": "Italy"
+ },
+ {
+  "region": "Paicines AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Paisaje viticola de la isla del Pico",
+  "country": "Portugal"
+ },
+ {
+  "region": "Paisaje vitícola de la isla del Pico",
+  "country": "Portugal"
+ },
+ {
+  "region": "Paisaje vitícola del Piamonte: Langhe-Roero y Monferrato",
+  "country": "Italy"
+ },
+ {
+  "region": "Palatinado",
+  "country": "Germany"
+ },
+ {
+  "region": "Palatinate",
+  "country": "Germany"
+ },
+ {
+  "region": "Pant Du vineyard",
+  "country": "United Kingdom"
+ },
+ {
+  "region": "Pantelleria",
+  "country": "Italy"
+ },
+ {
+  "region": "Parteolla",
+  "country": "Italy"
+ },
+ {
+  "region": "Paso Robles AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Paso Robles Estrella District AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Paso Robles Geneseo District AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Paso Robles Highlands District AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Paso Robles Willow Creek District AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Patios de Cafayate",
+  "country": "Argentina"
+ },
+ {
+  "region": "Pauillac",
+  "country": "France"
+ },
+ {
+  "region": "Paulsberg",
+  "country": "Germany"
+ },
+ {
+  "region": "Paulsberg (Lößnitz)",
+  "country": "Germany"
+ },
+ {
+  "region": "Paulsberg (Radebeul)",
+  "country": "Germany"
+ },
+ {
+  "region": "Paulsell Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Paysage culturel historique de la région viticole de Tokaj",
+  "country": "Hungary"
+ },
+ {
+  "region": "Paysage viticole de l'île du Pico",
+  "country": "Portugal"
+ },
+ {
+  "region": "Paysage viticole de l’île du Pico – partie I",
+  "country": "Portugal"
+ },
+ {
+  "region": "Paysage viticole de l’île du Pico – partie II",
+  "country": "Portugal"
+ },
+ {
+  "region": "Paysage viticole de l’île du Pico – zone tampon",
+  "country": "Portugal"
+ },
+ {
+  "region": "Paysage viticole du Piémont : Langhe-Roero et Monferrato",
+  "country": "Italy"
+ },
+ {
+  "region": "Paysages et vignobles de Provence",
+  "country": "France"
+ },
+ {
+  "region": "Penisola Sorrentina",
+  "country": "Italy"
+ },
+ {
+  "region": "Pentro d'Isernia",
+  "country": "Italy"
+ },
+ {
+  "region": "Pernand-Vergelesses (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Pernand-Vergelesses wine",
+  "country": "France"
+ },
+ {
+  "region": "Pernand-vergelesses",
+  "country": "France"
+ },
+ {
+  "region": "Pessac Léognan",
+  "country": "France"
+ },
+ {
+  "region": "Pessac leognan",
+  "country": "France"
+ },
+ {
+  "region": "Pessac-Leognan",
+  "country": "France"
+ },
+ {
+  "region": "Pessac-Léognan",
+  "country": "France"
+ },
+ {
+  "region": "Petaluma Gap AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Pfalz",
+  "country": "Germany"
+ },
+ {
+  "region": "Pfarrtöchterheim",
+  "country": "Germany"
+ },
+ {
+  "region": "Piana di Sibari",
+  "country": "Italy"
+ },
+ {
+  "region": "Piave",
+  "country": "Italy"
+ },
+ {
+  "region": "Piccadilly Valley wine sub-region",
+  "country": "Australia"
+ },
+ {
+  "region": "Pico",
+  "country": "Portugal"
+ },
+ {
+  "region": "Pico (IPR)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Pico (vino)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Pierrevert",
+  "country": "France"
+ },
+ {
+  "region": "Pine Mountain-Cloverdale AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Pinerolese",
+  "country": "Italy"
+ },
+ {
+  "region": "Pinhel (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Pirineos",
+  "country": "Australia"
+ },
+ {
+  "region": "Pisoni Vineyards and Winery",
+  "country": "United States"
+ },
+ {
+  "region": "Pitigliano",
+  "country": "Italy"
+ },
+ {
+  "region": "Pla de Bages",
+  "country": "Spain"
+ },
+ {
+  "region": "Pla de Bages Wine Region",
+  "country": "Spain"
+ },
+ {
+  "region": "Planalto Mirandes wine",
+  "country": "Portugal"
+ },
+ {
+  "region": "Planalto Mirandês (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Planargia",
+  "country": "Italy"
+ },
+ {
+  "region": "Pollino",
+  "country": "Italy"
+ },
+ {
+  "region": "Pomerol",
+  "country": "France"
+ },
+ {
+  "region": "Pomerol AOC",
+  "country": "France"
+ },
+ {
+  "region": "Pomino",
+  "country": "Italy"
+ },
+ {
+  "region": "Pommard",
+  "country": "France"
+ },
+ {
+  "region": "Pommard wine",
+  "country": "France"
+ },
+ {
+  "region": "Pompei I.11.10",
+  "country": "Italy"
+ },
+ {
+  "region": "Pompeii I.11.10",
+  "country": "Italy"
+ },
+ {
+  "region": "Pornassio",
+  "country": "Italy"
+ },
+ {
+  "region": "Port Phillip Geographical Indication",
+  "country": "Australia"
+ },
+ {
+  "region": "Port Phillip wine zone",
+  "country": "Australia"
+ },
+ {
+  "region": "Portalegre (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Potter Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Pouilly-Fume",
+  "country": "France"
+ },
+ {
+  "region": "Premieres Cotes de Bordeaux",
+  "country": "France"
+ },
+ {
+  "region": "Premières-côtes-de-Blaye (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Primosten vineyards",
+  "country": "Croatia"
+ },
+ {
+  "region": "Priorat",
+  "country": "Spain"
+ },
+ {
+  "region": "Priorato",
+  "country": "Spain"
+ },
+ {
+  "region": "Promontory",
+  "country": "United States"
+ },
+ {
+  "region": "Prosecco Hills of Conegliano and Valdobbiadene",
+  "country": "Italy"
+ },
+ {
+  "region": "Provence",
+  "country": "France"
+ },
+ {
+  "region": "Puerta del Lobo",
+  "country": "Mexico"
+ },
+ {
+  "region": "Puget Sound AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Puligny-Montrachet wine",
+  "country": "France"
+ },
+ {
+  "region": "Puligny-montrachet",
+  "country": "France"
+ },
+ {
+  "region": "Purcari",
+  "country": "Moldova"
+ },
+ {
+  "region": "Pyrenees",
+  "country": "Australia"
+ },
+ {
+  "region": "Pyrénées-Orientales",
+  "country": "France"
+ },
+ {
+  "region": "Pyrénées-Orientales wine region",
+  "country": "France"
+ },
+ {
+  "region": "Queiles",
+  "country": "Spain"
+ },
+ {
+  "region": "Quincy",
+  "country": "France"
+ },
+ {
+  "region": "Quincy (Weinbaugebiet)",
+  "country": "France"
+ },
+ {
+  "region": "Quincy AOC",
+  "country": "France"
+ },
+ {
+  "region": "Ramandolo",
+  "country": "Italy"
+ },
+ {
+  "region": "Ramona Valley",
+  "country": "United States"
+ },
+ {
+  "region": "Ramona Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Rasteau",
+  "country": "France"
+ },
+ {
+  "region": "Rasteau (vin)",
+  "country": "France"
+ },
+ {
+  "region": "Rasteau AOC",
+  "country": "France"
+ },
+ {
+  "region": "Rattlesnake Hills AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Razet Cheya",
+  "country": "Iraq"
+ },
+ {
+  "region": "Realarico Wines",
+  "country": "Italy"
+ },
+ {
+  "region": "Red Hill Douglas County, Oregon AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Red Hills Lake County",
+  "country": "United States"
+ },
+ {
+  "region": "Red Hills Lake County AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Red Mountain AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Redondo (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Redwood Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Reggiano",
+  "country": "Italy"
+ },
+ {
+  "region": "Region vinicola de Badacsony",
+  "country": "Hungary"
+ },
+ {
+  "region": "Region vinicola de Balatonfured Csopak",
+  "country": "Hungary"
+ },
+ {
+  "region": "Region vinicola de Balatonfured-Csopak",
+  "country": "Hungary"
+ },
+ {
+  "region": "Region vinicola de Balatonfüred Csopak",
+  "country": "Hungary"
+ },
+ {
+  "region": "Region vinicola de Balatonfüred-Csopak",
+  "country": "Hungary"
+ },
+ {
+  "region": "Region vinícola de Badacsony",
+  "country": "Hungary"
+ },
+ {
+  "region": "Region vinícola de Balatonfured Csopak",
+  "country": "Hungary"
+ },
+ {
+  "region": "Region vinícola de Balatonfured-Csopak",
+  "country": "Hungary"
+ },
+ {
+  "region": "Region vinícola de Balatonfüred Csopak",
+  "country": "Hungary"
+ },
+ {
+  "region": "Region vinícola de Balatonfüred-Csopak",
+  "country": "Hungary"
+ },
+ {
+  "region": "Region viticola de Aconcagua",
+  "country": "Chile"
+ },
+ {
+  "region": "Region viticola del Alto Duero",
+  "country": "Portugal"
+ },
+ {
+  "region": "Region viticola del Valle Central",
+  "country": "Chile"
+ },
+ {
+  "region": "Region vitícola del Alto Duero",
+  "country": "Portugal"
+ },
+ {
+  "region": "Regione vinicola dell'Alto Duero",
+  "country": "Portugal"
+ },
+ {
+  "region": "Região Demarcada do Douro (RDD)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Região da Uva e Vinho",
+  "country": "Brazil"
+ },
+ {
+  "region": "Región vinicola de Badacsony",
+  "country": "Hungary"
+ },
+ {
+  "region": "Región vinicola de Balatonfured Csopak",
+  "country": "Hungary"
+ },
+ {
+  "region": "Región vinicola de Balatonfured-Csopak",
+  "country": "Hungary"
+ },
+ {
+  "region": "Región vinicola de Balatonfüred Csopak",
+  "country": "Hungary"
+ },
+ {
+  "region": "Región vinicola de Balatonfüred-Csopak",
+  "country": "Hungary"
+ },
+ {
+  "region": "Región vinícola de Badacsony",
+  "country": "Hungary"
+ },
+ {
+  "region": "Región vinícola de Balatonfured Csopak",
+  "country": "Hungary"
+ },
+ {
+  "region": "Región vinícola de Balatonfured-Csopak",
+  "country": "Hungary"
+ },
+ {
+  "region": "Región vinícola de Balatonfüred Csopak",
+  "country": "Hungary"
+ },
+ {
+  "region": "Región vinícola de Balatonfüred-Csopak",
+  "country": "Hungary"
+ },
+ {
+  "region": "Región viticola del Alto Duero",
+  "country": "Portugal"
+ },
+ {
+  "region": "Región vitícola de Aconcagua",
+  "country": "Chile"
+ },
+ {
+  "region": "Región vitícola de Atacama",
+  "country": "Chile"
+ },
+ {
+  "region": "Región vitícola del Alto Duero",
+  "country": "Portugal"
+ },
+ {
+  "region": "Región vitícola del Valle Central",
+  "country": "Chile"
+ },
+ {
+  "region": "Reguengos (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Reno",
+  "country": "Italy"
+ },
+ {
+  "region": "Reuilly",
+  "country": "France"
+ },
+ {
+  "region": "Reuilly (Weinbaugebiet)",
+  "country": "France"
+ },
+ {
+  "region": "Reuilly AOC",
+  "country": "France"
+ },
+ {
+  "region": "Rheinfront",
+  "country": "Germany"
+ },
+ {
+  "region": "Rheingau",
+  "country": "Germany"
+ },
+ {
+  "region": "Rheinhessen",
+  "country": "Germany"
+ },
+ {
+  "region": "Rheinland",
+  "country": "United States"
+ },
+ {
+  "region": "Rheinterrasse",
+  "country": "Germany"
+ },
+ {
+  "region": "Rhine-Hesse",
+  "country": "Germany"
+ },
+ {
+  "region": "Rhone wine",
+  "country": "France"
+ },
+ {
+  "region": "Rhône",
+  "country": "France"
+ },
+ {
+  "region": "Rhône wine",
+  "country": "France"
+ },
+ {
+  "region": "Rias Baixas",
+  "country": "Spain"
+ },
+ {
+  "region": "Ribatejo (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Ribbon Ridge AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Ribera del Duero",
+  "country": "Spain"
+ },
+ {
+  "region": "Ribera del Duero DO",
+  "country": "Spain"
+ },
+ {
+  "region": "Ribera del Gallego-Cinco Villas",
+  "country": "Spain"
+ },
+ {
+  "region": "Ribera del Gállego-Cinco Villas",
+  "country": "Spain"
+ },
+ {
+  "region": "Ribera del Gállego-Cinco Villas PGI",
+  "country": "Spain"
+ },
+ {
+  "region": "Ribera del Jiloca",
+  "country": "Spain"
+ },
+ {
+  "region": "Ribera del Jiloca PGI",
+  "country": "Spain"
+ },
+ {
+  "region": "Ribera del Queiles",
+  "country": "Spain"
+ },
+ {
+  "region": "Ribera del Queiles PGI",
+  "country": "Spain"
+ },
+ {
+  "region": "Riesi",
+  "country": "Italy"
+ },
+ {
+  "region": "Rioja",
+  "country": "Spain"
+ },
+ {
+  "region": "Ripaille",
+  "country": "France"
+ },
+ {
+  "region": "Ripaille AOC",
+  "country": "France"
+ },
+ {
+  "region": "River Junction AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Riviera di Levante",
+  "country": "Italy"
+ },
+ {
+  "region": "Riviera di Ponente",
+  "country": "Italy"
+ },
+ {
+  "region": "Robe",
+  "country": "Australia"
+ },
+ {
+  "region": "Robe wine region",
+  "country": "Australia"
+ },
+ {
+  "region": "Rockpile AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Rocky Knob AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Rocky Reach AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Roero",
+  "country": "Italy"
+ },
+ {
+  "region": "Rogue Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Romagna",
+  "country": "Italy"
+ },
+ {
+  "region": "Romangia",
+  "country": "Italy"
+ },
+ {
+  "region": "Romanée-Conti",
+  "country": "France"
+ },
+ {
+  "region": "Rosette",
+  "country": "France"
+ },
+ {
+  "region": "Rosette AOC",
+  "country": "France"
+ },
+ {
+  "region": "Rosso Conero",
+  "country": "Italy"
+ },
+ {
+  "region": "Rosso Piceno",
+  "country": "Italy"
+ },
+ {
+  "region": "Rosé d'anjou (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Roter Hang (Rheinhessen)",
+  "country": "Germany"
+ },
+ {
+  "region": "Roter Hang (Rhine-Hesse)",
+  "country": "Germany"
+ },
+ {
+  "region": "Roudnice vineyard",
+  "country": "Czech Republic"
+ },
+ {
+  "region": "Rouge d'Ottrot",
+  "country": "France"
+ },
+ {
+  "region": "Rouge d'Ottrott",
+  "country": "France"
+ },
+ {
+  "region": "Rouge d'Ottrott (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Rouge d’Ottrott",
+  "country": "France"
+ },
+ {
+  "region": "Roussillon",
+  "country": "France"
+ },
+ {
+  "region": "Rueda",
+  "country": "Spain"
+ },
+ {
+  "region": "Rufina",
+  "country": "Italy"
+ },
+ {
+  "region": "Runkster höfke",
+  "country": "Belgium"
+ },
+ {
+  "region": "Russian River Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Rutherford",
+  "country": "United States"
+ },
+ {
+  "region": "Rutherford AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Rysselsches Weingut",
+  "country": "Germany"
+ },
+ {
+  "region": "Région viticole du Haut-Douro",
+  "country": "Portugal"
+ },
+ {
+  "region": "Saale Unstrut",
+  "country": "Germany"
+ },
+ {
+  "region": "Saale Unstrut Region",
+  "country": "Germany"
+ },
+ {
+  "region": "Saale Unstrut-Region",
+  "country": "Germany"
+ },
+ {
+  "region": "Saale-Unstrut",
+  "country": "Germany"
+ },
+ {
+  "region": "Saale-Unstrut-Region",
+  "country": "Germany"
+ },
+ {
+  "region": "Saarburger Rausch",
+  "country": "Germany"
+ },
+ {
+  "region": "Sachsen",
+  "country": "Germany"
+ },
+ {
+  "region": "Saddle Rock-Malibu AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Saint Emilion",
+  "country": "France"
+ },
+ {
+  "region": "Saint Wenceslas’ Vineyard",
+  "country": "Czech Republic"
+ },
+ {
+  "region": "Saint Émilion",
+  "country": "France"
+ },
+ {
+  "region": "Saint-Aubin",
+  "country": "France"
+ },
+ {
+  "region": "Saint-Aubin (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Saint-Aubin wine",
+  "country": "France"
+ },
+ {
+  "region": "Saint-Emilion",
+  "country": "France"
+ },
+ {
+  "region": "Saint-Emilion AOC",
+  "country": "France"
+ },
+ {
+  "region": "Saint-Estephe AOC",
+  "country": "France"
+ },
+ {
+  "region": "Saint-Estèphe",
+  "country": "France"
+ },
+ {
+  "region": "Saint-Estèphe AOC",
+  "country": "France"
+ },
+ {
+  "region": "Saint-Julien",
+  "country": "France"
+ },
+ {
+  "region": "Saint-Thierry Massif",
+  "country": "France"
+ },
+ {
+  "region": "Saint-Veran AOC",
+  "country": "France"
+ },
+ {
+  "region": "Saint-Véran AOC",
+  "country": "France"
+ },
+ {
+  "region": "Saint-véran",
+  "country": "France"
+ },
+ {
+  "region": "Saint-Émilion",
+  "country": "France"
+ },
+ {
+  "region": "Saint-Émilion AOC",
+  "country": "France"
+ },
+ {
+  "region": "Sajonia",
+  "country": "Germany"
+ },
+ {
+  "region": "Salado Creek AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Salemi",
+  "country": "Italy"
+ },
+ {
+  "region": "Salento",
+  "country": "Italy"
+ },
+ {
+  "region": "Salina",
+  "country": "Italy"
+ },
+ {
+  "region": "Saluzzese",
+  "country": "Italy"
+ },
+ {
+  "region": "Sambuca di Sicilia",
+  "country": "Italy"
+ },
+ {
+  "region": "Samos (Wein)",
+  "country": "Greece"
+ },
+ {
+  "region": "Samoswein",
+  "country": "Greece"
+ },
+ {
+  "region": "San Antonio Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "San Benito AVA",
+  "country": "United States"
+ },
+ {
+  "region": "San Bernabe AVA",
+  "country": "United States"
+ },
+ {
+  "region": "San Colombano al Lambro",
+  "country": "Italy"
+ },
+ {
+  "region": "San Francisco Bay AVA",
+  "country": "United States"
+ },
+ {
+  "region": "San Gimignano",
+  "country": "Italy"
+ },
+ {
+  "region": "San Juan Creek AVA",
+  "country": "United States"
+ },
+ {
+  "region": "San Lucas AVA",
+  "country": "United States"
+ },
+ {
+  "region": "San Luis Rey AVA",
+  "country": "United States"
+ },
+ {
+  "region": "San Miguel District AVA",
+  "country": "United States"
+ },
+ {
+  "region": "San Pasqual Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "San Ysidro District AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Sancerre",
+  "country": "France"
+ },
+ {
+  "region": "Sannio",
+  "country": "Italy"
+ },
+ {
+  "region": "Sant'Anna di Isola Capo Rizzuto",
+  "country": "Italy"
+ },
+ {
+  "region": "Santa Clara Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Santa Cruz Mountains",
+  "country": "United States"
+ },
+ {
+  "region": "Santa Cruz Mountains AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Santa Lucia Highlands AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Santa Margarita Ranch AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Santa Maria Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Santa Ynez Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Santarem wine",
+  "country": "Portugal"
+ },
+ {
+  "region": "Santarém",
+  "country": "Portugal"
+ },
+ {
+  "region": "Santarém (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Santenay",
+  "country": "France"
+ },
+ {
+  "region": "Santenay (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Santenay wine",
+  "country": "France"
+ },
+ {
+  "region": "Savoie",
+  "country": "France"
+ },
+ {
+  "region": "Savuto",
+  "country": "Italy"
+ },
+ {
+  "region": "Saxony",
+  "country": "Germany"
+ },
+ {
+  "region": "Scanzorosciate",
+  "country": "Italy"
+ },
+ {
+  "region": "Schilcherland DAC",
+  "country": "Austria"
+ },
+ {
+  "region": "Schloss Eberstein",
+  "country": "Germany"
+ },
+ {
+  "region": "Schloss Wettinhöhe",
+  "country": "Germany"
+ },
+ {
+  "region": "Schloß Eberstein",
+  "country": "Germany"
+ },
+ {
+  "region": "Schwarze Katz",
+  "country": "Germany"
+ },
+ {
+  "region": "Schwarzenbergplatz vineyard",
+  "country": "Austria"
+ },
+ {
+  "region": "Sciacca",
+  "country": "Italy"
+ },
+ {
+  "region": "Scilla",
+  "country": "Italy"
+ },
+ {
+  "region": "Sebastiani Vineyards",
+  "country": "United States"
+ },
+ {
+  "region": "Seiad Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Seneca Lake AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Serracavallo",
+  "country": "Italy"
+ },
+ {
+  "region": "Serrapetrona",
+  "country": "Italy"
+ },
+ {
+  "region": "Shawnee Hills AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Shenandoah Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Sherry",
+  "country": "Spain"
+ },
+ {
+  "region": "Sherry Triangle",
+  "country": "Spain"
+ },
+ {
+  "region": "Siebengebirge",
+  "country": "Germany"
+ },
+ {
+  "region": "Sierra Foothills AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Sierra Pelona Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Sierra de Alcaraz",
+  "country": "Spain"
+ },
+ {
+  "region": "Siracusa",
+  "country": "Italy"
+ },
+ {
+  "region": "Sloughhouse AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Slovak Tokaj wineyards",
+  "country": "Slovakia"
+ },
+ {
+  "region": "Snake River Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Snipes Mountain AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Soave",
+  "country": "Italy"
+ },
+ {
+  "region": "Solano County Green Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Somlo",
+  "country": "Hungary"
+ },
+ {
+  "region": "Somló",
+  "country": "Hungary"
+ },
+ {
+  "region": "Somló (vignoble)",
+  "country": "Hungary"
+ },
+ {
+  "region": "Somontano",
+  "country": "Spain"
+ },
+ {
+  "region": "Somontano DO",
+  "country": "Spain"
+ },
+ {
+  "region": "Sonoita AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Sonoma",
+  "country": "United States of America"
+ },
+ {
+  "region": "Sonoma Coast AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Sonoma County Green Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Sonoma Mountain AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Sonoma Valley",
+  "country": "United States"
+ },
+ {
+  "region": "Sonoma Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Sopron",
+  "country": "Hungary"
+ },
+ {
+  "region": "Sopron wine region",
+  "country": "Hungary"
+ },
+ {
+  "region": "South Coast AVA",
+  "country": "United States"
+ },
+ {
+  "region": "South Coast wine zone",
+  "country": "Australia"
+ },
+ {
+  "region": "South Tyrol",
+  "country": "Italy"
+ },
+ {
+  "region": "South West France",
+  "country": "France"
+ },
+ {
+  "region": "Southeastern New England AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Southern Fleurieu",
+  "country": "Australia"
+ },
+ {
+  "region": "Southern Fleurieu wine region",
+  "country": "Australia"
+ },
+ {
+  "region": "Southern Oregon AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Spadafora",
+  "country": "Italy"
+ },
+ {
+  "region": "Spoleto",
+  "country": "Italy"
+ },
+ {
+  "region": "Spring Mountain District AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Squaw Valley-Miramonte AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Srem",
+  "country": "Serbia"
+ },
+ {
+  "region": "Srem wine region",
+  "country": "Serbia"
+ },
+ {
+  "region": "St-Émilion et le Libournais",
+  "country": "France"
+ },
+ {
+  "region": "St. Helena AVA",
+  "country": "United States"
+ },
+ {
+  "region": "St.-Wenzels-Weinberg",
+  "country": "Czech Republic"
+ },
+ {
+  "region": "Sta. Rita Hills AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Stags Leap District AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Stanlake Park Wine Estate",
+  "country": "United Kingdom"
+ },
+ {
+  "region": "Stara Trta",
+  "country": "Slovenia"
+ },
+ {
+  "region": "Stara trta de Maribor",
+  "country": "Slovenia"
+ },
+ {
+  "region": "Stellenbosch",
+  "country": "South Africa"
+ },
+ {
+  "region": "Stuttgart wine",
+  "country": "Germany"
+ },
+ {
+  "region": "Sud-Ouest",
+  "country": "France"
+ },
+ {
+  "region": "Sugar Loaf Vineyards",
+  "country": "United Kingdom"
+ },
+ {
+  "region": "Suisun Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Sulcis",
+  "country": "Italy"
+ },
+ {
+  "region": "Suvereto",
+  "country": "Italy"
+ },
+ {
+  "region": "Svatováclavská vinice",
+  "country": "Czech Republic"
+ },
+ {
+  "region": "Swan Creek",
+  "country": "United States"
+ },
+ {
+  "region": "Swan Creek AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Swan Creek, NC",
+  "country": "United States"
+ },
+ {
+  "region": "Swan Creek, North Carolina",
+  "country": "United States"
+ },
+ {
+  "region": "Swan Hill",
+  "country": "Australia"
+ },
+ {
+  "region": "Swan Hill wine region",
+  "country": "Australia"
+ },
+ {
+  "region": "Swan Valley",
+  "country": "Australia"
+ },
+ {
+  "region": "Swan Valley, Western Australia",
+  "country": "Australia"
+ },
+ {
+  "region": "Szekszárd",
+  "country": "Hungary"
+ },
+ {
+  "region": "Szekszárd Wine Region",
+  "country": "Hungary"
+ },
+ {
+  "region": "Sádek Vineyard",
+  "country": "Czech Republic"
+ },
+ {
+  "region": "Südtirol",
+  "country": "Italy"
+ },
+ {
+  "region": "Südtiroler Weinbau",
+  "country": "Italy"
+ },
+ {
+  "region": "Taburno",
+  "country": "Italy"
+ },
+ {
+  "region": "Talutanlage",
+  "country": "Germany"
+ },
+ {
+  "region": "Taranto",
+  "country": "Italy"
+ },
+ {
+  "region": "Tarquinia",
+  "country": "Italy"
+ },
+ {
+  "region": "Tejo (VR)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Temecula Valley",
+  "country": "United States"
+ },
+ {
+  "region": "Temecula Valley (AVA)",
+  "country": "United States"
+ },
+ {
+  "region": "Temecula Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Tenuta Terre Nobili",
+  "country": "Italy"
+ },
+ {
+  "region": "Terra de Promissio",
+  "country": "United States"
+ },
+ {
+  "region": "Terras Madeirenses (VR)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Terras de Sicó (VR)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Terre del Colleoni",
+  "country": "Italy"
+ },
+ {
+  "region": "Texas Davis Mountains AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Texas High Plains AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Texas Hill Country AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Texoma AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Tharros",
+  "country": "Italy"
+ },
+ {
+  "region": "The Hamptons, Long Island AVA",
+  "country": "United States"
+ },
+ {
+  "region": "The Prosecco Hills of Conegliano and Valdobbiadene",
+  "country": "Italy"
+ },
+ {
+  "region": "The Rocks AVA",
+  "country": "United States"
+ },
+ {
+  "region": "The Vineyard Landscape of Piedmont: Langhe-Roero and Monferrato",
+  "country": "Italy"
+ },
+ {
+  "region": "Thermenregion",
+  "country": "Austria"
+ },
+ {
+  "region": "Ticino",
+  "country": "Switzerland"
+ },
+ {
+  "region": "Ticino Wine Region",
+  "country": "Switzerland"
+ },
+ {
+  "region": "Tierra del Vino de Zamora",
+  "country": "Spain"
+ },
+ {
+  "region": "Tierra del Vino de Zamora DO",
+  "country": "Spain"
+ },
+ {
+  "region": "Tintilia del Molise",
+  "country": "Italy"
+ },
+ {
+  "region": "Tip of the Mitt AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Tokaj",
+  "country": "Slovakia"
+ },
+ {
+  "region": "Tokaj Hegyalja",
+  "country": "Hungary"
+ },
+ {
+  "region": "Tokaj-Hegyalja",
+  "country": "Hungary"
+ },
+ {
+  "region": "Tokaj-Hegyalja Wine Region",
+  "country": "Hungary"
+ },
+ {
+  "region": "Tokaj-hegyaljai borvidék",
+  "country": "Hungary"
+ },
+ {
+  "region": "Tokajská vinohradnícka oblasť",
+  "country": "Slovakia"
+ },
+ {
+  "region": "Tolna",
+  "country": "Hungary"
+ },
+ {
+  "region": "Tolna wine region",
+  "country": "Hungary"
+ },
+ {
+  "region": "Tomar (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Torgiano",
+  "country": "Italy"
+ },
+ {
+  "region": "Toro",
+  "country": "Spain"
+ },
+ {
+  "region": "Tracy Hills AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Tras-os-Montes wine",
+  "country": "Portugal"
+ },
+ {
+  "region": "Trebbiano d'Abruzzo",
+  "country": "Italy"
+ },
+ {
+  "region": "Trentino",
+  "country": "Italy"
+ },
+ {
+  "region": "Trentino-Alto Adige/Südtirol wine",
+  "country": "Italy"
+ },
+ {
+  "region": "Trexenta",
+  "country": "Italy"
+ },
+ {
+  "region": "Trinity Lakes AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Trás-os-Montes (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Tualatin Hills AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Tumbarumba",
+  "country": "Australia"
+ },
+ {
+  "region": "Tumbarumba wine region",
+  "country": "Australia"
+ },
+ {
+  "region": "Tygerberg",
+  "country": "South Africa"
+ },
+ {
+  "region": "Tygerberg (Weinregion)",
+  "country": "South Africa"
+ },
+ {
+  "region": "Tygerberg (wine region)",
+  "country": "South Africa"
+ },
+ {
+  "region": "Umpqua Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Upper Goulburn",
+  "country": "Australia"
+ },
+ {
+  "region": "Upper Hiwassee Highlands AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Upper Hudson AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Upper Lake Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Upper Mississippi River Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Vaison-la-romaine wine",
+  "country": "France"
+ },
+ {
+  "region": "Val Calepio",
+  "country": "Italy"
+ },
+ {
+  "region": "Val Demone wine",
+  "country": "Italy"
+ },
+ {
+  "region": "Val Polcevera",
+  "country": "Italy"
+ },
+ {
+  "region": "Val Tidone",
+  "country": "Italy"
+ },
+ {
+  "region": "Val de Loire",
+  "country": "France"
+ },
+ {
+  "region": "Val di Cornia",
+  "country": "Italy"
+ },
+ {
+  "region": "Val di Mazara wine",
+  "country": "Italy"
+ },
+ {
+  "region": "Val di Neto",
+  "country": "Italy"
+ },
+ {
+  "region": "Val di Noto wine",
+  "country": "Italy"
+ },
+ {
+  "region": "Valcalepio",
+  "country": "Italy"
+ },
+ {
+  "region": "Valcalepio Rosso",
+  "country": "Italy"
+ },
+ {
+  "region": "Valcamonica",
+  "country": "Italy"
+ },
+ {
+  "region": "Valdarno di Sopra",
+  "country": "Italy"
+ },
+ {
+  "region": "Valdejalon",
+  "country": "Spain"
+ },
+ {
+  "region": "Valdejalón (vino)",
+  "country": "Spain"
+ },
+ {
+  "region": "Valdejalón PGI",
+  "country": "Spain"
+ },
+ {
+  "region": "Vallagarina",
+  "country": "Italy"
+ },
+ {
+  "region": "Valle Central",
+  "country": "Chile"
+ },
+ {
+  "region": "Valle Dry Creek",
+  "country": "United States"
+ },
+ {
+  "region": "Valle Isarco",
+  "country": "Italy"
+ },
+ {
+  "region": "Valle Venosta",
+  "country": "Italy"
+ },
+ {
+  "region": "Valle d'Aosta",
+  "country": "Italy"
+ },
+ {
+  "region": "Valle d'Itria",
+  "country": "Italy"
+ },
+ {
+  "region": "Valle de Colchagua",
+  "country": "Chile"
+ },
+ {
+  "region": "Valle de La Orotava",
+  "country": "Spain"
+ },
+ {
+  "region": "Valle de La Orotava (vino)",
+  "country": "Spain"
+ },
+ {
+  "region": "Valle de Napa",
+  "country": "United States"
+ },
+ {
+  "region": "Valle de Santa Clara",
+  "country": "United States"
+ },
+ {
+  "region": "Valle de Sonoma",
+  "country": "United States"
+ },
+ {
+  "region": "Valle de la Orotava",
+  "country": "Spain"
+ },
+ {
+  "region": "Valle del Cachapoal (vino)",
+  "country": "Chile"
+ },
+ {
+  "region": "Valle del Elqui",
+  "country": "Chile"
+ },
+ {
+  "region": "Valle del Elqui (vino)",
+  "country": "Chile"
+ },
+ {
+  "region": "Valle del Itata",
+  "country": "Chile"
+ },
+ {
+  "region": "Valle del Lontue",
+  "country": "Chile"
+ },
+ {
+  "region": "Valle del Lontué",
+  "country": "Chile"
+ },
+ {
+  "region": "Valle del Maipo",
+  "country": "Chile"
+ },
+ {
+  "region": "Valle del Rapel",
+  "country": "Chile"
+ },
+ {
+  "region": "Valle del Rio Ohio",
+  "country": "United States"
+ },
+ {
+  "region": "Valle del Rio Ruso (AVA)",
+  "country": "United States"
+ },
+ {
+  "region": "Valle del Río Ohio",
+  "country": "United States"
+ },
+ {
+  "region": "Valle del Río Ruso (AVA)",
+  "country": "United States"
+ },
+ {
+  "region": "Vallée de Napa",
+  "country": "United States"
+ },
+ {
+  "region": "Vallée de Sonoma",
+  "country": "United States"
+ },
+ {
+  "region": "Vallée de la Marne",
+  "country": "France"
+ },
+ {
+  "region": "Valpaços",
+  "country": "Portugal"
+ },
+ {
+  "region": "Valpaços (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Valpolicella",
+  "country": "Italy"
+ },
+ {
+  "region": "Valtellina",
+  "country": "Italy"
+ },
+ {
+  "region": "Van Duzer Corridor AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Velletri",
+  "country": "Italy"
+ },
+ {
+  "region": "Ventoux",
+  "country": "France"
+ },
+ {
+  "region": "Verdicchio dei Castelli di Jesi",
+  "country": "Italy"
+ },
+ {
+  "region": "Verdicchio di Matelica",
+  "country": "Italy"
+ },
+ {
+  "region": "Vernaccia di San Gimignano",
+  "country": "Italy"
+ },
+ {
+  "region": "Vesuvio",
+  "country": "Italy"
+ },
+ {
+  "region": "Vidigueira (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "Vienna's smallest vineyard",
+  "country": "Austria"
+ },
+ {
+  "region": "Vigna San Martino",
+  "country": "Italy"
+ },
+ {
+  "region": "Vigna delle Sanzioni",
+  "country": "Italy"
+ },
+ {
+  "region": "Vigna di Leonardo",
+  "country": "Italy"
+ },
+ {
+  "region": "Vigna di Leonardo da Vinci",
+  "country": "Italy"
+ },
+ {
+  "region": "Vignanello",
+  "country": "Italy"
+ },
+ {
+  "region": "Vigne San Martino",
+  "country": "Italy"
+ },
+ {
+  "region": "Vigne du parc Georges-Brassens",
+  "country": "France"
+ },
+ {
+  "region": "Vigne du parc de Belleville",
+  "country": "France"
+ },
+ {
+  "region": "Vigne du parc de Bercy",
+  "country": "France"
+ },
+ {
+  "region": "Vigneti della Borgogna",
+  "country": "France"
+ },
+ {
+  "region": "Vigneti della côte de Nuits",
+  "country": "France"
+ },
+ {
+  "region": "Vigneto della Valle del Rodano",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble (et vins) de Gascogne",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble La Grande Allée",
+  "country": "Canada"
+ },
+ {
+  "region": "Vignoble Pernand-Vergelesses",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble Saint Venceslas",
+  "country": "Czech Republic"
+ },
+ {
+  "region": "Vignoble Sainte-Claire",
+  "country": "Czech Republic"
+ },
+ {
+  "region": "Vignoble champenois",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble d'Alsace",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble d'Anjou",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble d'Arbois",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Beaune",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Bonnezeaux",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Bordeaux",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Chablis",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Champagne",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Chateau-Chalon",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Chateaumeillant",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Château-Chalon",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Châteaumeillant",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Corse",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Franconie",
+  "country": "Germany"
+ },
+ {
+  "region": "Vignoble de Fronton",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Graves",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Hesse-Rhénane",
+  "country": "Germany"
+ },
+ {
+  "region": "Vignoble de Jasnieres",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Jasnières",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Lalande-de-Pomerol",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Marlborough",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Vignoble de Maury",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Monthélie",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Nuits-Saint-Georges",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Palatinat",
+  "country": "Germany"
+ },
+ {
+  "region": "Vignoble de Pernand-Vergelesses",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Pessac-Leognan",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Pessac-Léognan",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Pommard",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Puligny-Montrachet",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Rhin-moyen",
+  "country": "Germany"
+ },
+ {
+  "region": "Vignoble de Saale-Unstrut",
+  "country": "Germany"
+ },
+ {
+  "region": "Vignoble de Saint-Emilion",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Saint-Estephe",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Saint-Veran",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Saint-Véran",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Saint-Émilion",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Santenay",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Saxe",
+  "country": "Germany"
+ },
+ {
+  "region": "Vignoble de Tokay slovaque",
+  "country": "Slovakia"
+ },
+ {
+  "region": "Vignoble de Tolna",
+  "country": "Hungary"
+ },
+ {
+  "region": "Vignoble de Vire-Clesse",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Viré-Clessé",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Volnay",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Vosne-Romanée",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de Vougeot",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de l'Ahr",
+  "country": "Germany"
+ },
+ {
+  "region": "Vignoble de la Barossa Valley",
+  "country": "Australia"
+ },
+ {
+  "region": "Vignoble de la Cote roannaise",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de la Côte Roannaise",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de la Côte-Roannaise",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de la côte de Beaune",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de la côte de Nuits",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de la vallee du Rhone",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de la vallée de la Loire",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de la vallée du Haut Douro",
+  "country": "Portugal"
+ },
+ {
+  "region": "Vignoble de la vallée du Rhône",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de pomerol",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble de saint-estèphe",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble des Agaises",
+  "country": "Belgium"
+ },
+ {
+  "region": "Vignoble des Baux",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble des Coteaux-du-Loir",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble des Cotes d'Auvergne",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble des Cotes-de-Bourg",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble des Cotes-de-Saint-Mont",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble des Cotes-du-Roussillon",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble des Côtes d'Auvergne",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble des Côtes-d'Auvergne",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble des Côtes-de-Bourg",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble des Côtes-de-Saint-Mont",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble des Côtes-du-Forez",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble des Côtes-du-Frontonnais",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble des Côtes-du-Roussillon",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble des Premières-côtes-de-Blaye",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble des Pyrénées-Orientales",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble des Vins-de-Corse",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble des graves",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble du Beaujolais",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble du Central Otago",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Vignoble du Centre",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble du Languedoc",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble du Pays basque",
+  "country": "Spain"
+ },
+ {
+  "region": "Vignoble du Rhin-moyen",
+  "country": "Germany"
+ },
+ {
+  "region": "Vignoble du Roussillon",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble du Sud-Ouest",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble d’Anjou",
+  "country": "France"
+ },
+ {
+  "region": "Vignoble euskadien",
+  "country": "Spain"
+ },
+ {
+  "region": "Vignobles de la côte chalonnaise",
+  "country": "France"
+ },
+ {
+  "region": "Vignobles du Pays basque",
+  "country": "Spain"
+ },
+ {
+  "region": "Villa Jägerberg",
+  "country": "Germany"
+ },
+ {
+  "region": "Villacreces",
+  "country": "Spain"
+ },
+ {
+  "region": "Villamagna",
+  "country": "Italy"
+ },
+ {
+  "region": "Villanyi borvidek",
+  "country": "Hungary"
+ },
+ {
+  "region": "Villány",
+  "country": "Hungary"
+ },
+ {
+  "region": "Villányi borvidék",
+  "country": "Hungary"
+ },
+ {
+  "region": "Vin d'Alsace",
+  "country": "France"
+ },
+ {
+  "region": "Vin d'Arbois",
+  "country": "France"
+ },
+ {
+  "region": "Vin de Beaujolais",
+  "country": "France"
+ },
+ {
+  "region": "Vin de Cilaos",
+  "country": "France"
+ },
+ {
+  "region": "Vin de Cilaos (VDP)",
+  "country": "France"
+ },
+ {
+  "region": "Vin de La Rioja",
+  "country": "Spain"
+ },
+ {
+  "region": "Vin de la Vallée-du-Rhône",
+  "country": "France"
+ },
+ {
+  "region": "Vin de la vallée du Rhône",
+  "country": "France"
+ },
+ {
+  "region": "Vin de pays de l'île de la Réunion",
+  "country": "France"
+ },
+ {
+  "region": "Vin de pays des Collines de la Moure",
+  "country": "France"
+ },
+ {
+  "region": "Vin du Languedoc",
+  "country": "France"
+ },
+ {
+  "region": "Vin du Languedoc et du Roussillon",
+  "country": "France"
+ },
+ {
+  "region": "Vin du Languedoc-Roussillon",
+  "country": "France"
+ },
+ {
+  "region": "Vin du Roussillon",
+  "country": "France"
+ },
+ {
+  "region": "Vinea Publica",
+  "country": "Italy"
+ },
+ {
+  "region": "Vinedo de Borgona",
+  "country": "France"
+ },
+ {
+  "region": "Vinedo de Borgoña",
+  "country": "France"
+ },
+ {
+  "region": "Vinedo de Burdeos",
+  "country": "France"
+ },
+ {
+  "region": "Vinedo de Champana",
+  "country": "France"
+ },
+ {
+  "region": "Vinedo de Champaña",
+  "country": "France"
+ },
+ {
+  "region": "Vinedo de Corcega",
+  "country": "France"
+ },
+ {
+  "region": "Vinedo de Cotes d'Auvergne",
+  "country": "France"
+ },
+ {
+  "region": "Vinedo de Córcega",
+  "country": "France"
+ },
+ {
+  "region": "Vinedo de Côtes d'Auvergne",
+  "country": "France"
+ },
+ {
+  "region": "Vinedo de Languedoc",
+  "country": "France"
+ },
+ {
+  "region": "Vinedo de Languedoc Rosellon",
+  "country": "France"
+ },
+ {
+  "region": "Vinedo de Languedoc Rosellón",
+  "country": "France"
+ },
+ {
+  "region": "Vinedo de Languedoc-Rosellon",
+  "country": "France"
+ },
+ {
+  "region": "Vinedo de Languedoc-Rosellón",
+  "country": "France"
+ },
+ {
+  "region": "Vinedo del Languedoc",
+  "country": "France"
+ },
+ {
+  "region": "Vinedo del valle del Rodano",
+  "country": "France"
+ },
+ {
+  "region": "Vinedo del valle del Ródano",
+  "country": "France"
+ },
+ {
+  "region": "Vinedos del Languedoc",
+  "country": "France"
+ },
+ {
+  "region": "Vineyard in Sabile",
+  "country": "Latvia"
+ },
+ {
+  "region": "Vineyard of Leonardo da Vinci",
+  "country": "Italy"
+ },
+ {
+  "region": "Vineyards in Constantia",
+  "country": "South Africa"
+ },
+ {
+  "region": "Vineyards of the Basque Country",
+  "country": "Spain"
+ },
+ {
+  "region": "Vinho Verde",
+  "country": "Portugal"
+ },
+ {
+  "region": "Vinho do Tejo",
+  "country": "Portugal"
+ },
+ {
+  "region": "Vinice Grébovka",
+  "country": "Czech Republic"
+ },
+ {
+  "region": "Vinice Máchalka",
+  "country": "Czech Republic"
+ },
+ {
+  "region": "Vinice svaté Kláry",
+  "country": "Czech Republic"
+ },
+ {
+  "region": "Vinicola Gioia al negro",
+  "country": "Italy"
+ },
+ {
+  "region": "Vino californiano",
+  "country": "United States"
+ },
+ {
+  "region": "Vino de California",
+  "country": "United States"
+ },
+ {
+  "region": "Vino de Neuquén",
+  "country": "Argentina"
+ },
+ {
+  "region": "Vino de la Tierra Ribera del Gallego Cinco Villas",
+  "country": "Spain"
+ },
+ {
+  "region": "Vino de la Tierra Ribera del Gallego-Cinco Villas",
+  "country": "Spain"
+ },
+ {
+  "region": "Vino de la Tierra Ribera del Gállego Cinco Villas",
+  "country": "Spain"
+ },
+ {
+  "region": "Vino de la Tierra Ribera del Gállego-Cinco Villas",
+  "country": "Spain"
+ },
+ {
+  "region": "Vino de la Tierra Ribera del Jiloca",
+  "country": "Spain"
+ },
+ {
+  "region": "Vino de la Tierra de Castilla y Leon",
+  "country": "Spain"
+ },
+ {
+  "region": "Vino de la Tierra de Castilla y León",
+  "country": "Spain"
+ },
+ {
+  "region": "Vino de la Tierra de Sierra de Alcaraz",
+  "country": "Spain"
+ },
+ {
+  "region": "Vino de la Tierra de Valdejalon",
+  "country": "Spain"
+ },
+ {
+  "region": "Vino de la Tierra de Valdejalón",
+  "country": "Spain"
+ },
+ {
+  "region": "Vino del Condado de Mendocino",
+  "country": "United States"
+ },
+ {
+  "region": "Vino del Pais Vasco",
+  "country": "Spain"
+ },
+ {
+  "region": "Vino del País Vasco",
+  "country": "Spain"
+ },
+ {
+  "region": "Vinorodni okoliš Kras",
+  "country": "Slovenia"
+ },
+ {
+  "region": "Vinos californianos",
+  "country": "United States"
+ },
+ {
+  "region": "Vinos de Burdeos",
+  "country": "France"
+ },
+ {
+  "region": "Vinos de California",
+  "country": "United States"
+ },
+ {
+  "region": "Vins d'Émilie-Romagne",
+  "country": "Italy"
+ },
+ {
+  "region": "Vins de Franconie",
+  "country": "Germany"
+ },
+ {
+  "region": "Vins de La Rioja",
+  "country": "Spain"
+ },
+ {
+  "region": "Vins de Saale-Unstrut",
+  "country": "Germany"
+ },
+ {
+  "region": "Vins de Saxe",
+  "country": "Germany"
+ },
+ {
+  "region": "Vins de graves",
+  "country": "France"
+ },
+ {
+  "region": "Vins de la Vallée-du-Rhône",
+  "country": "France"
+ },
+ {
+  "region": "Vins des Côtes-du-Rhône",
+  "country": "France"
+ },
+ {
+  "region": "Vins du Bordelais",
+  "country": "France"
+ },
+ {
+  "region": "Vins du Languedoc",
+  "country": "France"
+ },
+ {
+  "region": "Vins du Languedoc et du Roussillon",
+  "country": "France"
+ },
+ {
+  "region": "Vins du Pays basque",
+  "country": "Spain"
+ },
+ {
+  "region": "Vins du Pays-de-Bade",
+  "country": "Germany"
+ },
+ {
+  "region": "Vins du Roussillon",
+  "country": "France"
+ },
+ {
+  "region": "Vinsobres",
+  "country": "France"
+ },
+ {
+  "region": "Vinsobres AOC",
+  "country": "France"
+ },
+ {
+  "region": "Vinya de cal Ximelis",
+  "country": "Spain"
+ },
+ {
+  "region": "Vinya de can Xercavins",
+  "country": "Spain"
+ },
+ {
+  "region": "Vinyes de can Romagosa",
+  "country": "Spain"
+ },
+ {
+  "region": "Vire-Clesse",
+  "country": "France"
+ },
+ {
+  "region": "Virginia's Eastern Shore",
+  "country": "United States"
+ },
+ {
+  "region": "Virginia's Eastern Shore AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Virginia’s Eastern Shore AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Viré-Clessé",
+  "country": "France"
+ },
+ {
+  "region": "Viré-clessé",
+  "country": "France"
+ },
+ {
+  "region": "Viré-clessé (AOC)",
+  "country": "France"
+ },
+ {
+  "region": "Viticoltura di Stoccarda",
+  "country": "Germany"
+ },
+ {
+  "region": "Viticulture dans les Pyrénées-Orientales",
+  "country": "France"
+ },
+ {
+  "region": "Viticulture en Nouvelle-Zélande",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Viticulture in Stuttgart",
+  "country": "Germany"
+ },
+ {
+  "region": "Viña Casas del Bosque",
+  "country": "Chile"
+ },
+ {
+  "region": "Viña Emiliana",
+  "country": "Chile"
+ },
+ {
+  "region": "Viña Vik",
+  "country": "Chile"
+ },
+ {
+  "region": "Viña Viu Manent",
+  "country": "Chile"
+ },
+ {
+  "region": "Viñedo de Alsacia",
+  "country": "France"
+ },
+ {
+  "region": "Viñedo de Borgoña",
+  "country": "France"
+ },
+ {
+  "region": "Viñedo de Burdeos",
+  "country": "France"
+ },
+ {
+  "region": "Viñedo de Champaña",
+  "country": "France"
+ },
+ {
+  "region": "Viñedo de Corcega",
+  "country": "France"
+ },
+ {
+  "region": "Viñedo de Cotes d'Auvergne",
+  "country": "France"
+ },
+ {
+  "region": "Viñedo de Córcega",
+  "country": "France"
+ },
+ {
+  "region": "Viñedo de Côtes d'Auvergne",
+  "country": "France"
+ },
+ {
+  "region": "Viñedo de Gascuña",
+  "country": "France"
+ },
+ {
+  "region": "Viñedo de Languedoc",
+  "country": "France"
+ },
+ {
+  "region": "Viñedo de Languedoc Rosellon",
+  "country": "France"
+ },
+ {
+  "region": "Viñedo de Languedoc Rosellón",
+  "country": "France"
+ },
+ {
+  "region": "Viñedo de Languedoc-Rosellon",
+  "country": "France"
+ },
+ {
+  "region": "Viñedo de Languedoc-Rosellón",
+  "country": "France"
+ },
+ {
+  "region": "Viñedo del Languedoc",
+  "country": "France"
+ },
+ {
+  "region": "Viñedo del Suroeste",
+  "country": "France"
+ },
+ {
+  "region": "Viñedo del valle del Loira",
+  "country": "France"
+ },
+ {
+  "region": "Viñedo del valle del Rodano",
+  "country": "France"
+ },
+ {
+  "region": "Viñedo del valle del Ródano",
+  "country": "France"
+ },
+ {
+  "region": "Viñedos Puerta del Lobo",
+  "country": "Mexico"
+ },
+ {
+  "region": "Viñedos del Languedoc",
+  "country": "France"
+ },
+ {
+  "region": "Volksweingut Lößnitz",
+  "country": "Germany"
+ },
+ {
+  "region": "Volnay",
+  "country": "France"
+ },
+ {
+  "region": "Volnay wine",
+  "country": "France"
+ },
+ {
+  "region": "Vougeot",
+  "country": "France"
+ },
+ {
+  "region": "Vougeot wine",
+  "country": "France"
+ },
+ {
+  "region": "Vulture",
+  "country": "Italy"
+ },
+ {
+  "region": "Vulture-Alto Bradano",
+  "country": "Italy"
+ },
+ {
+  "region": "Vulture-Gebiet",
+  "country": "Italy"
+ },
+ {
+  "region": "Vulture-Melfese",
+  "country": "Italy"
+ },
+ {
+  "region": "Wachau",
+  "country": "Austria"
+ },
+ {
+  "region": "Wahluke Slope AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Waiheke Island",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Waiheke Island wine region",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Waitaki Valley",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Waitaki Valley GI",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Waitaki Valley North Otago",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Waitaki Valley wine region",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Walla Walla Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Warren Hills AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Weinanbau in Nierstein",
+  "country": "Germany"
+ },
+ {
+  "region": "Weinanbaugebiet von Saint-Émilion",
+  "country": "France"
+ },
+ {
+  "region": "Weinanbaugebiete des Burgund",
+  "country": "France"
+ },
+ {
+  "region": "Weinanbaugebiete im Burgund",
+  "country": "France"
+ },
+ {
+  "region": "Weinbau (Kalifornien)",
+  "country": "United States"
+ },
+ {
+  "region": "Weinbau Kaliforniens",
+  "country": "United States"
+ },
+ {
+  "region": "Weinbau auf Korsika",
+  "country": "France"
+ },
+ {
+  "region": "Weinbau auf der Insel Gorgona",
+  "country": "Italy"
+ },
+ {
+  "region": "Weinbau in Burgund",
+  "country": "France"
+ },
+ {
+  "region": "Weinbau in Kalifornien",
+  "country": "United States"
+ },
+ {
+  "region": "Weinbau in Neuseeland",
+  "country": "New Zealand"
+ },
+ {
+  "region": "Weinbau in Stuttgart",
+  "country": "Germany"
+ },
+ {
+  "region": "Weinbau in Südtirol",
+  "country": "Italy"
+ },
+ {
+  "region": "Weinbaugebiet Ahr",
+  "country": "Germany"
+ },
+ {
+  "region": "Weinbaugebiet Baden",
+  "country": "Germany"
+ },
+ {
+  "region": "Weinbaugebiet Chiroubles",
+  "country": "France"
+ },
+ {
+  "region": "Weinbaugebiet Chénas",
+  "country": "France"
+ },
+ {
+  "region": "Weinbaugebiet Hessische Bergstraße",
+  "country": "Germany"
+ },
+ {
+  "region": "Weinbaugebiet Mosel",
+  "country": "Germany"
+ },
+ {
+  "region": "Weinbaugebiet Rheinhessen",
+  "country": "Germany"
+ },
+ {
+  "region": "Weinbaugebiet Sachsen",
+  "country": "Germany"
+ },
+ {
+  "region": "Weinbaugebiet Württemberg",
+  "country": "Germany"
+ },
+ {
+  "region": "Weinbaukulturlandschaft der Insel Pico",
+  "country": "Portugal"
+ },
+ {
+  "region": "Weinberg",
+  "country": "Germany"
+ },
+ {
+  "region": "Weinberg Apostelgarten",
+  "country": "Germany"
+ },
+ {
+  "region": "Weinberg Hohbergstraße 1; Hohbergstraße 1 a; Hohbergstraße 2; Hohbergstraße 4; Hohbergstraße 6; Hohbergstraße 8; Hohbergstraße 10; Hohbergstraße 12; Ludwigstraße 100 in Klingenberg am Main",
+  "country": "Germany"
+ },
+ {
+  "region": "Weinberg Hohbergstraße 1; Hohbergstraße 1 a; Hohbergstraße 2; Hohbergstraße 4; Hohbergstraße 6; Hohbergstraße 8; Hohbergstraße 10; Hohbergstraße 12; Ludwigstraße 100 in Klingenberg am Main (D-6-76-134-43#1)",
+  "country": "Germany"
+ },
+ {
+  "region": "Weinberg Urbanusstraße 28; Urbanusstraße 30; Urbanusstraße 34 in Klingenberg am Main",
+  "country": "Germany"
+ },
+ {
+  "region": "Weinberg Urbanusstraße 28; Urbanusstraße 30; Urbanusstraße 34 in Klingenberg am Main (D-6-76-134-43#2)",
+  "country": "Germany"
+ },
+ {
+  "region": "Weinberg am Drachenberg",
+  "country": "Germany"
+ },
+ {
+  "region": "Weinberg am Klausberg",
+  "country": "Germany"
+ },
+ {
+  "region": "Weinberg am Klausberg (Potsdam)",
+  "country": "Germany"
+ },
+ {
+  "region": "Weinberg zwischen Weinbergstraße und Gnomenstieg",
+  "country": "Germany"
+ },
+ {
+  "region": "Weinberge",
+  "country": "Germany"
+ },
+ {
+  "region": "Weinbergsanlagen",
+  "country": "Germany"
+ },
+ {
+  "region": "Weinbergterrassen bei Mayschoss",
+  "country": "Germany"
+ },
+ {
+  "region": "Weinfranken",
+  "country": "Germany"
+ },
+ {
+  "region": "Weingarten am Schwarzenbergplatz",
+  "country": "Austria"
+ },
+ {
+  "region": "Weingut Emmerich Knoll",
+  "country": "Austria"
+ },
+ {
+  "region": "Weingut Verbant",
+  "country": "Switzerland"
+ },
+ {
+  "region": "Werderaner Wachtelberg",
+  "country": "Germany"
+ },
+ {
+  "region": "West Elks AVA",
+  "country": "United States"
+ },
+ {
+  "region": "West Sonoma Coast AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Western Connecticut Highlands AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Western Plains",
+  "country": "Australia"
+ },
+ {
+  "region": "Western Plains wine zone",
+  "country": "Australia"
+ },
+ {
+  "region": "Western Victoria",
+  "country": "Australia"
+ },
+ {
+  "region": "Wettin-Höhe",
+  "country": "Germany"
+ },
+ {
+  "region": "Wettinhöhe",
+  "country": "Germany"
+ },
+ {
+  "region": "Wettinshöhe",
+  "country": "Germany"
+ },
+ {
+  "region": "White Bluffs AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Wiens kleinster Weingarten",
+  "country": "Austria"
+ },
+ {
+  "region": "Wijngaard St. Martinus",
+  "country": "Netherlands"
+ },
+ {
+  "region": "Wijngaard Wageningse Berg",
+  "country": "Netherlands"
+ },
+ {
+  "region": "Wild Horse Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Willamette Valley",
+  "country": "United States of America"
+ },
+ {
+  "region": "Willamette Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Willcox AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Willow Creek AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Winding Wood Vineyard",
+  "country": "United Kingdom"
+ },
+ {
+  "region": "Wines of Gascony",
+  "country": "France"
+ },
+ {
+  "region": "Winninger Hamm",
+  "country": "Germany"
+ },
+ {
+  "region": "Winters Highlands AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Winzerberg",
+  "country": "Germany"
+ },
+ {
+  "region": "Wisconsin Ledge AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Wise Vineyard",
+  "country": "Australia"
+ },
+ {
+  "region": "Württemberg",
+  "country": "Germany"
+ },
+ {
+  "region": "Würzburger Stein",
+  "country": "Germany"
+ },
+ {
+  "region": "Xérès",
+  "country": "Spain"
+ },
+ {
+  "region": "Yadkin Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Yakima Valley AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Yamhill-Carlton District AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Yarra Valley",
+  "country": "Australia"
+ },
+ {
+  "region": "York Mountain AVA",
+  "country": "United States"
+ },
+ {
+  "region": "York Mountain Winery",
+  "country": "United States"
+ },
+ {
+  "region": "Yorkville Highlands AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Yountville AVA",
+  "country": "United States"
+ },
+ {
+  "region": "Zeller Schwarze Katz",
+  "country": "Germany"
+ },
+ {
+  "region": "Zona vinícola Costa Sur",
+  "country": "Australia"
+ },
+ {
+  "region": "Zone viticole de North Coast",
+  "country": "United States"
+ },
+ {
+  "region": "château d'Eberstein",
+  "country": "Germany"
+ },
+ {
+  "region": "château de Laborie",
+  "country": "France"
+ },
+ {
+  "region": "côtes-du-rhône villages",
+  "country": "France"
+ },
+ {
+  "region": "côtes-du-rhône villages Vaison-la-romaine",
+  "country": "France"
+ },
+ {
+  "region": "denominación de origen Calatayud",
+  "country": "Spain"
+ },
+ {
+  "region": "juridiction de Saint-Émilion",
+  "country": "France"
+ },
+ {
+  "region": "kalifornischer Weinbau",
+  "country": "United States"
+ },
+ {
+  "region": "massif de Saint-Thierry",
+  "country": "France"
+ },
+ {
+  "region": "orto (I.11.10)",
+  "country": "Italy"
+ },
+ {
+  "region": "regione vinicola Alsazia",
+  "country": "France"
+ },
+ {
+  "region": "regione vinicola Tokaj",
+  "country": "Hungary"
+ },
+ {
+  "region": "regione vinicola Tokaj-Hegyalja",
+  "country": "Hungary"
+ },
+ {
+  "region": "regione vinicola della Borgogna",
+  "country": "France"
+ },
+ {
+  "region": "région viticole de Tokay",
+  "country": "Slovakia"
+ },
+ {
+  "region": "sherry",
+  "country": "Spain"
+ },
+ {
+  "region": "sherry wine",
+  "country": "Spain"
+ },
+ {
+  "region": "vaison-la-romaine",
+  "country": "France"
+ },
+ {
+  "region": "vallée de Walla Walla (AVA)",
+  "country": "United States"
+ },
+ {
+  "region": "vigneti de La Casaccia",
+  "country": "Italy"
+ },
+ {
+  "region": "vignoble chablisien",
+  "country": "France"
+ },
+ {
+  "region": "vignoble de Bourgogne",
+  "country": "France"
+ },
+ {
+  "region": "vignoble de Californie",
+  "country": "United States"
+ },
+ {
+  "region": "vignoble de Nevissano",
+  "country": "Italy"
+ },
+ {
+  "region": "vignoble de Roudnice",
+  "country": "Czech Republic"
+ },
+ {
+  "region": "vignoble de l'Entre-deux-Mers",
+  "country": "France"
+ },
+ {
+  "region": "vignoble du Languedoc-Roussillon",
+  "country": "France"
+ },
+ {
+  "region": "vignoble français",
+  "country": "France"
+ },
+ {
+  "region": "vignobles de Primosten",
+  "country": "Croatia"
+ },
+ {
+  "region": "vineyard land of Nevissano",
+  "country": "Italy"
+ },
+ {
+  "region": "vineyards of Nierstein",
+  "country": "Germany"
+ },
+ {
+  "region": "vino de Alentejo",
+  "country": "Portugal"
+ },
+ {
+  "region": "vino neuquino",
+  "country": "Argentina"
+ },
+ {
+  "region": "viticoltura in Nuova Zelanda",
+  "country": "New Zealand"
+ },
+ {
+  "region": "viticulture à Stuttgart",
+  "country": "Germany"
+ },
+ {
+  "region": "wine (California)",
+  "country": "United States"
+ },
+ {
+  "region": "wine in Artvin",
+  "country": "Turkey"
+ },
+ {
+  "region": "wines (California)",
+  "country": "United States"
+ },
+ {
+  "region": "wines from California",
+  "country": "United States"
+ },
+ {
+  "region": "Évora (DOC)",
+  "country": "Portugal"
+ },
+ {
+  "region": "ältester Weinstock",
+  "country": "Slovenia"
+ }
+]
