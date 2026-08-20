@@ -330,7 +330,16 @@ export function CollectionPage() {
                     e.stopPropagation();
                     setFilters((f) => ({ ...f, [key]: [] }));
                   }}
-                  style={{ display: 'inline-flex', opacity: 0.75, fontSize: 15, lineHeight: 1, padding: '0 2px' }}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: 0.85,
+                    fontSize: 20,
+                    lineHeight: 1,
+                    padding: '4px 6px',
+                    margin: '-4px -4px -4px 0',
+                  }}
                 >
                   &times;
                 </span>

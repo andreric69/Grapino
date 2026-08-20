@@ -17,7 +17,10 @@ export function FilterSheet({ title, options, selected, onToggle, onClear, onClo
             type="button"
             className="btn"
             style={{ justifyContent: 'flex-start', color: selected.length === 0 ? 'var(--color-accent)' : 'var(--color-text)' }}
-            onClick={onClear}
+            onClick={() => {
+              onClear();
+              onClose();
+            }}
           >
             Alle
           </button>
