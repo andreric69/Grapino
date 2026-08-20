@@ -54,7 +54,7 @@ export function WineCard({ wine, photoUrl, onToggleFavorite, onToggleConsumed, c
             {wine.region && <span>{wine.region}</span>}
           </div>
         </div>
-        {wine.quantity > 1 && (
+        {wine.quantity > 0 && (
           <span className="tag tag-outline" style={{ flexShrink: 0 }}>
             &times;{wine.quantity}
           </span>
@@ -107,7 +107,7 @@ export function WineCard({ wine, photoUrl, onToggleFavorite, onToggleConsumed, c
           style={{ position: 'absolute', top: 6, right: 6 }}
         />
 
-        {wine.quantity > 1 && (
+        {wine.quantity > 0 && (
           <span
             className="tag"
             style={{
