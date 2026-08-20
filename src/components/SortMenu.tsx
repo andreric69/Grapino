@@ -13,7 +13,7 @@ export function SortMenu({ value, onChange }: { value: SortOption; onChange: (v:
   return (
     <select
       className="input"
-      style={{ minHeight: 32, width: 'auto', padding: '4px 8px', fontSize: 12.5 }}
+      style={{ minHeight: 38, width: 'auto', padding: '6px 10px', fontSize: 13.5 }}
       value={value}
       onChange={(e) => onChange(e.target.value as SortOption)}
       aria-label="Sortierung"

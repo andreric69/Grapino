@@ -54,16 +54,16 @@ export function CollectionPage() {
 
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortOption>('newest');
-  const [filters, setFilters] = useState<Record<FilterKey, string | null>>({
-    vintage: null,
-    region: null,
-    grape_variety: null,
-    wine_type: null,
-    country: null,
-    subregion: null,
-    bottle_size: null,
-    food_pairing: null,
-    community_rating: null,
+  const [filters, setFilters] = useState<Record<FilterKey, string[]>>({
+    vintage: [],
+    region: [],
+    grape_variety: [],
+    wine_type: [],
+    country: [],
+    subregion: [],
+    bottle_size: [],
+    food_pairing: [],
+    community_rating: [],
   });
   const [openFilter, setOpenFilter] = useState<FilterKey | null>(null);
   const [favoritesOnly, setFavoritesOnly] = useState(false);
@@ -157,26 +157,26 @@ export function CollectionPage() {
         (w) => w.drink_from !== null && w.drink_from <= year && (w.drink_to === null || w.drink_to >= year),
       );
     }
-    if (filters.vintage) result = result.filter((w) => String(w.vintage) === filters.vintage);
-    if (filters.region) result = result.filter((w) => w.region === filters.region);
-    if (filters.grape_variety) {
+    if (filters.vintage.length) result = result.filter((w) => filters.vintage.includes(String(w.vintage)));
+    if (filters.region.length) result = result.filter((w) => w.region !== null && filters.region.includes(w.region));
+    if (filters.grape_variety.length) {
       const wanted = filters.grape_variety;
-      result = result.filter((w) => splitCommaList(w.grape_variety).includes(wanted));
+      result = result.filter((w) => splitCommaList(w.grape_variety).some((g) => wanted.includes(g)));
     }
-    if (filters.wine_type) {
+    if (filters.wine_type.length) {
       const wanted = filters.wine_type;
-      result = result.filter((w) => w.wine_type && WINE_TYPE_LABELS[w.wine_type] === wanted);
+      result = result.filter((w) => w.wine_type !== null && wanted.includes(WINE_TYPE_LABELS[w.wine_type]));
     }
-    if (filters.country) result = result.filter((w) => w.country === filters.country);
-    if (filters.subregion) result = result.filter((w) => w.subregion === filters.subregion);
-    if (filters.bottle_size) result = result.filter((w) => w.bottle_size === filters.bottle_size);
-    if (filters.food_pairing) {
+    if (filters.country.length) result = result.filter((w) => w.country !== null && filters.country.includes(w.country));
+    if (filters.subregion.length) result = result.filter((w) => w.subregion !== null && filters.subregion.includes(w.subregion));
+    if (filters.bottle_size.length) result = result.filter((w) => w.bottle_size !== null && filters.bottle_size.includes(w.bottle_size));
+    if (filters.food_pairing.length) {
       const wanted = filters.food_pairing;
-      result = result.filter((w) => splitCommaList(w.food_pairing).includes(wanted));
+      result = result.filter((w) => splitCommaList(w.food_pairing).some((f) => wanted.includes(f)));
     }
-    if (filters.community_rating) {
+    if (filters.community_rating.length) {
       result = result.filter(
-        (w) => typeof w.community_rating === 'number' && w.community_rating.toFixed(1) === filters.community_rating,
+        (w) => typeof w.community_rating === 'number' && filters.community_rating.includes(w.community_rating.toFixed(1)),
       );
     }
 
@@ -309,75 +309,91 @@ export function CollectionPage() {
 
       <SearchBar value={search} onChange={setSearch} />
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 20px 4px' }}>
-        <div className="filter-row" style={{ padding: 0, flex: 1 }}>
-          {(Object.keys(FILTER_LABELS) as FilterKey[]).map((key) => (
+      <div className="filter-row" style={{ padding: '0 20px 8px' }}>
+        {(Object.keys(FILTER_LABELS) as FilterKey[]).map((key) => {
+          const count = filters[key].length;
+          const label = count === 0 ? FILTER_LABELS[key] : count === 1 ? filters[key][0] : `${FILTER_LABELS[key]} (${count})`;
+          return (
             <button
               key={key}
               type="button"
-              className={`tag tag-outline${filters[key] ? ' is-active' : ''}`}
+              className={`tag tag-outline${count > 0 ? ' is-active' : ''}`}
               onClick={() => setOpenFilter(key)}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}
             >
-              {filters[key] ?? FILTER_LABELS[key]}
+              {label}
+              {count > 0 && (
+                <span
+                  role="button"
+                  aria-label={`${FILTER_LABELS[key]}-Filter entfernen`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setFilters((f) => ({ ...f, [key]: [] }));
+                  }}
+                  style={{ display: 'inline-flex', opacity: 0.75, fontSize: 15, lineHeight: 1, padding: '0 2px' }}
+                >
+                  &times;
+                </span>
+              )}
             </button>
-          ))}
+          );
+        })}
+        <button
+          type="button"
+          className={`tag tag-outline${noPriceOnly ? ' is-active' : ''}`}
+          onClick={() => setNoPriceOnly((v) => !v)}
+        >
+          Ohne Preis
+        </button>
+        {tab === 'active' && (
           <button
             type="button"
-            className={`tag tag-outline${noPriceOnly ? ' is-active' : ''}`}
-            onClick={() => setNoPriceOnly((v) => !v)}
+            className={`tag tag-outline${drinkNowOnly ? ' is-active' : ''}`}
+            onClick={() => setDrinkNowOnly((v) => !v)}
           >
-            Ohne Preis
+            Jetzt trinkreif
           </button>
-          {tab === 'active' && (
-            <button
-              type="button"
-              className={`tag tag-outline${drinkNowOnly ? ' is-active' : ''}`}
-              onClick={() => setDrinkNowOnly((v) => !v)}
-            >
-              Jetzt trinkreif
-            </button>
-          )}
+        )}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, alignItems: 'center', padding: '0 20px 14px' }}>
+        <div style={{ display: 'flex', border: '1px solid var(--color-divider)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
+          <button
+            type="button"
+            aria-label="Rasteransicht"
+            aria-pressed={viewMode === 'grid'}
+            onClick={() => changeViewMode('grid')}
+            style={{
+              padding: '9px 12px',
+              border: 'none',
+              background: viewMode === 'grid' ? 'var(--color-accent)' : 'transparent',
+              color: viewMode === 'grid' ? '#fff' : 'var(--color-text)',
+              cursor: 'pointer',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="3" width="8" height="8" /><rect x="13" y="3" width="8" height="8" />
+              <rect x="3" y="13" width="8" height="8" /><rect x="13" y="13" width="8" height="8" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            aria-label="Listenansicht"
+            aria-pressed={viewMode === 'list'}
+            onClick={() => changeViewMode('list')}
+            style={{
+              padding: '9px 12px',
+              border: 'none',
+              background: viewMode === 'list' ? 'var(--color-accent)' : 'transparent',
+              color: viewMode === 'list' ? '#fff' : 'var(--color-text)',
+              cursor: 'pointer',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="18" x2="20" y2="18" />
+            </svg>
+          </button>
         </div>
-        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-          <div style={{ display: 'flex', border: '1px solid var(--color-divider)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-            <button
-              type="button"
-              aria-label="Rasteransicht"
-              aria-pressed={viewMode === 'grid'}
-              onClick={() => changeViewMode('grid')}
-              style={{
-                padding: '5px 8px',
-                border: 'none',
-                background: viewMode === 'grid' ? 'var(--color-accent)' : 'transparent',
-                color: viewMode === 'grid' ? '#fff' : 'var(--color-text)',
-                cursor: 'pointer',
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="3" width="8" height="8" /><rect x="13" y="3" width="8" height="8" />
-                <rect x="3" y="13" width="8" height="8" /><rect x="13" y="13" width="8" height="8" />
-              </svg>
-            </button>
-            <button
-              type="button"
-              aria-label="Listenansicht"
-              aria-pressed={viewMode === 'list'}
-              onClick={() => changeViewMode('list')}
-              style={{
-                padding: '5px 8px',
-                border: 'none',
-                background: viewMode === 'list' ? 'var(--color-accent)' : 'transparent',
-                color: viewMode === 'list' ? '#fff' : 'var(--color-text)',
-                cursor: 'pointer',
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="18" x2="20" y2="18" />
-              </svg>
-            </button>
-          </div>
-          <SortMenu value={sort} onChange={setSort} />
-        </div>
+        <SortMenu value={sort} onChange={setSort} />
       </div>
 
       {loading && <LoadingSpinner label="Sammlung wird geladen ..." />}
@@ -424,7 +440,14 @@ export function CollectionPage() {
           title={FILTER_LABELS[openFilter]}
           options={filterOptions[openFilter]}
           selected={filters[openFilter]}
-          onSelect={(v) => setFilters((f) => ({ ...f, [openFilter]: v }))}
+          onToggle={(v) =>
+            setFilters((f) => {
+              const current = f[openFilter];
+              const next = current.includes(v) ? current.filter((x) => x !== v) : [...current, v];
+              return { ...f, [openFilter]: next };
+            })
+          }
+          onClear={() => setFilters((f) => ({ ...f, [openFilter]: [] }))}
           onClose={() => setOpenFilter(null)}
         />
       )}

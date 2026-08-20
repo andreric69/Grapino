@@ -1,12 +1,13 @@
 interface FilterSheetProps {
   title: string;
   options: string[];
-  selected: string | null;
-  onSelect: (value: string | null) => void;
+  selected: string[];
+  onToggle: (value: string) => void;
+  onClear: () => void;
   onClose: () => void;
 }
 
-export function FilterSheet({ title, options, selected, onSelect, onClose }: FilterSheetProps) {
+export function FilterSheet({ title, options, selected, onToggle, onClear, onClose }: FilterSheetProps) {
   return (
     <div className="dialog-backdrop" onClick={onClose}>
       <div className="dialog" onClick={(e) => e.stopPropagation()}>
@@ -15,11 +16,8 @@ export function FilterSheet({ title, options, selected, onSelect, onClose }: Fil
           <button
             type="button"
             className="btn"
-            style={{ justifyContent: 'flex-start', color: !selected ? 'var(--color-accent)' : 'var(--color-text)' }}
-            onClick={() => {
-              onSelect(null);
-              onClose();
-            }}
+            style={{ justifyContent: 'flex-start', color: selected.length === 0 ? 'var(--color-accent)' : 'var(--color-text)' }}
+            onClick={onClear}
           >
             Alle
           </button>
@@ -28,27 +26,48 @@ export function FilterSheet({ title, options, selected, onSelect, onClose }: Fil
               Keine Angaben vorhanden.
             </div>
           )}
-          {options.map((opt) => (
-            <button
-              key={opt}
-              type="button"
-              className="btn"
-              style={{
-                justifyContent: 'flex-start',
-                color: selected === opt ? 'var(--color-accent)' : 'var(--color-text)',
-              }}
-              onClick={() => {
-                onSelect(opt);
-                onClose();
-              }}
-            >
-              {opt}
-            </button>
-          ))}
+          {options.map((opt) => {
+            const active = selected.includes(opt);
+            return (
+              <button
+                key={opt}
+                type="button"
+                className="btn"
+                style={{
+                  justifyContent: 'flex-start',
+                  gap: 10,
+                  color: active ? 'var(--color-accent)' : 'var(--color-text)',
+                }}
+                onClick={() => onToggle(opt)}
+              >
+                <span
+                  aria-hidden="true"
+                  style={{
+                    width: 17,
+                    height: 17,
+                    borderRadius: 4,
+                    border: `1.5px solid ${active ? 'var(--color-accent)' : 'var(--color-divider)'}`,
+                    background: active ? 'var(--color-accent)' : 'transparent',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  {active && (
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )}
+                </span>
+                {opt}
+              </button>
+            );
+          })}
         </div>
         <div className="dialog-actions">
-          <button type="button" className="btn btn-secondary" onClick={onClose}>
-            Schliessen
+          <button type="button" className="btn btn-primary" style={{ flex: 1 }} onClick={onClose}>
+            Fertig{selected.length > 0 ? ` (${selected.length})` : ''}
           </button>
         </div>
       </div>
