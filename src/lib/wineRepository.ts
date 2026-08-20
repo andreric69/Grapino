@@ -1,5 +1,5 @@
 import { supabase, WINE_PHOTOS_BUCKET } from '../supabaseClient';
-import type { ConsumptionLogEntry, Wine, WineInput } from '../types';
+import type { ConsumptionLogEntry, DeletionRequest, Wine, WineInput } from '../types';
 
 export const NETWORK_ERROR_MESSAGE =
   'Keine Verbindung zum Server. Bitte Internetverbindung pruefen und erneut versuchen.';
@@ -124,22 +124,30 @@ export async function deleteWine(wine: Wine): Promise<void> {
 }
 
 /**
- * Loescht die GESAMTE Sammlung des angemeldeten Nutzers unwiderruflich -
- * alle Weine (Vorrat, Wunschliste, Getrunken) inklusive aller Fotos. RLS
- * sorgt dafuer, dass wirklich nur eigene Zeilen betroffen sind. Der
- * Trinkverlauf (Rueckblick) bleibt bewusst erhalten - das ist ein
- * unabhaengiges Verlaufsprotokoll, kein Bestandsdatum.
+ * Der Nutzer kann seine Sammlung nicht mehr selbst sofort loeschen - stattdessen
+ * wird eine Anfrage angelegt, die erst ueber die Admin-App bestaetigt werden muss.
  */
-export async function deleteAllWines(wines: Wine[]): Promise<void> {
-  const allPaths = wines.flatMap((w) => [w.photo_url, ...(w.photo_urls ?? [])]).filter((p): p is string => !!p);
-  if (allPaths.length > 0) {
-    await supabase.storage.from(WINE_PHOTOS_BUCKET).remove(allPaths);
-  }
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error('Nicht angemeldet.');
-  const { error } = await supabase.from('wines').delete().eq('user_id', user.id);
+export async function requestCollectionDeletion(): Promise<void> {
+  const { error } = await supabase.from('deletion_requests').insert({});
+  if (error) throw toFriendlyError(error);
+}
+
+/** Liefert die aktuell offene (noch nicht geprueft) Loeschanfrage des Nutzers, falls vorhanden. */
+export async function getPendingDeletionRequest(): Promise<DeletionRequest | null> {
+  const { data, error } = await supabase
+    .from('deletion_requests')
+    .select('id, created_at, status')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw toFriendlyError(error);
+  return data as DeletionRequest | null;
+}
+
+/** Nimmt eine noch offene, eigene Loeschanfrage zurueck. */
+export async function cancelDeletionRequest(id: string): Promise<void> {
+  const { error } = await supabase.from('deletion_requests').delete().eq('id', id);
   if (error) throw toFriendlyError(error);
 }
 

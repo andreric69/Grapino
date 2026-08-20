@@ -89,3 +89,9 @@ export interface ConsumptionLogEntry {
   grape_variety: string | null;
   wine_type: WineType | null;
 }
+
+export interface DeletionRequest {
+  id: string;
+  created_at: string;
+  status: 'pending' | 'approved' | 'rejected';
+}

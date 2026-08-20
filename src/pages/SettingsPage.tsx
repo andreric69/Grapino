@@ -1,7 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { listWines, createWine, updateWine, deleteAllWines } from '../lib/wineRepository';
+import {
+  listWines,
+  createWine,
+  updateWine,
+  requestCollectionDeletion,
+  getPendingDeletionRequest,
+  cancelDeletionRequest,
+} from '../lib/wineRepository';
 import { downloadWinesBackup, parseWinesBackupFile } from '../lib/backup';
 import { mergeDuplicatesWithinBatch, buildExistingActiveIndex, findExistingMatch } from '../lib/importMerge';
 import {
@@ -12,7 +19,7 @@ import {
   MAPPABLE_FIELDS,
   type MappableField,
 } from '../lib/csvImport';
-import type { Wine, WineInput } from '../types';
+import type { DeletionRequest, Wine, WineInput } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorBanner } from '../components/ErrorBanner';
 
@@ -50,6 +57,10 @@ export function SettingsPage() {
   const [deleteAllError, setDeleteAllError] = useState<string | null>(null);
   const DELETE_ALL_KEYWORD = 'LOESCHEN';
 
+  const [pendingDeletionRequest, setPendingDeletionRequest] = useState<DeletionRequest | null>(null);
+  const [loadingDeletionRequest, setLoadingDeletionRequest] = useState(true);
+  const [cancelingRequest, setCancelingRequest] = useState(false);
+
   async function loadWines() {
     setLoadingWines(true);
     setLoadError(null);
@@ -62,8 +73,21 @@ export function SettingsPage() {
     }
   }
 
+  async function loadDeletionRequest() {
+    setLoadingDeletionRequest(true);
+    try {
+      setPendingDeletionRequest(await getPendingDeletionRequest());
+    } catch {
+      // Stiller Fehlschlag: die Anfrage-Karte bleibt einfach weg, der
+      // Loeschen-Button funktioniert unabhaengig davon weiterhin.
+    } finally {
+      setLoadingDeletionRequest(false);
+    }
+  }
+
   useEffect(() => {
     loadWines();
+    loadDeletionRequest();
   }, []);
 
   async function handleSignOut() {
@@ -164,14 +188,27 @@ export function SettingsPage() {
     setDeletingAll(true);
     setDeleteAllError(null);
     try {
-      await deleteAllWines(wines);
+      await requestCollectionDeletion();
       setConfirmDeleteAll(false);
       setDeleteAllConfirmText('');
-      await loadWines();
+      await loadDeletionRequest();
     } catch (e) {
-      setDeleteAllError(e instanceof Error ? e.message : 'Loeschen fehlgeschlagen.');
+      setDeleteAllError(e instanceof Error ? e.message : 'Anfrage konnte nicht gesendet werden.');
     } finally {
       setDeletingAll(false);
+    }
+  }
+
+  async function handleCancelRequest() {
+    if (!pendingDeletionRequest) return;
+    setCancelingRequest(true);
+    try {
+      await cancelDeletionRequest(pendingDeletionRequest.id);
+      await loadDeletionRequest();
+    } catch {
+      // Bewusst still: Karte bleibt einfach stehen, Nutzer kann es erneut versuchen.
+    } finally {
+      setCancelingRequest(false);
     }
   }
 
@@ -427,19 +464,41 @@ export function SettingsPage() {
             <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 15 }}>
               Ganze Sammlung loeschen
             </div>
-            <div style={{ fontSize: 12.5, opacity: 0.65, lineHeight: 1.5 }}>
-              Loescht unwiderruflich alle Weine (Vorrat, Wunschliste, Getrunken) inklusive aller Fotos. Der
-              Trinkverlauf im Rueckblick bleibt erhalten. Vorher am besten eine Sicherung herunterladen.
-            </div>
-            <button
-              type="button"
-              className="btn btn-danger"
-              style={{ alignSelf: 'flex-start' }}
-              disabled={wines.length === 0}
-              onClick={() => setConfirmDeleteAll(true)}
-            >
-              Sammlung loeschen ({wines.length})
-            </button>
+            {!loadingDeletionRequest && pendingDeletionRequest ? (
+              <>
+                <div style={{ fontSize: 12.5, opacity: 0.65, lineHeight: 1.5 }}>
+                  Loeschanfrage gesendet am{' '}
+                  {new Date(pendingDeletionRequest.created_at).toLocaleString('de-CH')}. Sie wird geprueft, bevor
+                  etwas geloescht wird.
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  style={{ alignSelf: 'flex-start' }}
+                  disabled={cancelingRequest}
+                  onClick={handleCancelRequest}
+                >
+                  {cancelingRequest ? 'Wird zurueckgenommen ...' : 'Anfrage zurueckziehen'}
+                </button>
+              </>
+            ) : (
+              <>
+                <div style={{ fontSize: 12.5, opacity: 0.65, lineHeight: 1.5 }}>
+                  Sendet eine Anfrage zum Loeschen der gesamten Sammlung (Vorrat, Wunschliste, Getrunken)
+                  inklusive aller Fotos. Die Loeschung wird erst nach Bestaetigung ausgefuehrt. Vorher am besten
+                  eine Sicherung herunterladen.
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  style={{ alignSelf: 'flex-start' }}
+                  disabled={wines.length === 0}
+                  onClick={() => setConfirmDeleteAll(true)}
+                >
+                  Sammlung loeschen ({wines.length})
+                </button>
+              </>
+            )}
           </div>
         </section>
       </div>
@@ -455,10 +514,10 @@ export function SettingsPage() {
           }}
         >
           <div className="dialog" onClick={(e) => e.stopPropagation()}>
-            <div className="dialog-title">Ganze Sammlung loeschen?</div>
+            <div className="dialog-title">Loeschanfrage senden?</div>
             <div className="dialog-body">
-              Alle {wines.length} {wines.length === 1 ? 'Wein wird' : 'Weine werden'} unwiderruflich geloescht,
-              inklusive aller Fotos. Das kann nicht rueckgaengig gemacht werden.
+              Alle {wines.length} {wines.length === 1 ? 'Wein wird' : 'Weine werden'} zur Loeschung angefragt,
+              inklusive aller Fotos. Die Sammlung wird erst geloescht, nachdem die Anfrage bestaetigt wurde.
               <div style={{ marginTop: 12 }}>
                 Zum Bestaetigen <strong>{DELETE_ALL_KEYWORD}</strong> eintippen:
               </div>
@@ -491,7 +550,7 @@ export function SettingsPage() {
                 disabled={deletingAll || deleteAllConfirmText.trim().toUpperCase() !== DELETE_ALL_KEYWORD}
                 onClick={handleDeleteAll}
               >
-                {deletingAll ? 'Wird geloescht ...' : 'Endgueltig loeschen'}
+                {deletingAll ? 'Wird gesendet ...' : 'Anfrage senden'}
               </button>
             </div>
           </div>
