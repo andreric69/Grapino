@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { listWines, getSignedPhotoUrls } from '../lib/wineRepository';
 import { isBackupOverdue } from '../lib/backupReminder';
 import { hasFeedbackBeenSubmitted, isFeedbackDelayOver, markFeedbackSubmitted } from '../lib/feedbackReminder';
+import { listActiveAnnouncements } from '../lib/announcementRepository';
+import { getLastSeenAnnouncementId, markAnnouncementSeen } from '../lib/announcementReminder';
 import { useWineActions } from '../hooks/useWineActions';
-import { WINE_TYPE_LABELS, splitCommaList, type SortOption, type Wine } from '../types';
+import { WINE_TYPE_LABELS, splitCommaList, type Announcement, type SortOption, type Wine } from '../types';
 import { WineCard } from '../components/WineCard';
 import { SearchBar } from '../components/SearchBar';
 import { FilterSheet } from '../components/FilterSheet';
@@ -13,6 +15,7 @@ import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { BackupReminderBanner } from '../components/BackupReminderBanner';
+import { AnnouncementBanner } from '../components/AnnouncementBanner';
 import { FeedbackModal } from '../components/FeedbackModal';
 import { Toast } from '../components/Toast';
 import { useToast } from '../hooks/useToast';
@@ -70,6 +73,7 @@ export function CollectionPage() {
   const [noPriceOnly, setNoPriceOnly] = useState(false);
   const [drinkNowOnly, setDrinkNowOnly] = useState(false);
   const [showBackupReminder, setShowBackupReminder] = useState(false);
+  const [unseenAnnouncement, setUnseenAnnouncement] = useState<Announcement | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [pendingConsume, setPendingConsume] = useState<Wine | null>(null);
   const [tab, setTab] = useState<Tab>('active');
@@ -100,6 +104,10 @@ export function CollectionPage() {
       const paths = data.map((w) => w.photo_url).filter((p): p is string => !!p);
       const urls = await getSignedPhotoUrls(paths);
       setPhotoUrls(urls);
+
+      const announcements = await listActiveAnnouncements();
+      const newest = announcements[0];
+      if (newest && newest.id !== getLastSeenAnnouncementId()) setUnseenAnnouncement(newest);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Unbekannter Fehler.');
     } finally {
@@ -272,6 +280,16 @@ export function CollectionPage() {
           {favoritesOnly && <> &middot; nur Favoriten</>}
         </div>
       </div>
+
+      {unseenAnnouncement && (
+        <AnnouncementBanner
+          announcement={unseenAnnouncement}
+          onDismiss={() => {
+            markAnnouncementSeen(unseenAnnouncement.id);
+            setUnseenAnnouncement(null);
+          }}
+        />
+      )}
 
       {showBackupReminder && (
         <BackupReminderBanner

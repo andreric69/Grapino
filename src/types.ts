@@ -95,3 +95,20 @@ export interface DeletionRequest {
   created_at: string;
   status: 'pending' | 'approved' | 'rejected';
 }
+
+export interface Announcement {
+  id: string;
+  created_at: string;
+  title: string;
+  body: string;
+}
+
+export interface MyFeedback {
+  id: string;
+  created_at: string;
+  rating: number;
+  message: string | null;
+  tip_amount: number | null;
+  reply: string | null;
+  reply_created_at: string | null;
+}

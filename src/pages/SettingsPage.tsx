@@ -19,7 +19,8 @@ import {
   MAPPABLE_FIELDS,
   type MappableField,
 } from '../lib/csvImport';
-import type { DeletionRequest, Wine, WineInput } from '../types';
+import { listMyFeedback } from '../lib/feedbackRepository';
+import type { DeletionRequest, MyFeedback, Wine, WineInput } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorBanner } from '../components/ErrorBanner';
 
@@ -61,6 +62,8 @@ export function SettingsPage() {
   const [loadingDeletionRequest, setLoadingDeletionRequest] = useState(true);
   const [cancelingRequest, setCancelingRequest] = useState(false);
 
+  const [myFeedback, setMyFeedback] = useState<MyFeedback[]>([]);
+
   async function loadWines() {
     setLoadingWines(true);
     setLoadError(null);
@@ -88,6 +91,7 @@ export function SettingsPage() {
   useEffect(() => {
     loadWines();
     loadDeletionRequest();
+    listMyFeedback().then(setMyFeedback);
   }, []);
 
   async function handleSignOut() {
@@ -455,6 +459,39 @@ export function SettingsPage() {
             </div>
           </div>
         </section>
+
+        {myFeedback.length > 0 && (
+          <section style={{ marginBottom: 28 }}>
+            <div className="card-kicker" style={{ marginBottom: 8 }}>
+              Meine Rueckmeldungen
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {myFeedback.map((f) => (
+                <div key={f.id} className="card" style={{ gap: 6 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+                    <span style={{ color: 'var(--color-bordeaux)' }}>{'★'.repeat(f.rating)}</span>
+                    <span style={{ opacity: 0.55 }}>{new Date(f.created_at).toLocaleDateString('de-CH')}</span>
+                  </div>
+                  {f.message && <div style={{ fontSize: 13.5, lineHeight: 1.5 }}>{f.message}</div>}
+                  {f.reply && (
+                    <div
+                      style={{
+                        marginTop: 4,
+                        padding: '8px 10px',
+                        borderRadius: 'var(--radius-sm)',
+                        background: 'color-mix(in srgb, var(--color-bordeaux) 8%, transparent)',
+                        fontSize: 13,
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      <strong>Antwort:</strong> {f.reply}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         <section style={{ marginBottom: 28 }}>
           <div className="card-kicker" style={{ marginBottom: 8, color: 'var(--color-bordeaux)' }}>
