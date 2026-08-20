@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { listWines, getSignedPhotoUrls } from '../lib/wineRepository';
 import { isBackupOverdue } from '../lib/backupReminder';
 import { hasFeedbackBeenSubmitted, isFeedbackDelayOver, markFeedbackSubmitted } from '../lib/feedbackReminder';
-import { listActiveAnnouncements } from '../lib/announcementRepository';
-import { getLastSeenAnnouncementId, markAnnouncementSeen } from '../lib/announcementReminder';
+import { getDueAnnouncement, dismissAnnouncement } from '../lib/announcementRepository';
 import { useWineActions } from '../hooks/useWineActions';
 import { WINE_TYPE_LABELS, splitCommaList, type Announcement, type SortOption, type Wine } from '../types';
 import { WineCard } from '../components/WineCard';
@@ -105,9 +104,8 @@ export function CollectionPage() {
       const urls = await getSignedPhotoUrls(paths);
       setPhotoUrls(urls);
 
-      const announcements = await listActiveAnnouncements();
-      const newest = announcements[0];
-      if (newest && newest.id !== getLastSeenAnnouncementId()) setUnseenAnnouncement(newest);
+      const due = await getDueAnnouncement();
+      setUnseenAnnouncement(due);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Unbekannter Fehler.');
     } finally {
@@ -285,7 +283,7 @@ export function CollectionPage() {
         <AnnouncementBanner
           announcement={unseenAnnouncement}
           onDismiss={() => {
-            markAnnouncementSeen(unseenAnnouncement.id);
+            dismissAnnouncement(unseenAnnouncement.id);
             setUnseenAnnouncement(null);
           }}
         />

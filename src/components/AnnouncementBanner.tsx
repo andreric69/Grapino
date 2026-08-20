@@ -20,7 +20,10 @@ export function AnnouncementBanner({
         gap: 8,
       }}
     >
-      <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 14.5 }}>{announcement.title}</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span style={{ fontSize: 12 }}>{announcement.type === 'update' ? '🔄' : '📢'}</span>
+        <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 14.5 }}>{announcement.title}</div>
+      </div>
       <div style={{ fontSize: 13.5, lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>{announcement.body}</div>
       <button
         type="button"

@@ -101,6 +101,9 @@ export interface Announcement {
   created_at: string;
   title: string;
   body: string;
+  type: 'news' | 'update';
+  /** Alle N Tage nach dem letzten Wegklicken erneut anzeigen - leer = nur einmalig. */
+  repeat_every_days: number | null;
 }
 
 export interface MyFeedback {
