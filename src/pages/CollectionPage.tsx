@@ -69,9 +69,13 @@ const DEFAULT_FILTERS: Record<FilterKey, string[]> = {
   community_rating: [],
 };
 
+// sessionStorage bewusst statt localStorage: Filter sollen einen Ausflug auf
+// die Detailseite ueberleben, aber bei einem frischen App-Start (Tab/PWA neu
+// geoeffnet) wieder leer sein - kein dauerhaft "hängender" Filter von vor
+// Tagen.
 function loadPersistedFilterState(): Partial<PersistedFilterState> {
   try {
-    const raw = localStorage.getItem(FILTER_STATE_KEY);
+    const raw = sessionStorage.getItem(FILTER_STATE_KEY);
     return raw ? (JSON.parse(raw) as Partial<PersistedFilterState>) : {};
   } catch {
     return {};
@@ -125,7 +129,7 @@ export function CollectionPage() {
 
   useEffect(() => {
     const state: PersistedFilterState = { search, sort, filters, favoritesOnly, noPriceOnly, drinkNowOnly, tab };
-    localStorage.setItem(FILTER_STATE_KEY, JSON.stringify(state));
+    sessionStorage.setItem(FILTER_STATE_KEY, JSON.stringify(state));
   }, [search, sort, filters, favoritesOnly, noPriceOnly, drinkNowOnly, tab]);
 
   async function load() {

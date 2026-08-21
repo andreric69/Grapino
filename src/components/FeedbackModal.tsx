@@ -12,7 +12,7 @@ function smileyFor(tip: number) {
   return '\u{1F610}'; // 😐
 }
 
-export function FeedbackModal({ onSubmitted }: { onSubmitted: () => void }) {
+export function FeedbackModal({ onSubmitted, onClose }: { onSubmitted: () => void; onClose?: () => void }) {
   const [rating, setRating] = useState<number | null>(null);
   const [message, setMessage] = useState('');
   const [tip, setTip] = useState(TIP_MIN);
@@ -40,7 +40,7 @@ export function FeedbackModal({ onSubmitted }: { onSubmitted: () => void }) {
   }
 
   return (
-    <div className="dialog-backdrop">
+    <div className="dialog-backdrop" onClick={onClose}>
       <div className="dialog" onClick={(e) => e.stopPropagation()}>
         <div className="dialog-title">Wie gefaellt dir Grapino?</div>
         <div className="dialog-body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -101,9 +101,14 @@ export function FeedbackModal({ onSubmitted }: { onSubmitted: () => void }) {
           {error && <div style={{ color: 'var(--color-bordeaux)', fontSize: 13 }}>{error}</div>}
         </div>
         <div className="dialog-actions">
+          {onClose && (
+            <button type="button" className="btn btn-secondary" onClick={onClose} disabled={submitting}>
+              Abbrechen
+            </button>
+          )}
           <button
             type="button"
-            className="btn btn-primary btn-block"
+            className={onClose ? 'btn btn-primary' : 'btn btn-primary btn-block'}
             onClick={handleSubmit}
             disabled={!rating || submitting}
           >

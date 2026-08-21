@@ -283,6 +283,7 @@ export function ChatBubble({ wines }: { wines: Wine[] }) {
             setShowFeedback(false);
             closeAndReset();
           }}
+          onClose={() => setShowFeedback(false)}
         />
       )}
     </>

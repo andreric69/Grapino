@@ -281,9 +281,8 @@ textarea.input {
   background: transparent;
 }
 .tag-outline.is-active {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-  color: var(--color-surface);
+  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  border-width: 2px;
   font-weight: 600;
 }
 
