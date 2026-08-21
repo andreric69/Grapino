@@ -20,7 +20,9 @@ import {
   type MappableField,
 } from '../lib/csvImport';
 import { listMyFeedback } from '../lib/feedbackRepository';
-import type { DeletionRequest, MyFeedback, Wine, WineInput } from '../types';
+import { listMyPaymentRequests } from '../lib/paymentRequestRepository';
+import { listMyOrders, ORDER_PRICING } from '../lib/orderRepository';
+import type { DeletionRequest, EnrichmentOrder, MyFeedback, PaymentRequest, Wine, WineInput } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorBanner } from '../components/ErrorBanner';
 
@@ -40,7 +42,26 @@ type CsvImportState =
 
 export function SettingsPage() {
   const navigate = useNavigate();
-  const { session, signOut } = useAuth();
+  const { session, signOut, updateDisplayName } = useAuth();
+
+  const [nameInput, setNameInput] = useState('');
+  const [savingName, setSavingName] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [nameSaved, setNameSaved] = useState(false);
+
+  useEffect(() => {
+    setNameInput((session?.user.user_metadata?.display_name as string | undefined) ?? '');
+  }, [session?.user.user_metadata?.display_name]);
+
+  async function handleSaveName() {
+    setSavingName(true);
+    setNameError(null);
+    setNameSaved(false);
+    const { error } = await updateDisplayName(nameInput);
+    if (error) setNameError(error);
+    else setNameSaved(true);
+    setSavingName(false);
+  }
 
   const [wines, setWines] = useState<Wine[]>([]);
   const [loadingWines, setLoadingWines] = useState(true);
@@ -63,6 +84,8 @@ export function SettingsPage() {
   const [cancelingRequest, setCancelingRequest] = useState(false);
 
   const [myFeedback, setMyFeedback] = useState<MyFeedback[]>([]);
+  const [myPaymentRequests, setMyPaymentRequests] = useState<PaymentRequest[]>([]);
+  const [myOrders, setMyOrders] = useState<EnrichmentOrder[]>([]);
 
   async function loadWines() {
     setLoadingWines(true);
@@ -92,6 +115,8 @@ export function SettingsPage() {
     loadWines();
     loadDeletionRequest();
     listMyFeedback().then(setMyFeedback);
+    listMyPaymentRequests().then(setMyPaymentRequests);
+    listMyOrders().then(setMyOrders);
   }, []);
 
   async function handleSignOut() {
@@ -235,6 +260,33 @@ export function SettingsPage() {
           </div>
           <div className="card" style={{ gap: 12 }}>
             <div style={{ fontSize: 14 }}>{session?.user.email}</div>
+            <div>
+              <label style={{ fontSize: 12.5, opacity: 0.65, display: 'block', marginBottom: 4 }}>
+                Name (so wirst du in der App angesprochen)
+              </label>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  className="input"
+                  style={{ flex: 1 }}
+                  value={nameInput}
+                  onChange={(e) => {
+                    setNameInput(e.target.value);
+                    setNameSaved(false);
+                  }}
+                  placeholder="z.B. Gregor"
+                />
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  disabled={savingName || !nameInput.trim()}
+                  onClick={handleSaveName}
+                >
+                  {savingName ? 'Speichert ...' : 'Speichern'}
+                </button>
+              </div>
+              {nameError && <ErrorBanner message={nameError} />}
+              {nameSaved && <div style={{ fontSize: 12.5, color: 'var(--color-bordeaux)', marginTop: 4 }}>Gespeichert.</div>}
+            </div>
             <button type="button" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }} onClick={handleSignOut}>
               Abmelden
             </button>
@@ -487,6 +539,57 @@ export function SettingsPage() {
                       <strong>Antwort:</strong> {f.reply}
                     </div>
                   )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {myPaymentRequests.length > 0 && (
+          <section style={{ marginBottom: 28 }}>
+            <div className="card-kicker" style={{ marginBottom: 8 }}>
+              Zahlungsanfragen
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {myPaymentRequests.map((p) => (
+                <div key={p.id} className="card" style={{ gap: 6 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <strong style={{ fontSize: 15 }}>{p.amount.toFixed(2)} CHF</strong>
+                    <span style={{ fontSize: 12, opacity: 0.55 }}>{new Date(p.created_at).toLocaleDateString('de-CH')}</span>
+                  </div>
+                  <div style={{ fontSize: 13.5 }}>{p.reason}</div>
+                  <div style={{ fontSize: 12.5, opacity: 0.7 }}>
+                    {p.status === 'open' && 'Offen - Ueberweisung/TWINT an Andrin, wie besprochen.'}
+                    {p.status === 'paid' && `Bezahlt${p.paid_at ? ' am ' + new Date(p.paid_at).toLocaleDateString('de-CH') : ''}.`}
+                    {p.status === 'cancelled' && 'Storniert.'}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {myOrders.length > 0 && (
+          <section style={{ marginBottom: 28 }}>
+            <div className="card-kicker" style={{ marginBottom: 8 }}>
+              Meine Auftraege
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {myOrders.map((o) => (
+                <div key={o.id} className="card" style={{ gap: 6 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <strong style={{ fontSize: 14 }}>{ORDER_PRICING[o.category].label}</strong>
+                    <span style={{ fontSize: 12, opacity: 0.55 }}>{new Date(o.created_at).toLocaleDateString('de-CH')}</span>
+                  </div>
+                  <div style={{ fontSize: 13 }}>
+                    {o.wine_count} {o.wine_count === 1 ? 'Wein' : 'Weine'} · {o.estimated_price.toFixed(2)} CHF
+                  </div>
+                  <div style={{ fontSize: 12.5, opacity: 0.7 }}>
+                    {o.status === 'pending' && 'Wartet auf Bearbeitung'}
+                    {o.status === 'in_progress' && 'Wird bearbeitet'}
+                    {o.status === 'done' && 'Erledigt'}
+                    {o.status === 'cancelled' && 'Storniert'}
+                  </div>
                 </div>
               ))}
             </div>

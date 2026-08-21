@@ -115,3 +115,32 @@ export interface MyFeedback {
   reply: string | null;
   reply_created_at: string | null;
 }
+
+export type OrderCategory = 'trinkfenster' | 'name' | 'refresh' | 'neue_weine' | 'ultra';
+
+export interface EnrichmentOrder {
+  id: string;
+  created_at: string;
+  category: OrderCategory;
+  wine_ids: string[];
+  wine_count: number;
+  estimated_price: number;
+  status: 'pending' | 'in_progress' | 'done' | 'cancelled';
+  note: string | null;
+}
+
+export interface PaymentRequest {
+  id: string;
+  created_at: string;
+  amount: number;
+  reason: string;
+  status: 'open' | 'paid' | 'cancelled';
+  paid_at: string | null;
+}
+
+export interface UserMessage {
+  id: string;
+  created_at: string;
+  category: 'allgemein' | 'vorschlag';
+  message: string;
+}

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import { listWines, getSignedPhotoUrls } from '../lib/wineRepository';
 import { isBackupOverdue } from '../lib/backupReminder';
 import { isFeedbackDelayOver } from '../lib/feedbackReminder';
@@ -21,6 +22,7 @@ import { ThemeToggle } from '../components/ThemeToggle';
 import { BackupReminderBanner } from '../components/BackupReminderBanner';
 import { AnnouncementBanner } from '../components/AnnouncementBanner';
 import { FeedbackModal } from '../components/FeedbackModal';
+import { ChatBubble } from '../components/ChatBubble';
 import { Toast } from '../components/Toast';
 import { useToast } from '../hooks/useToast';
 
@@ -54,6 +56,8 @@ const FILTER_LABELS: Record<FilterKey, string> = {
 
 export function CollectionPage() {
   const navigate = useNavigate();
+  const { session } = useAuth();
+  const displayName = (session?.user.user_metadata?.display_name as string | undefined)?.trim();
   const [wines, setWines] = useState<Wine[]>([]);
   const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -248,6 +252,7 @@ export function CollectionPage() {
 
   return (
     <div className="app-screen">
+      <ChatBubble wines={wines} />
       <div className="top-bar">
         <button
           type="button"
@@ -280,7 +285,7 @@ export function CollectionPage() {
       </div>
 
       <div className="app-header">
-        <div className="kicker">Private Sammlung</div>
+        <div className="kicker">{displayName ? `Hallo, ${displayName}` : 'Private Sammlung'}</div>
         <h1>Meine Weine</h1>
         <div className="subtitle">
           {bottleCount} {bottleCount === 1 ? 'Flasche' : 'Flaschen'}

@@ -7,6 +7,7 @@ interface AuthContextValue {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
+  updateDisplayName: (name: string) => Promise<{ error: string | null }>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -43,8 +44,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
   }
 
+  async function updateDisplayName(name: string) {
+    const { error } = await supabase.auth.updateUser({ data: { display_name: name.trim() } });
+    if (error) return { error: 'Name konnte nicht gespeichert werden. Bitte Internetverbindung pruefen.' };
+    return { error: null };
+  }
+
   return (
-    <AuthContext.Provider value={{ session, loading, signIn, signOut }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ session, loading, signIn, signOut, updateDisplayName }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
 
