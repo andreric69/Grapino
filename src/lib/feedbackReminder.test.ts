@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { hasFeedbackBeenSubmitted, isFeedbackDelayOver, markFeedbackSubmitted } from './feedbackReminder';
+import { isFeedbackDelayOver } from './feedbackReminder';
 
 // Hinweis: FEEDBACK_NOT_BEFORE in feedbackReminder.ts ist auf 2026-08-17 gesetzt
 // und liegt damit in der Vergangenheit - die Tests pruefen daher die
@@ -7,15 +7,6 @@ import { hasFeedbackBeenSubmitted, isFeedbackDelayOver, markFeedbackSubmitted } 
 describe('feedbackReminder', () => {
   beforeEach(() => {
     localStorage.clear();
-  });
-
-  it('wurde noch nicht abgeschickt, wenn noch nichts gespeichert ist', () => {
-    expect(hasFeedbackBeenSubmitted()).toBe(false);
-  });
-
-  it('merkt sich ein abgeschicktes Feedback dauerhaft', () => {
-    markFeedbackSubmitted();
-    expect(hasFeedbackBeenSubmitted()).toBe(true);
   });
 
   it('zeigt das Popup nicht direkt beim allerersten Start (innerhalb der 1-Stunden-Frist)', () => {

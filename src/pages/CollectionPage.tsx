@@ -2,7 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { listWines, getSignedPhotoUrls } from '../lib/wineRepository';
 import { isBackupOverdue } from '../lib/backupReminder';
-import { hasFeedbackBeenSubmitted, isFeedbackDelayOver, markFeedbackSubmitted } from '../lib/feedbackReminder';
+import { isFeedbackDelayOver } from '../lib/feedbackReminder';
+import {
+  hasSubmittedFeedbackEver,
+  getUnfulfilledFeedbackRequest,
+  markFeedbackRequestFulfilled,
+} from '../lib/feedbackRepository';
 import { getDueAnnouncement, dismissAnnouncement } from '../lib/announcementRepository';
 import { useWineActions } from '../hooks/useWineActions';
 import { WINE_TYPE_LABELS, splitCommaList, type Announcement, type SortOption, type Wine } from '../types';
@@ -74,6 +79,7 @@ export function CollectionPage() {
   const [showBackupReminder, setShowBackupReminder] = useState(false);
   const [unseenAnnouncement, setUnseenAnnouncement] = useState<Announcement | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [feedbackRequestId, setFeedbackRequestId] = useState<string | null>(null);
   const [pendingConsume, setPendingConsume] = useState<Wine | null>(null);
   const [tab, setTab] = useState<Tab>('active');
   const [viewMode, setViewMode] = useState<ViewMode>(
@@ -97,7 +103,13 @@ export function CollectionPage() {
       // Start"-Zeitpunkt auf - deshalb immer aufrufen (nicht erst ab 3 Weinen),
       // sonst wuerde die Stunde erst ab dem dritten Wein zu laufen beginnen.
       const delayOver = isFeedbackDelayOver();
-      if (data.length >= FEEDBACK_MIN_WINES && !hasFeedbackBeenSubmitted() && delayOver) {
+      const pendingRequest = await getUnfulfilledFeedbackRequest();
+      if (pendingRequest) {
+        // Vom Betreiber aktiv angefragt - erscheint sofort, unabhaengig von
+        // der sonstigen Verzoegerung und davon, ob schon einmal Feedback kam.
+        setFeedbackRequestId(pendingRequest.id);
+        setShowFeedback(true);
+      } else if (data.length >= FEEDBACK_MIN_WINES && delayOver && !(await hasSubmittedFeedbackEver())) {
         setShowFeedback(true);
       }
       const paths = data.map((w) => w.photo_url).filter((p): p is string => !!p);
@@ -114,7 +126,10 @@ export function CollectionPage() {
   }
 
   function handleFeedbackSubmitted() {
-    markFeedbackSubmitted();
+    if (feedbackRequestId) {
+      markFeedbackRequestFulfilled(feedbackRequestId);
+      setFeedbackRequestId(null);
+    }
     setShowFeedback(false);
   }
 

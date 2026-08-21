@@ -9,6 +9,44 @@ export async function submitFeedback(input: FeedbackInput): Promise<void> {
   }
 }
 
+/**
+ * Wurde jemals Feedback gesendet? Serverseitig geprueft (nicht nur lokal im
+ * Browser) - sonst fragt die App auf einem neuen Geraet oder nach Loeschen
+ * der Browserdaten faelschlich erneut, obwohl schon laengst Feedback vorliegt.
+ */
+export async function hasSubmittedFeedbackEver(): Promise<boolean> {
+  const { data, error } = await supabase.from('app_feedback').select('id').limit(1);
+  if (error) {
+    console.error('Feedback-Fehler:', error);
+    return false;
+  }
+  return (data?.length ?? 0) > 0;
+}
+
+/** Offene, vom Betreiber aktiv angefragte Feedback-Anfrage (falls vorhanden). */
+export async function getUnfulfilledFeedbackRequest(): Promise<{ id: string } | null> {
+  const { data, error } = await supabase
+    .from('feedback_requests')
+    .select('id')
+    .is('fulfilled_at', null)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) {
+    console.error('Feedback-Anfrage-Fehler:', error);
+    return null;
+  }
+  return data;
+}
+
+export async function markFeedbackRequestFulfilled(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('feedback_requests')
+    .update({ fulfilled_at: new Date().toISOString() })
+    .eq('id', id);
+  if (error) console.error('Feedback-Anfrage-Fehler:', error);
+}
+
 /** Eigene bisher gesendete Rueckmeldungen inkl. einer moeglichen Antwort des Betreibers. */
 export async function listMyFeedback(): Promise<MyFeedback[]> {
   const { data, error } = await supabase
