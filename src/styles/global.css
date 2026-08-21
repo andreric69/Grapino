@@ -281,7 +281,10 @@ textarea.input {
   background: transparent;
 }
 .tag-outline.is-active {
-  background: color-mix(in srgb, var(--color-accent) 16%, transparent);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-surface);
+  font-weight: 600;
 }
 
 /* ---- dialog ---------------------------------------------------------------- */

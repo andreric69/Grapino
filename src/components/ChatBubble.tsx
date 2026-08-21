@@ -108,13 +108,13 @@ export function ChatBubble({ wines }: { wines: Wine[] }) {
         onClick={() => setOpen(true)}
         style={{
           position: 'fixed',
-          top: 14,
-          left: 14,
-          zIndex: 40,
-          width: 38,
-          height: 38,
+          bottom: 'calc(28px + env(safe-area-inset-bottom))',
+          left: 20,
+          zIndex: 20,
+          width: 48,
+          height: 48,
           background: 'var(--color-surface)',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
+          boxShadow: 'var(--shadow-lg)',
         }}
       >
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--color-text)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

@@ -42,6 +42,42 @@ type Tab = 'active' | 'consumed' | 'wishlist';
 type ViewMode = 'grid' | 'list';
 const VIEW_MODE_KEY = 'weinsammlung-view-mode';
 
+// Filter/Suche/Sortierung ueberleben damit einen Ausflug auf die
+// Detailseite und zurueck - vorher gingen sie beim Zurueckkommen verloren,
+// weil CollectionPage beim Routenwechsel komplett neu gemountet wird.
+const FILTER_STATE_KEY = 'weinsammlung-filter-state';
+
+interface PersistedFilterState {
+  search: string;
+  sort: SortOption;
+  filters: Record<FilterKey, string[]>;
+  favoritesOnly: boolean;
+  noPriceOnly: boolean;
+  drinkNowOnly: boolean;
+  tab: Tab;
+}
+
+const DEFAULT_FILTERS: Record<FilterKey, string[]> = {
+  vintage: [],
+  region: [],
+  grape_variety: [],
+  wine_type: [],
+  country: [],
+  subregion: [],
+  bottle_size: [],
+  food_pairing: [],
+  community_rating: [],
+};
+
+function loadPersistedFilterState(): Partial<PersistedFilterState> {
+  try {
+    const raw = localStorage.getItem(FILTER_STATE_KEY);
+    return raw ? (JSON.parse(raw) as Partial<PersistedFilterState>) : {};
+  } catch {
+    return {};
+  }
+}
+
 const FILTER_LABELS: Record<FilterKey, string> = {
   vintage: 'Jahrgang',
   region: 'Region',
@@ -63,29 +99,20 @@ export function CollectionPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [search, setSearch] = useState('');
-  const [sort, setSort] = useState<SortOption>('newest');
-  const [filters, setFilters] = useState<Record<FilterKey, string[]>>({
-    vintage: [],
-    region: [],
-    grape_variety: [],
-    wine_type: [],
-    country: [],
-    subregion: [],
-    bottle_size: [],
-    food_pairing: [],
-    community_rating: [],
-  });
+  const persistedFilterState = useMemo(loadPersistedFilterState, []);
+  const [search, setSearch] = useState(persistedFilterState.search ?? '');
+  const [sort, setSort] = useState<SortOption>(persistedFilterState.sort ?? 'newest');
+  const [filters, setFilters] = useState<Record<FilterKey, string[]>>(persistedFilterState.filters ?? DEFAULT_FILTERS);
   const [openFilter, setOpenFilter] = useState<FilterKey | null>(null);
-  const [favoritesOnly, setFavoritesOnly] = useState(false);
-  const [noPriceOnly, setNoPriceOnly] = useState(false);
-  const [drinkNowOnly, setDrinkNowOnly] = useState(false);
+  const [favoritesOnly, setFavoritesOnly] = useState(persistedFilterState.favoritesOnly ?? false);
+  const [noPriceOnly, setNoPriceOnly] = useState(persistedFilterState.noPriceOnly ?? false);
+  const [drinkNowOnly, setDrinkNowOnly] = useState(persistedFilterState.drinkNowOnly ?? false);
   const [showBackupReminder, setShowBackupReminder] = useState(false);
   const [unseenAnnouncement, setUnseenAnnouncement] = useState<Announcement | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackRequestId, setFeedbackRequestId] = useState<string | null>(null);
   const [pendingConsume, setPendingConsume] = useState<Wine | null>(null);
-  const [tab, setTab] = useState<Tab>('active');
+  const [tab, setTab] = useState<Tab>(persistedFilterState.tab ?? 'active');
   const [viewMode, setViewMode] = useState<ViewMode>(
     () => (localStorage.getItem(VIEW_MODE_KEY) as ViewMode | null) ?? 'grid',
   );
@@ -95,6 +122,11 @@ export function CollectionPage() {
     setViewMode(mode);
     localStorage.setItem(VIEW_MODE_KEY, mode);
   }
+
+  useEffect(() => {
+    const state: PersistedFilterState = { search, sort, filters, favoritesOnly, noPriceOnly, drinkNowOnly, tab };
+    localStorage.setItem(FILTER_STATE_KEY, JSON.stringify(state));
+  }, [search, sort, filters, favoritesOnly, noPriceOnly, drinkNowOnly, tab]);
 
   async function load() {
     setLoading(true);
