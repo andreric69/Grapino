@@ -47,6 +47,15 @@ export async function markFeedbackRequestFulfilled(id: string): Promise<void> {
   if (error) console.error('Feedback-Anfrage-Fehler:', error);
 }
 
+/** Loescht eine eigene, bereits gesendete Rueckmeldung wieder. */
+export async function deleteFeedback(id: string): Promise<void> {
+  const { error } = await supabase.from('app_feedback').delete().eq('id', id);
+  if (error) {
+    console.error('Feedback-Fehler:', error);
+    throw new Error('Rueckmeldung konnte nicht geloescht werden. Bitte Internetverbindung pruefen.');
+  }
+}
+
 /** Eigene bisher gesendete Rueckmeldungen inkl. einer moeglichen Antwort des Betreibers. */
 export async function listMyFeedback(): Promise<MyFeedback[]> {
   const { data, error } = await supabase

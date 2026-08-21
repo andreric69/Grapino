@@ -19,7 +19,7 @@ import {
   MAPPABLE_FIELDS,
   type MappableField,
 } from '../lib/csvImport';
-import { listMyFeedback } from '../lib/feedbackRepository';
+import { listMyFeedback, deleteFeedback } from '../lib/feedbackRepository';
 import { listMyPaymentRequests } from '../lib/paymentRequestRepository';
 import { listMyOrders, ORDER_CATEGORY_INFO } from '../lib/orderRepository';
 import { getPricingConfig, type PricingConfig } from '../lib/pricingConfig';
@@ -85,9 +85,27 @@ export function SettingsPage() {
   const [cancelingRequest, setCancelingRequest] = useState(false);
 
   const [myFeedback, setMyFeedback] = useState<MyFeedback[]>([]);
+  const [feedbackToDelete, setFeedbackToDelete] = useState<MyFeedback | null>(null);
+  const [deletingFeedback, setDeletingFeedback] = useState(false);
+  const [feedbackDeleteError, setFeedbackDeleteError] = useState<string | null>(null);
   const [myPaymentRequests, setMyPaymentRequests] = useState<PaymentRequest[]>([]);
   const [myOrders, setMyOrders] = useState<EnrichmentOrder[]>([]);
   const [pricing, setPricing] = useState<PricingConfig | null>(null);
+
+  async function handleDeleteFeedback() {
+    if (!feedbackToDelete) return;
+    setDeletingFeedback(true);
+    setFeedbackDeleteError(null);
+    try {
+      await deleteFeedback(feedbackToDelete.id);
+      setMyFeedback((list) => list.filter((f) => f.id !== feedbackToDelete.id));
+      setFeedbackToDelete(null);
+    } catch (e) {
+      setFeedbackDeleteError(e instanceof Error ? e.message : 'Loeschen fehlgeschlagen.');
+    } finally {
+      setDeletingFeedback(false);
+    }
+  }
 
   async function loadWines() {
     setLoadingWines(true);
@@ -294,6 +312,104 @@ export function SettingsPage() {
               Abmelden
             </button>
           </div>
+        </section>
+
+        <section style={{ marginBottom: 28 }}>
+          <div className="card-kicker" style={{ marginBottom: 8 }}>
+            Kosten &amp; Zahlungen
+          </div>
+
+          {myPaymentRequests.filter((p) => p.status === 'open').length > 0 && (
+            <div
+              className="card"
+              style={{ gap: 10, marginBottom: 14, border: '2px solid var(--color-bordeaux)', background: 'color-mix(in srgb, var(--color-bordeaux) 10%, transparent)' }}
+            >
+              <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 16, color: 'var(--color-bordeaux)' }}>
+                Offene Zahlung{myPaymentRequests.filter((p) => p.status === 'open').length > 1 ? 'en' : ''}
+              </div>
+              {myPaymentRequests
+                .filter((p) => p.status === 'open')
+                .map((p) => (
+                  <div key={p.id} style={{ display: 'flex', flexDirection: 'column', gap: 2, paddingBottom: 8, borderBottom: '1px solid var(--color-divider)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                      <strong style={{ fontSize: 18 }}>{p.amount.toFixed(2)} CHF</strong>
+                      <span style={{ fontSize: 11.5, opacity: 0.55 }}>{new Date(p.created_at).toLocaleDateString('de-CH')}</span>
+                    </div>
+                    <div style={{ fontSize: 13.5 }}>{p.reason}</div>
+                  </div>
+                ))}
+              <div style={{ fontSize: 12, opacity: 0.7 }}>Ueberweisung/TWINT an Andrin, wie besprochen.</div>
+            </div>
+          )}
+
+          {myPaymentRequests.filter((p) => p.status !== 'open').length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
+              {myPaymentRequests
+                .filter((p) => p.status !== 'open')
+                .map((p) => (
+                  <div key={p.id} className="card" style={{ gap: 6 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                      <strong style={{ fontSize: 15 }}>{p.amount.toFixed(2)} CHF</strong>
+                      <span style={{ fontSize: 12, opacity: 0.55 }}>{new Date(p.created_at).toLocaleDateString('de-CH')}</span>
+                    </div>
+                    <div style={{ fontSize: 13.5 }}>{p.reason}</div>
+                    <div style={{ fontSize: 12.5, opacity: 0.7 }}>
+                      {p.status === 'paid' && `Bezahlt${p.paid_at ? ' am ' + new Date(p.paid_at).toLocaleDateString('de-CH') : ''}.`}
+                      {p.status === 'cancelled' && 'Storniert.'}
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+
+          {myOrders.length > 0 && (
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontSize: 12.5, opacity: 0.65, marginBottom: 8 }}>Meine Auftraege</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {myOrders.map((o) => (
+                  <div key={o.id} className="card" style={{ gap: 6 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                      <strong style={{ fontSize: 14 }}>{ORDER_CATEGORY_INFO[o.category].label}</strong>
+                      <span style={{ fontSize: 12, opacity: 0.55 }}>{new Date(o.created_at).toLocaleDateString('de-CH')}</span>
+                    </div>
+                    <div style={{ fontSize: 13 }}>
+                      {o.wine_count} {o.wine_count === 1 ? 'Wein' : 'Weine'} · {o.estimated_price.toFixed(2)} CHF
+                    </div>
+                    <div style={{ fontSize: 12.5, opacity: 0.7 }}>
+                      {o.status === 'pending' && 'Wartet auf Bearbeitung'}
+                      {o.status === 'in_progress' && 'Wird bearbeitet'}
+                      {o.status === 'done' && 'Erledigt'}
+                      {o.status === 'cancelled' && 'Storniert'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {pricing && (
+            <div className="card" style={{ gap: 8 }}>
+              <div style={{ fontSize: 12.5, opacity: 0.65, marginBottom: 2 }}>Preise fuer Aktualisierungs-Auftraege</div>
+              {(Object.keys(ORDER_CATEGORY_INFO) as (keyof typeof ORDER_CATEGORY_INFO)[]).map((key) => (
+                <div key={key} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+                  <span>{ORDER_CATEGORY_INFO[key].label}</span>
+                  <span style={{ opacity: 0.7 }}>ab {pricing[key].toFixed(2)} CHF/Wein</span>
+                </div>
+              ))}
+              <div style={{ fontSize: 11.5, opacity: 0.55, marginTop: 4 }}>
+                Mindestbetrag {pricing.minimum.toFixed(2)} CHF pro Auftrag. Bei grossen Mengen wird es pro Flasche
+                guenstiger.
+              </div>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                style={{ fontSize: 11.5, alignSelf: 'flex-start', padding: 0, marginTop: 4 }}
+                onClick={() => navigate('/impressum')}
+              >
+                Impressum &amp; Kosten-Hinweise
+              </button>
+            </div>
+          )}
         </section>
 
         <section style={{ marginBottom: 28 }}>
@@ -523,9 +639,19 @@ export function SettingsPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {myFeedback.map((f) => (
                 <div key={f.id} className="card" style={{ gap: 6 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
-                    <span style={{ color: 'var(--color-bordeaux)' }}>{'★'.repeat(f.rating)}</span>
-                    <span style={{ opacity: 0.55 }}>{new Date(f.created_at).toLocaleDateString('de-CH')}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, fontSize: 13 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ color: 'var(--color-bordeaux)' }}>{'★'.repeat(f.rating)}</span>
+                      <span style={{ opacity: 0.55 }}>{new Date(f.created_at).toLocaleDateString('de-CH')}</span>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-ghost"
+                      style={{ fontSize: 11.5, padding: 0, color: 'var(--color-bordeaux)' }}
+                      onClick={() => setFeedbackToDelete(f)}
+                    >
+                      Loeschen
+                    </button>
                   </div>
                   {f.message && <div style={{ fontSize: 13.5, lineHeight: 1.5 }}>{f.message}</div>}
                   {f.reply && (
@@ -542,85 +668,6 @@ export function SettingsPage() {
                       <strong>Antwort:</strong> {f.reply}
                     </div>
                   )}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {pricing && (
-          <section style={{ marginBottom: 28 }}>
-            <div className="card-kicker" style={{ marginBottom: 8 }}>
-              Preise fuer Aktualisierungs-Auftraege
-            </div>
-            <div className="card" style={{ gap: 8 }}>
-              {(Object.keys(ORDER_CATEGORY_INFO) as (keyof typeof ORDER_CATEGORY_INFO)[]).map((key) => (
-                <div key={key} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-                  <span>{ORDER_CATEGORY_INFO[key].label}</span>
-                  <span style={{ opacity: 0.7 }}>ab {pricing[key].toFixed(2)} CHF/Wein</span>
-                </div>
-              ))}
-              <div style={{ fontSize: 11.5, opacity: 0.55, marginTop: 4 }}>
-                Mindestbetrag {pricing.minimum.toFixed(2)} CHF pro Auftrag. Bei grossen Mengen wird es pro Flasche
-                guenstiger.
-              </div>
-              <button
-                type="button"
-                className="btn btn-ghost"
-                style={{ fontSize: 11.5, alignSelf: 'flex-start', padding: 0, marginTop: 4 }}
-                onClick={() => navigate('/impressum')}
-              >
-                Impressum &amp; Kosten-Hinweise
-              </button>
-            </div>
-          </section>
-        )}
-
-        {myPaymentRequests.length > 0 && (
-          <section style={{ marginBottom: 28 }}>
-            <div className="card-kicker" style={{ marginBottom: 8 }}>
-              Zahlungsanfragen
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {myPaymentRequests.map((p) => (
-                <div key={p.id} className="card" style={{ gap: 6 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <strong style={{ fontSize: 15 }}>{p.amount.toFixed(2)} CHF</strong>
-                    <span style={{ fontSize: 12, opacity: 0.55 }}>{new Date(p.created_at).toLocaleDateString('de-CH')}</span>
-                  </div>
-                  <div style={{ fontSize: 13.5 }}>{p.reason}</div>
-                  <div style={{ fontSize: 12.5, opacity: 0.7 }}>
-                    {p.status === 'open' && 'Offen - Ueberweisung/TWINT an Andrin, wie besprochen.'}
-                    {p.status === 'paid' && `Bezahlt${p.paid_at ? ' am ' + new Date(p.paid_at).toLocaleDateString('de-CH') : ''}.`}
-                    {p.status === 'cancelled' && 'Storniert.'}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {myOrders.length > 0 && (
-          <section style={{ marginBottom: 28 }}>
-            <div className="card-kicker" style={{ marginBottom: 8 }}>
-              Meine Auftraege
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {myOrders.map((o) => (
-                <div key={o.id} className="card" style={{ gap: 6 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <strong style={{ fontSize: 14 }}>{ORDER_CATEGORY_INFO[o.category].label}</strong>
-                    <span style={{ fontSize: 12, opacity: 0.55 }}>{new Date(o.created_at).toLocaleDateString('de-CH')}</span>
-                  </div>
-                  <div style={{ fontSize: 13 }}>
-                    {o.wine_count} {o.wine_count === 1 ? 'Wein' : 'Weine'} · {o.estimated_price.toFixed(2)} CHF
-                  </div>
-                  <div style={{ fontSize: 12.5, opacity: 0.7 }}>
-                    {o.status === 'pending' && 'Wartet auf Bearbeitung'}
-                    {o.status === 'in_progress' && 'Wird bearbeitet'}
-                    {o.status === 'done' && 'Erledigt'}
-                    {o.status === 'cancelled' && 'Storniert'}
-                  </div>
                 </div>
               ))}
             </div>
@@ -722,6 +769,26 @@ export function SettingsPage() {
                 onClick={handleDeleteAll}
               >
                 {deletingAll ? 'Wird gesendet ...' : 'Anfrage senden'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {feedbackToDelete && (
+        <div className="dialog-backdrop" onClick={() => !deletingFeedback && setFeedbackToDelete(null)}>
+          <div className="dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="dialog-title">Rueckmeldung loeschen?</div>
+            <div className="dialog-body">
+              Diese Rueckmeldung wird unwiderruflich geloescht.
+              {feedbackDeleteError && <ErrorBanner message={feedbackDeleteError} />}
+            </div>
+            <div className="dialog-actions">
+              <button type="button" className="btn btn-secondary" onClick={() => setFeedbackToDelete(null)} disabled={deletingFeedback}>
+                Abbrechen
+              </button>
+              <button type="button" className="btn btn-danger" onClick={handleDeleteFeedback} disabled={deletingFeedback}>
+                {deletingFeedback ? 'Wird geloescht ...' : 'Loeschen'}
               </button>
             </div>
           </div>

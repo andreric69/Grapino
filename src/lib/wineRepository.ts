@@ -27,6 +27,18 @@ export async function listConsumptionLog(): Promise<ConsumptionLogEntry[]> {
   return data as ConsumptionLogEntry[];
 }
 
+/** Loescht einen einzelnen Eintrag aus dem Trinkverlauf (z. B. ein Versehen korrigieren). */
+export async function deleteConsumptionLogEntry(id: string): Promise<void> {
+  const { error } = await supabase.from('wine_consumption_log').delete().eq('id', id);
+  if (error) throw toFriendlyError(error);
+}
+
+/** Loescht den gesamten eigenen Trinkverlauf. */
+export async function clearConsumptionLog(): Promise<void> {
+  const { error } = await supabase.from('wine_consumption_log').delete().not('id', 'is', null);
+  if (error) throw toFriendlyError(error);
+}
+
 export async function getWine(id: string): Promise<Wine> {
   const { data, error } = await supabase.from('wines').select('*').eq('id', id).single();
   if (error) throw toFriendlyError(error);

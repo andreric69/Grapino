@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { listConsumptionLog } from '../lib/wineRepository';
+import { listConsumptionLog, deleteConsumptionLogEntry, clearConsumptionLog } from '../lib/wineRepository';
 import type { ConsumptionLogEntry } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorBanner } from '../components/ErrorBanner';
@@ -26,6 +26,10 @@ export function RueckblickPage() {
   const [entries, setEntries] = useState<ConsumptionLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deletingEntryId, setDeletingEntryId] = useState<string | null>(null);
+  const [confirmClearAll, setConfirmClearAll] = useState(false);
+  const [clearingAll, setClearingAll] = useState(false);
+  const [clearError, setClearError] = useState<string | null>(null);
 
   async function load() {
     setLoading(true);
@@ -42,6 +46,32 @@ export function RueckblickPage() {
   useEffect(() => {
     load();
   }, []);
+
+  async function handleDeleteEntry(id: string) {
+    setDeletingEntryId(id);
+    try {
+      await deleteConsumptionLogEntry(id);
+      setEntries((list) => list.filter((e) => e.id !== id));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Unbekannter Fehler.');
+    } finally {
+      setDeletingEntryId(null);
+    }
+  }
+
+  async function handleClearAll() {
+    setClearingAll(true);
+    setClearError(null);
+    try {
+      await clearConsumptionLog();
+      setEntries([]);
+      setConfirmClearAll(false);
+    } catch (e) {
+      setClearError(e instanceof Error ? e.message : 'Unbekannter Fehler.');
+    } finally {
+      setClearingAll(false);
+    }
+  }
 
   const last12MonthsEntries = useMemo(() => {
     const cutoff = new Date();
@@ -150,19 +180,48 @@ export function RueckblickPage() {
               </div>
             )}
 
-            <div className="card-kicker" style={{ marginBottom: 10 }}>
-              Zuletzt getrunken
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10 }}>
+              <div className="card-kicker">Zuletzt getrunken</div>
+              {entries.length > 0 && (
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  style={{ fontSize: 11.5, padding: 0, color: 'var(--color-bordeaux)' }}
+                  onClick={() => setConfirmClearAll(true)}
+                >
+                  Verlauf loeschen
+                </button>
+              )}
             </div>
             {entries.length === 0 ? (
               <div style={{ fontSize: 13, opacity: 0.55 }}>Noch nichts getrunken.</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {entries.slice(0, 30).map((e) => (
-                  <div key={e.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, borderBottom: '1px solid var(--color-divider)', paddingBottom: 8 }}>
+                  <div key={e.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, fontSize: 13, borderBottom: '1px solid var(--color-divider)', paddingBottom: 8 }}>
                     <span>{e.wine_name}</span>
-                    <span style={{ opacity: 0.55 }}>
-                      {new Date(e.consumed_at).toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <span style={{ opacity: 0.55 }}>
+                        {new Date(e.consumed_at).toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                      </span>
+                      <button
+                        type="button"
+                        aria-label="Eintrag loeschen"
+                        disabled={deletingEntryId === e.id}
+                        onClick={() => handleDeleteEntry(e.id)}
+                        style={{
+                          border: 'none',
+                          background: 'none',
+                          cursor: 'pointer',
+                          color: 'var(--color-bordeaux)',
+                          fontSize: 15,
+                          lineHeight: 1,
+                          opacity: deletingEntryId === e.id ? 0.4 : 0.6,
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -170,6 +229,27 @@ export function RueckblickPage() {
           </>
         )}
       </div>
+
+      {confirmClearAll && (
+        <div className="dialog-backdrop" onClick={() => !clearingAll && setConfirmClearAll(false)}>
+          <div className="dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="dialog-title">Trinkverlauf loeschen?</div>
+            <div className="dialog-body">
+              Der gesamte Trinkverlauf ({entries.length} {entries.length === 1 ? 'Eintrag' : 'Eintraege'}) wird
+              unwiderruflich geloescht. Die Weine selbst bleiben davon unberuehrt.
+              {clearError && <ErrorBanner message={clearError} />}
+            </div>
+            <div className="dialog-actions">
+              <button type="button" className="btn btn-secondary" onClick={() => setConfirmClearAll(false)} disabled={clearingAll}>
+                Abbrechen
+              </button>
+              <button type="button" className="btn btn-danger" onClick={handleClearAll} disabled={clearingAll}>
+                {clearingAll ? 'Wird geloescht ...' : 'Loeschen'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
