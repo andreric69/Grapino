@@ -23,6 +23,7 @@ import { BackupReminderBanner } from '../components/BackupReminderBanner';
 import { AnnouncementBanner } from '../components/AnnouncementBanner';
 import { FeedbackModal } from '../components/FeedbackModal';
 import { ChatBubble } from '../components/ChatBubble';
+import { ConsumeDialog } from '../components/ConsumeDialog';
 import { Toast } from '../components/Toast';
 import { useToast } from '../hooks/useToast';
 
@@ -536,32 +537,15 @@ export function CollectionPage() {
       {showFeedback && <FeedbackModal onSubmitted={handleFeedbackSubmitted} />}
 
       {pendingConsume && (
-        <div className="dialog-backdrop" onClick={() => setPendingConsume(null)}>
-          <div className="dialog" onClick={(e) => e.stopPropagation()}>
-            <div className="dialog-title">Als getrunken markieren?</div>
-            <div className="dialog-body">
-              {pendingConsume.quantity > 1
-                ? `Eine Flasche "${pendingConsume.name}" wird vom Vorrat abgebucht und im Rueckblick vermerkt.`
-                : `"${pendingConsume.name}" wandert in den Bereich "Getrunken" und wird im Rueckblick vermerkt.`}
-            </div>
-            <div className="dialog-actions">
-              <button type="button" className="btn btn-secondary" onClick={() => setPendingConsume(null)}>
-                Abbrechen
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => {
-                  const wine = pendingConsume;
-                  setPendingConsume(null);
-                  handleToggleConsumed(wine);
-                }}
-              >
-                Bestaetigen
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConsumeDialog
+          wine={pendingConsume}
+          onCancel={() => setPendingConsume(null)}
+          onConfirm={(count) => {
+            const wine = pendingConsume;
+            setPendingConsume(null);
+            handleToggleConsumed(wine, count);
+          }}
+        />
       )}
 
       <Toast message={toastMessage} />

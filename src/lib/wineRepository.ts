@@ -96,9 +96,17 @@ async function undoLastConsumptionLog(wineId: string): Promise<void> {
  * Vorrat, nur mit einer weniger. Jeder Aufruf zaehlt fuer den Rueckblick.
  */
 export async function drinkOneBottle(wine: Wine): Promise<Wine> {
-  const nextQuantity = Math.max(0, wine.quantity - 1);
+  return drinkBottles(wine, 1);
+}
+
+/** Wie drinkOneBottle, aber fuer mehrere Flaschen auf einmal (z.B. nach einem Fest). */
+export async function drinkBottles(wine: Wine, count: number): Promise<Wine> {
+  const clampedCount = Math.min(Math.max(1, count), wine.quantity);
+  const nextQuantity = Math.max(0, wine.quantity - clampedCount);
   const updated = await updateWine(wine.id, { quantity: nextQuantity, is_consumed: nextQuantity === 0 });
-  await logConsumption(wine);
+  for (let i = 0; i < clampedCount; i++) {
+    await logConsumption(wine);
+  }
   return updated;
 }
 

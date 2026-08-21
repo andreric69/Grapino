@@ -534,3 +534,10 @@ textarea.input {
   max-width: 560px;
   margin: 0 auto;
 }
+
+/* Detailseite eines Weins - auf groesseren Screens (iPad) nicht ueber die
+   volle Breite ausdehnen, sonst wirken Foto und Text unproportional lang. */
+.detail-page {
+  max-width: 560px;
+  margin: 0 auto;
+}

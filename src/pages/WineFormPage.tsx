@@ -804,6 +804,10 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
           )}
         </div>
 
+        <div className="hr" />
+        <div className="card-kicker" style={{ marginBottom: 10 }}>
+          Preis &amp; Lagerung
+        </div>
         <div style={{ display: 'flex', gap: 12 }}>
           <div style={{ flex: 1 }}>
             <FormField label="Preis pro Flasche">
@@ -840,6 +844,10 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
           />
         </FormField>
 
+        <div className="hr" />
+        <div className="card-kicker" style={{ marginBottom: 10 }}>
+          Trinkfenster
+        </div>
         <div style={{ display: 'flex', gap: 12 }}>
           <div style={{ flex: 1 }}>
             <FormField label="Trinkfenster von">
@@ -871,6 +879,10 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
           </div>
         </div>
 
+        <div className="hr" />
+        <div className="card-kicker" style={{ marginBottom: 10 }}>
+          Herkunft
+        </div>
         <FormField
           label="Rebsorte(n)"
           suggested={suggested.has('grapeVariety')}
@@ -939,6 +951,10 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
           />
         </FormField>
 
+        <div className="hr" />
+        <div className="card-kicker" style={{ marginBottom: 10 }}>
+          Bewertung &amp; Verkostung
+        </div>
         <div className="field" style={{ marginBottom: 13 }}>
           <label>Bewertung</label>
           <StarRating value={form.rating} onChange={(v) => updateField('rating', v)} />
@@ -993,6 +1009,10 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
           </div>
         </div>
 
+        <div className="hr" />
+        <div className="card-kicker" style={{ marginBottom: 10 }}>
+          Weitere Angaben
+        </div>
         <FormField label="Passt zu">
           <input
             className="input"

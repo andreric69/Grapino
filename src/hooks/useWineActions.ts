@@ -1,4 +1,4 @@
-import { drinkOneBottle, restoreToStock, setFavorite } from '../lib/wineRepository';
+import { drinkBottles, restoreToStock, setFavorite } from '../lib/wineRepository';
 import type { Wine } from '../types';
 
 interface UseWineActionsOptions {
@@ -29,11 +29,11 @@ export function useWineActions({ applyUpdate, rollback, showToast, onError }: Us
     }
   }
 
-  // Bei mehreren Flaschen geht nur eine weg (Bestand -1), der Wein bleibt im
-  // Vorrat. Erst bei der letzten Flasche wandert er in den
-  // "Getrunken"-Bereich. Von dort aus antippen holt ihn wieder zurueck
-  // (mind. 1 Flasche).
-  async function toggleConsumed(wine: Wine) {
+  // Bei mehreren Flaschen geht nur "count" weg (Bestand -count, per
+  // Bestaetigungsdialog waehlbar, Standard 1), der Wein bleibt im Vorrat.
+  // Erst wenn der Bestand 0 erreicht, wandert er in den "Getrunken"-Bereich.
+  // Von dort aus antippen holt ihn wieder zurueck (mind. 1 Flasche).
+  async function toggleConsumed(wine: Wine, count = 1) {
     const previous = wine;
     if (wine.is_consumed) {
       applyUpdate(wine.id, (w) => ({ ...w, is_consumed: false, quantity: Math.max(1, w.quantity) }));
@@ -47,15 +47,16 @@ export function useWineActions({ applyUpdate, rollback, showToast, onError }: Us
       return;
     }
 
-    const nextQuantity = Math.max(0, wine.quantity - 1);
+    const clampedCount = Math.min(Math.max(1, count), wine.quantity);
+    const nextQuantity = Math.max(0, wine.quantity - clampedCount);
     applyUpdate(wine.id, (w) => ({ ...w, quantity: nextQuantity, is_consumed: nextQuantity === 0 }));
     showToast?.(
       nextQuantity === 0
         ? `"${wine.name}" komplett getrunken - jetzt im Bereich "Getrunken".`
-        : `Eine Flasche "${wine.name}" gebucht - noch ${nextQuantity} im Vorrat.`,
+        : `${clampedCount === 1 ? 'Eine Flasche' : `${clampedCount} Flaschen`} "${wine.name}" gebucht - noch ${nextQuantity} im Vorrat.`,
     );
     try {
-      await drinkOneBottle(wine);
+      await drinkBottles(wine, clampedCount);
     } catch (e) {
       rollback(wine.id, previous);
       onError?.(e instanceof Error ? e.message : 'Konnte nicht gespeichert werden.');

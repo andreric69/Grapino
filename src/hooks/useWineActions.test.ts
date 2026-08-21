@@ -2,12 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Wine } from '../types';
 
 const setFavoriteMock = vi.fn();
-const drinkOneBottleMock = vi.fn();
+const drinkBottlesMock = vi.fn();
 const restoreToStockMock = vi.fn();
 
 vi.mock('../lib/wineRepository', () => ({
   setFavorite: (...args: unknown[]) => setFavoriteMock(...args),
-  drinkOneBottle: (...args: unknown[]) => drinkOneBottleMock(...args),
+  drinkBottles: (...args: unknown[]) => drinkBottlesMock(...args),
   restoreToStock: (...args: unknown[]) => restoreToStockMock(...args),
 }));
 
@@ -73,7 +73,7 @@ function makeHarness(initial: Wine) {
 describe('useWineActions.toggleFavorite', () => {
   beforeEach(() => {
     setFavoriteMock.mockReset();
-    drinkOneBottleMock.mockReset();
+    drinkBottlesMock.mockReset();
     restoreToStockMock.mockReset();
   });
 
@@ -96,12 +96,12 @@ describe('useWineActions.toggleFavorite', () => {
 describe('useWineActions.toggleConsumed', () => {
   beforeEach(() => {
     setFavoriteMock.mockReset();
-    drinkOneBottleMock.mockReset();
+    drinkBottlesMock.mockReset();
     restoreToStockMock.mockReset();
   });
 
   it('verringert bei mehreren Flaschen nur die Menge, Wein bleibt im Vorrat', async () => {
-    drinkOneBottleMock.mockResolvedValue(undefined);
+    drinkBottlesMock.mockResolvedValue(undefined);
     const h = makeHarness(makeWine({ quantity: 3, is_consumed: false }));
     await h.actions.toggleConsumed(h.current);
     expect(h.current.quantity).toBe(2);
@@ -109,8 +109,26 @@ describe('useWineActions.toggleConsumed', () => {
     expect(h.toasts[0]).toContain('Eine Flasche "Testwein" gebucht');
   });
 
+  it('verringert um die angegebene Anzahl Flaschen (count-Parameter)', async () => {
+    drinkBottlesMock.mockResolvedValue(undefined);
+    const h = makeHarness(makeWine({ quantity: 5, is_consumed: false }));
+    await h.actions.toggleConsumed(h.current, 3);
+    expect(h.current.quantity).toBe(2);
+    expect(h.current.is_consumed).toBe(false);
+    expect(drinkBottlesMock).toHaveBeenCalledWith(expect.objectContaining({ id: 'w1' }), 3);
+    expect(h.toasts[0]).toContain('3 Flaschen "Testwein" gebucht');
+  });
+
+  it('kappt count auf den vorhandenen Bestand', async () => {
+    drinkBottlesMock.mockResolvedValue(undefined);
+    const h = makeHarness(makeWine({ quantity: 2, is_consumed: false }));
+    await h.actions.toggleConsumed(h.current, 10);
+    expect(h.current.quantity).toBe(0);
+    expect(h.current.is_consumed).toBe(true);
+  });
+
   it('markiert als komplett getrunken, wenn die letzte Flasche weggeht', async () => {
-    drinkOneBottleMock.mockResolvedValue(undefined);
+    drinkBottlesMock.mockResolvedValue(undefined);
     const h = makeHarness(makeWine({ quantity: 1, is_consumed: false }));
     await h.actions.toggleConsumed(h.current);
     expect(h.current.quantity).toBe(0);
@@ -128,7 +146,7 @@ describe('useWineActions.toggleConsumed', () => {
   });
 
   it('macht das Update rueckgaengig und meldet den Fehler, wenn drinkOneBottle fehlschlaegt', async () => {
-    drinkOneBottleMock.mockRejectedValue(new Error('Server nicht erreichbar'));
+    drinkBottlesMock.mockRejectedValue(new Error('Server nicht erreichbar'));
     const h = makeHarness(makeWine({ quantity: 1, is_consumed: false }));
     await h.actions.toggleConsumed(h.current);
     expect(h.current.quantity).toBe(1);

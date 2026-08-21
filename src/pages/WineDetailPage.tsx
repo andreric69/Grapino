@@ -8,6 +8,7 @@ import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { FavoriteButton } from '../components/FavoriteButton';
 import { ConsumedButton } from '../components/ConsumedButton';
+import { ConsumeDialog } from '../components/ConsumeDialog';
 import { WineBottlePlaceholder } from '../components/WineBottlePlaceholder';
 import { Toast } from '../components/Toast';
 import { useToast } from '../hooks/useToast';
@@ -71,10 +72,10 @@ export function WineDetailPage() {
   // Getrunken-Icon: bei mehreren Flaschen geht nur eine weg (Bestand -1),
   // erst bei der letzten wandert der Wein in den "Getrunken"-Bereich. Vom
   // Getrunken-Bereich aus antippen holt ihn wieder in den Vorrat zurueck.
-  async function handleToggleConsumed() {
+  async function handleToggleConsumed(count?: number) {
     if (!wine) return;
     setQuantityError(null);
-    await toggleConsumedAction(wine);
+    await toggleConsumedAction(wine, count);
   }
 
   async function handleQuantityChange(delta: number) {
@@ -153,6 +154,7 @@ export function WineDetailPage() {
         </button>
       </div>
 
+      <div className="detail-page">
       <div className="plate" style={{ margin: '0 20px', height: 380, position: 'relative' }}>
         {photoUrls.length > 0 ? (
           <img
@@ -412,6 +414,7 @@ export function WineDetailPage() {
         </button>
         {deleteError && <ErrorBanner message={deleteError} onRetry={handleDelete} />}
       </div>
+      </div>
 
       {confirmDelete && (
         <div className="dialog-backdrop" onClick={() => !deleting && setConfirmDelete(false)}>
@@ -433,31 +436,14 @@ export function WineDetailPage() {
       )}
 
       {confirmConsume && (
-        <div className="dialog-backdrop" onClick={() => setConfirmConsume(false)}>
-          <div className="dialog" onClick={(e) => e.stopPropagation()}>
-            <div className="dialog-title">Als getrunken markieren?</div>
-            <div className="dialog-body">
-              {wine.quantity > 1
-                ? `Eine Flasche "${wine.name}" wird vom Vorrat abgebucht und im Rueckblick vermerkt.`
-                : `"${wine.name}" wandert in den Bereich "Getrunken" und wird im Rueckblick vermerkt.`}
-            </div>
-            <div className="dialog-actions">
-              <button type="button" className="btn btn-secondary" onClick={() => setConfirmConsume(false)}>
-                Abbrechen
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => {
-                  setConfirmConsume(false);
-                  handleToggleConsumed();
-                }}
-              >
-                Bestaetigen
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConsumeDialog
+          wine={wine}
+          onCancel={() => setConfirmConsume(false)}
+          onConfirm={(count) => {
+            setConfirmConsume(false);
+            handleToggleConsumed(count);
+          }}
+        />
       )}
 
       <Toast message={toastMessage} />
