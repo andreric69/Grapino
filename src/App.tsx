@@ -10,6 +10,7 @@ import { WineLexiconPage } from './pages/WineLexiconPage';
 import { StatsPage } from './pages/StatsPage';
 import { RueckblickPage } from './pages/RueckblickPage';
 import { PrintPage } from './pages/PrintPage';
+import { ImpressumPage } from './pages/ImpressumPage';
 
 export default function App() {
   return (
@@ -86,6 +87,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <PrintPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/impressum"
+            element={
+              <ProtectedRoute>
+                <ImpressumPage />
               </ProtectedRoute>
             }
           />

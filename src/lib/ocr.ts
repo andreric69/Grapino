@@ -1,6 +1,15 @@
 import { createWorker, PSM, type Worker } from 'tesseract.js';
-import { matchWineReferences, lookupCountryForRegion, lookupRegionHierarchy } from './wineReference';
+import {
+  matchWineReferences,
+  fuzzyMatchWineReferences,
+  lookupCountryForRegion,
+  lookupRegionHierarchy,
+  lookupTypeForGrape,
+} from './wineReference';
 import type { WineType } from '../types';
+
+export type FieldConfidence = 'high' | 'low';
+export type OcrField = 'name' | 'producer' | 'vintage' | 'grapeVariety' | 'region' | 'subregion' | 'country' | 'wineType';
 
 // Weinetiketten sind ueberwiegend Deutsch/Englisch, Franzoesisch, Italienisch
 // oder Spanisch (Bordeaux, Barolo, Rioja ...) - vorher nur deu+eng erkannt,
@@ -58,6 +67,17 @@ export interface OcrSuggestions {
   wineType?: WineType;
   /** Alle brauchbar erkannten Textfragmente - fuers manuelle Zuordnen per Ziehen auf ein Feld. */
   chips: string[];
+  /** Der komplette erkannte Rohtext - fuer den Abgleich gegen bereits bestaetigte eigene Weine (siehe recognitionRefs.ts). */
+  fullText: string;
+  /**
+   * Wie sicher jeder gesetzte Vorschlag ist - "high" bei exaktem Treffer
+   * gegen die Referenzliste/das Etikett selbst (Jahrgang, Appellation-Text),
+   * "low" bei einem nur unscharf (tippfehler-toleranten) gefundenen Treffer
+   * oder bei der reinen Positions-/Laengen-Heuristik (v.a. der Name - der ist
+   * strukturell nie gegen eine Referenzliste pruefbar). Fehlt ein Feld hier,
+   * wurde es gar nicht gesetzt.
+   */
+  confidence: Partial<Record<OcrField, FieldConfidence>>;
 }
 
 const MAX_CHIPS = 14;
@@ -263,8 +283,10 @@ export function buildPhrases(orderedWords: RecognizedWord[]): PhraseCandidate[] 
 }
 
 async function parseRecognitionResult(words: RecognizedWord[]): Promise<OcrSuggestions> {
+  const confidence: Partial<Record<OcrField, FieldConfidence>> = {};
   const fullText = words.map((w) => w.text).join(' ');
   const vintage = extractVintage(fullText);
+  if (vintage) confidence.vintage = 'high'; // eindeutiges 4-stelliges Jahr im erwarteten Bereich - keine Grauzone
 
   // Region direkt vom Etikett ablesen (siehe Kommentar oben), bevor der
   // Datenbank-Abgleich laeuft - hat Vorrang, weil vom Etikett selbst.
@@ -274,6 +296,9 @@ async function parseRecognitionResult(words: RecognizedWord[]): Promise<OcrSugge
   // Ergebnis wird gleich benutzt, um genau diese Woerter von der
   // Name/Produzent-Heuristik auszuschliessen (siehe claimedNormalized unten).
   const referenceMatches = await matchWineReferences(fullText);
+  if (referenceMatches.grapeVariety) confidence.grapeVariety = 'high';
+  if (referenceMatches.producer) confidence.producer = 'high';
+  if (labeledRegion || referenceMatches.region) confidence.region = 'high';
 
   // Die konkret erkannte, noch nicht aufgeloeste Regionsangabe (z. B.
   // "Margaux") - fuer die Landbestimmung und um sie von Name/Produzent
@@ -300,7 +325,7 @@ async function parseRecognitionResult(words: RecognizedWord[]): Promise<OcrSugge
   // falls "region" von der Etikett-Regel (labeledRegion) statt vom
   // Datenbank-Abgleich stammt, muss das Land trotzdem zu genau diesem
   // Regionsnamen passen.
-  const country = specificRegion ? await lookupCountryForRegion(specificRegion) : null;
+  let country = specificRegion ? await lookupCountryForRegion(specificRegion) : null;
 
   // Was schon als Region/Weingut erkannt wurde, darf nicht NOCHMAL als
   // Wein-Name vorgeschlagen werden - genau das war der gemeldete Bug: eine
@@ -331,9 +356,41 @@ async function parseRecognitionResult(words: RecognizedWord[]): Promise<OcrSugge
     .filter((p) => p.text.replace(/[^\p{L}]/gu, '').length >= MIN_CANDIDATE_LETTERS)
     .sort((a, b) => b.text.length - a.text.length);
 
+  // Tippfehler-toleranter Fallback: nur fuer Felder, die der exakte Abgleich
+  // nicht gefunden hat. Ein Naeherungstreffer gilt immer als "low"
+  // (unsicherer) Vorschlag, auch wenn er inhaltlich meist stimmt.
+  let grapeVariety = referenceMatches.grapeVariety;
+  let producer = referenceMatches.producer;
+  if (!grapeVariety || !producer || !region) {
+    const fuzzy = await fuzzyMatchWineReferences(candidates.map((c) => c.text));
+    if (!grapeVariety && fuzzy.grapeVariety) {
+      grapeVariety = fuzzy.grapeVariety;
+      confidence.grapeVariety = 'low';
+    }
+    if (!producer && fuzzy.producer) {
+      producer = fuzzy.producer;
+      confidence.producer = 'low';
+    }
+    if (!region && fuzzy.region) {
+      region = fuzzy.region;
+      confidence.region = 'low';
+      country = country ?? (await lookupCountryForRegion(fuzzy.region));
+    }
+  }
+  if (region) {
+    confidence.subregion = subregion ? confidence.region : undefined;
+    confidence.country = country ? confidence.region : undefined;
+  }
+
+  const wineType = grapeVariety ? ((await lookupTypeForGrape(grapeVariety)) ?? undefined) : undefined;
+  if (wineType) confidence.wineType = confidence.grapeVariety;
+
   const name = candidates[0]?.text.trim();
-  let producer = candidates.find((c) => c.text.trim() !== name)?.text.trim();
-  if (referenceMatches.producer) producer = referenceMatches.producer;
+  if (name) confidence.name = 'low'; // rein positions-/laengenbasiert, nie gegen eine Referenz geprueft
+  if (!producer) {
+    producer = candidates.find((c) => c.text.trim() !== name)?.text.trim();
+    if (producer) confidence.producer = 'low';
+  }
 
   // Alles, was fuer ein Feld in Frage kaeme, steht zusaetzlich als Vorschlag
   // ("Chip") zur Verfuegung - so faellt nichts weg, nur weil die Heuristik
@@ -343,8 +400,8 @@ async function parseRecognitionResult(words: RecognizedWord[]): Promise<OcrSugge
   if (vintage) chipSet.add(String(vintage));
   if (region) chipSet.add(region);
   if (subregion) chipSet.add(subregion);
-  if (referenceMatches.grapeVariety) chipSet.add(referenceMatches.grapeVariety);
-  if (referenceMatches.producer) chipSet.add(referenceMatches.producer);
+  if (grapeVariety) chipSet.add(grapeVariety);
+  if (producer) chipSet.add(producer);
   for (const c of candidates) chipSet.add(c.text.trim());
   const chips = Array.from(chipSet).slice(0, MAX_CHIPS);
 
@@ -352,12 +409,14 @@ async function parseRecognitionResult(words: RecognizedWord[]): Promise<OcrSugge
     name,
     producer,
     vintage,
-    grapeVariety: referenceMatches.grapeVariety,
+    grapeVariety,
     region,
     subregion,
     country: country ?? undefined,
-    wineType: referenceMatches.wineType,
+    wineType,
     chips,
+    confidence,
+    fullText,
   };
 }
 

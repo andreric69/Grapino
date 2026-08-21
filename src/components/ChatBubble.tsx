@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { OrderCategory, Wine } from '../types';
 import { sendMessage } from '../lib/messageRepository';
-import { submitOrder, estimateOrderPrice, ORDER_PRICING } from '../lib/orderRepository';
+import { submitOrder, ORDER_CATEGORY_INFO } from '../lib/orderRepository';
+import { computeOrderPrice, getPricingConfig, type PricingConfig } from '../lib/pricingConfig';
 import { FeedbackModal } from './FeedbackModal';
 
 type Tab = 'allgemein' | 'vorschlag' | 'auftrag';
@@ -70,7 +71,12 @@ export function ChatBubble({ wines }: { wines: Wine[] }) {
     () => activeWines.filter((w) => matchesFilter(w, orderFilter)),
     [activeWines, orderFilter],
   );
-  const estimatedPrice = estimateOrderPrice(orderCategory, matchingWines.length);
+
+  const [pricing, setPricing] = useState<PricingConfig | null>(null);
+  useEffect(() => {
+    getPricingConfig().then(setPricing);
+  }, []);
+  const estimatedPrice = pricing ? computeOrderPrice(pricing, orderCategory, matchingWines.length) : null;
 
   async function handleSubmitOrder() {
     if (matchingWines.length === 0) return;
@@ -193,14 +199,16 @@ export function ChatBubble({ wines }: { wines: Wine[] }) {
                         value={orderCategory}
                         onChange={(e) => setOrderCategory(e.target.value as OrderCategory)}
                       >
-                        {Object.entries(ORDER_PRICING).map(([key, p]) => (
+                        {Object.entries(ORDER_CATEGORY_INFO).map(([key, info]) => (
                           <option key={key} value={key}>
-                            {p.label} ({p.pricePerWine.toFixed(2)} CHF/Wein)
+                            {info.label}
+                            {pricing ? ` (ab ${pricing[key as OrderCategory].toFixed(2)} CHF/Wein)` : ''}
                           </option>
                         ))}
                       </select>
                       <div style={{ fontSize: 11.5, opacity: 0.6, marginTop: 4 }}>
-                        {ORDER_PRICING[orderCategory].description}
+                        {ORDER_CATEGORY_INFO[orderCategory].description} Bei grossen Sammlungen wird es pro Flasche
+                        guenstiger - der genaue Preis unten ist immer massgebend.
                       </div>
                     </div>
 
@@ -237,7 +245,7 @@ export function ChatBubble({ wines }: { wines: Wine[] }) {
                       <span>
                         {matchingWines.length} {matchingWines.length === 1 ? 'Wein' : 'Weine'}
                       </span>
-                      <strong>{estimatedPrice.toFixed(2)} CHF</strong>
+                      <strong>{estimatedPrice !== null ? `${estimatedPrice.toFixed(2)} CHF` : '...'}</strong>
                     </div>
                     {matchingWines.length === 0 && (
                       <div style={{ fontSize: 12, opacity: 0.6 }}>Kein Wein passt aktuell auf diesen Filter.</div>

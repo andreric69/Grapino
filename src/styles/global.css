@@ -285,6 +285,11 @@ textarea.input {
   border-width: 2px;
   font-weight: 600;
 }
+.tag-warn {
+  border: 1px solid var(--color-bordeaux);
+  color: var(--color-bordeaux);
+  background: color-mix(in srgb, var(--color-bordeaux) 12%, transparent);
+}
 
 /* ---- dialog ---------------------------------------------------------------- */
 @keyframes weinsammlung-backdrop-in {

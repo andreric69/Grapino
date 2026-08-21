@@ -1,40 +1,34 @@
 import { supabase } from '../supabaseClient';
+import { computeOrderPrice, getPricingConfig } from './pricingConfig';
 import type { EnrichmentOrder, OrderCategory } from '../types';
 
-/** CHF pro Wein, je nach Auftragsart - Ausgangspunkt, vom Betreiber jederzeit anpassbar. */
-export const ORDER_PRICING: Record<OrderCategory, { label: string; description: string; pricePerWine: number }> = {
+/** Nur Beschriftung/Beschreibung - die eigentlichen Preise kommen aus pricing_config (siehe pricingConfig.ts), vom Betreiber jederzeit in der Admin-App aenderbar. */
+export const ORDER_CATEGORY_INFO: Record<OrderCategory, { label: string; description: string }> = {
   trinkfenster: {
     label: 'Nur Trinkfenster',
     description: 'Recherchiert und ergaenzt ausschliesslich das Trinkfenster (von/bis Jahr).',
-    pricePerWine: 0.6,
   },
   name: {
     label: 'Nur Name',
     description: 'Prueft und korrigiert ausschliesslich Name/Bezeichnung des Weins.',
-    pricePerWine: 0.4,
   },
   refresh: {
     label: 'Refresh (alles aktualisieren)',
     description: 'Aktualisiert alle recherchierbaren Angaben (Region, Rebsorte, Trinkfenster, Kritiker-Punkte etc.).',
-    pricePerWine: 2.5,
   },
   neue_weine: {
     label: 'Für neue Weine',
     description: 'Basis-Ergaenzung fuer frisch importierte Weine ohne weitere Angaben.',
-    pricePerWine: 1.5,
   },
   ultra: {
     label: 'Ultra Import Paket',
     description: 'Rundum-sorglos: Fotos, Regionen, Rebsorten, Trinkfenster, Kritiker-Punkte - alles.',
-    pricePerWine: 4,
   },
 };
 
-export const ORDER_MINIMUM_PRICE = 5;
-
-export function estimateOrderPrice(category: OrderCategory, wineCount: number): number {
-  const raw = ORDER_PRICING[category].pricePerWine * wineCount;
-  return Math.max(ORDER_MINIMUM_PRICE, Math.round(raw * 20) / 20); // auf 5 Rappen runden
+export async function estimateOrderPrice(category: OrderCategory, wineCount: number): Promise<number> {
+  const pricing = await getPricingConfig();
+  return computeOrderPrice(pricing, category, wineCount);
 }
 
 export async function submitOrder(input: {
@@ -42,7 +36,7 @@ export async function submitOrder(input: {
   wineIds: string[];
   note: string | null;
 }): Promise<void> {
-  const estimated_price = estimateOrderPrice(input.category, input.wineIds.length);
+  const estimated_price = await estimateOrderPrice(input.category, input.wineIds.length);
   const { error } = await supabase.from('enrichment_orders').insert({
     category: input.category,
     wine_ids: input.wineIds,

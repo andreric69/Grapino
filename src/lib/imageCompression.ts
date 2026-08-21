@@ -28,6 +28,35 @@ export async function compressImage(file: Blob, maxWidth = 1500, quality = 0.82)
 }
 
 /**
+ * Schneidet ein Foto auf einen Ausschnitt zu (Werte 0-1, relativ zur
+ * Bildgroesse - siehe LabelCropper). Arbeitet auf der vollen Original-
+ * aufloesung, nicht auf einer bereits verkleinerten Vorschau, damit beim
+ * Zuschneiden keine Detailschaerfe verloren geht.
+ */
+export async function cropImage(
+  image: Blob,
+  rect: { x: number; y: number; width: number; height: number },
+): Promise<Blob> {
+  const bitmap = await createImageBitmap(image, { imageOrientation: 'from-image' });
+  const sx = Math.round(rect.x * bitmap.width);
+  const sy = Math.round(rect.y * bitmap.height);
+  const sw = Math.max(1, Math.round(rect.width * bitmap.width));
+  const sh = Math.max(1, Math.round(rect.height * bitmap.height));
+
+  const canvas = document.createElement('canvas');
+  canvas.width = sw;
+  canvas.height = sh;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Bildbearbeitung wird von diesem Browser nicht unterstuetzt.');
+  ctx.drawImage(bitmap, sx, sy, sw, sh, 0, 0, sw, sh);
+  bitmap.close();
+
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('Zuschneiden fehlgeschlagen.'))), 'image/jpeg', 0.9);
+  });
+}
+
+/**
  * Bereitet eine separate Kopie des Fotos speziell fuer die Texterkennung vor
  * (Graustufen + Kontrastspreizung) - verbessert erfahrungsgemaess die
  * Lesbarkeit bei ungleichmaessig beleuchteten/spiegelnden Flaschenetiketten,

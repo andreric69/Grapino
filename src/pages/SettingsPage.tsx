@@ -21,7 +21,8 @@ import {
 } from '../lib/csvImport';
 import { listMyFeedback } from '../lib/feedbackRepository';
 import { listMyPaymentRequests } from '../lib/paymentRequestRepository';
-import { listMyOrders, ORDER_PRICING } from '../lib/orderRepository';
+import { listMyOrders, ORDER_CATEGORY_INFO } from '../lib/orderRepository';
+import { getPricingConfig, type PricingConfig } from '../lib/pricingConfig';
 import type { DeletionRequest, EnrichmentOrder, MyFeedback, PaymentRequest, Wine, WineInput } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorBanner } from '../components/ErrorBanner';
@@ -86,6 +87,7 @@ export function SettingsPage() {
   const [myFeedback, setMyFeedback] = useState<MyFeedback[]>([]);
   const [myPaymentRequests, setMyPaymentRequests] = useState<PaymentRequest[]>([]);
   const [myOrders, setMyOrders] = useState<EnrichmentOrder[]>([]);
+  const [pricing, setPricing] = useState<PricingConfig | null>(null);
 
   async function loadWines() {
     setLoadingWines(true);
@@ -117,6 +119,7 @@ export function SettingsPage() {
     listMyFeedback().then(setMyFeedback);
     listMyPaymentRequests().then(setMyPaymentRequests);
     listMyOrders().then(setMyOrders);
+    getPricingConfig().then(setPricing);
   }, []);
 
   async function handleSignOut() {
@@ -545,6 +548,34 @@ export function SettingsPage() {
           </section>
         )}
 
+        {pricing && (
+          <section style={{ marginBottom: 28 }}>
+            <div className="card-kicker" style={{ marginBottom: 8 }}>
+              Preise fuer Aktualisierungs-Auftraege
+            </div>
+            <div className="card" style={{ gap: 8 }}>
+              {(Object.keys(ORDER_CATEGORY_INFO) as (keyof typeof ORDER_CATEGORY_INFO)[]).map((key) => (
+                <div key={key} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+                  <span>{ORDER_CATEGORY_INFO[key].label}</span>
+                  <span style={{ opacity: 0.7 }}>ab {pricing[key].toFixed(2)} CHF/Wein</span>
+                </div>
+              ))}
+              <div style={{ fontSize: 11.5, opacity: 0.55, marginTop: 4 }}>
+                Mindestbetrag {pricing.minimum.toFixed(2)} CHF pro Auftrag. Bei grossen Mengen wird es pro Flasche
+                guenstiger.
+              </div>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                style={{ fontSize: 11.5, alignSelf: 'flex-start', padding: 0, marginTop: 4 }}
+                onClick={() => navigate('/impressum')}
+              >
+                Impressum &amp; Kosten-Hinweise
+              </button>
+            </div>
+          </section>
+        )}
+
         {myPaymentRequests.length > 0 && (
           <section style={{ marginBottom: 28 }}>
             <div className="card-kicker" style={{ marginBottom: 8 }}>
@@ -578,7 +609,7 @@ export function SettingsPage() {
               {myOrders.map((o) => (
                 <div key={o.id} className="card" style={{ gap: 6 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <strong style={{ fontSize: 14 }}>{ORDER_PRICING[o.category].label}</strong>
+                    <strong style={{ fontSize: 14 }}>{ORDER_CATEGORY_INFO[o.category].label}</strong>
                     <span style={{ fontSize: 12, opacity: 0.55 }}>{new Date(o.created_at).toLocaleDateString('de-CH')}</span>
                   </div>
                   <div style={{ fontSize: 13 }}>

@@ -13,6 +13,7 @@
  */
 
 import type { WineType } from '../types';
+import { findClosestFuzzyMatch } from './fuzzyMatch';
 
 interface WineReferenceData {
   source: string;
@@ -229,6 +230,47 @@ export async function matchWineReferences(ocrText: string): Promise<WineReferenc
     if (producerCountry) matches.country = producerCountry;
   }
 
+  return matches;
+}
+
+export interface FuzzyReferenceMatches {
+  producer?: string;
+  grapeVariety?: string;
+  region?: string;
+}
+
+/**
+ * Fallback fuer matchWineReferences: der exakte Abgleich verlangt eine
+ * wortgenaue Uebereinstimmung - ein OCR-Verhaspler wie "Chateu Margaus"
+ * findet "Château Margaux" dort nicht. Hier werden stattdessen einzelne
+ * Textkandidaten (z.B. aus buildPhrases in ocr.ts) per Tippfehler-Distanz
+ * gegen dieselben Referenzlisten geprueft - nur fuer Felder aufgerufen, die
+ * der exakte Abgleich nicht gefunden hat (siehe ocr.ts).
+ */
+export async function fuzzyMatchWineReferences(candidatePhrases: string[]): Promise<FuzzyReferenceMatches> {
+  const index = await loadIndex();
+  const normalizedCandidates = candidatePhrases.map((p) => normalize(p)).filter((p) => p.length >= MIN_MATCH_LENGTH);
+  if (normalizedCandidates.length === 0) return {};
+
+  const grapeEntries = index.grapeVarieties.map((e) => ({ normalized: e.normalized, value: e.original }));
+  const wineryEntries = index.wineries.map((e) => ({ normalized: e.normalized, value: e.original }));
+  const regionEntries = index.regions.map((e) => ({ normalized: e.normalized, value: e.original }));
+
+  const matches: FuzzyReferenceMatches = {};
+  for (const text of normalizedCandidates) {
+    if (!matches.grapeVariety) {
+      const m = findClosestFuzzyMatch(text, grapeEntries);
+      if (m) matches.grapeVariety = m.value;
+    }
+    if (!matches.producer) {
+      const m = findClosestFuzzyMatch(text, wineryEntries);
+      if (m) matches.producer = m.value;
+    }
+    if (!matches.region) {
+      const m = findClosestFuzzyMatch(text, regionEntries);
+      if (m) matches.region = m.value;
+    }
+  }
   return matches;
 }
 

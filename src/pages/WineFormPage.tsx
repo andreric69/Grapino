@@ -10,9 +10,11 @@ import {
   uploadWinePhoto,
   uploadWinePhotos,
 } from '../lib/wineRepository';
-import { compressImage, preprocessForOcr } from '../lib/imageCompression';
-import { preloadOcrWorker, recognizeWineLabel } from '../lib/ocr';
+import { compressImage, cropImage, preprocessForOcr } from '../lib/imageCompression';
+import { preloadOcrWorker, recognizeWineLabel, type FieldConfidence, type OcrField } from '../lib/ocr';
 import { preloadWineReference, lookupCountryForRegion, lookupCountryForProducer, lookupTypeForGrape } from '../lib/wineReference';
+import { preloadLabelEmbeddingModel, computeLabelEmbedding } from '../lib/labelEmbedding';
+import { listRecognitionRefs, upsertRecognitionRef, bestEmbeddingMatch, bestTextMatch, type RecognitionRef } from '../lib/recognitionRefs';
 import { WINE_TYPE_LABELS, type Wine, type WineType } from '../types';
 import { PhotoCapture } from '../components/PhotoCapture';
 import { OcrChipTray } from '../components/OcrChipTray';
@@ -20,6 +22,7 @@ import { StarRating } from '../components/StarRating';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { TastingNotesInput } from '../components/TastingNotesInput';
+import { LabelCropper, type CropRect } from '../components/LabelCropper';
 import { HAS_CAMERA_SCANNER } from '../lib/cameraSupport';
 import { useBarcodeLookup } from '../hooks/useBarcodeLookup';
 import { useDuplicateCheck } from '../hooks/useDuplicateCheck';
@@ -28,8 +31,6 @@ import { useDuplicateCheck } from '../hooks/useDuplicateCheck';
 // so nur geladen, wenn der Nutzer den Scanner tatsaechlich oeffnet, statt bei
 // jedem Formular-Aufruf.
 const BarcodeScanner = lazy(() => import('../components/BarcodeScanner'));
-
-export type SuggestedField = 'name' | 'producer' | 'vintage' | 'grapeVariety' | 'region' | 'subregion' | 'country' | 'wineType';
 
 export interface FormState {
   name: string;
@@ -101,7 +102,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
   const navigate = useNavigate();
 
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
-  const [suggested, setSuggested] = useState<Set<SuggestedField>>(new Set());
+  const [suggested, setSuggested] = useState<Partial<Record<OcrField, FieldConfidence>>>({});
   const [chips, setChips] = useState<string[]>([]);
   const [hoveredDropField, setHoveredDropField] = useState<string | null>(null);
 
@@ -113,6 +114,18 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
   const [pendingPhotoBlob, setPendingPhotoBlob] = useState<Blob | null>(null);
   const [extraPhotos, setExtraPhotos] = useState<ExtraPhoto[]>([]);
   const extraPhotoInputRef = useRef<HTMLInputElement>(null);
+
+  // Zuschnitt-Dialog vor der Texterkennung (siehe LabelCropper).
+  const [showCropper, setShowCropper] = useState(false);
+  const [cropSourceFile, setCropSourceFile] = useState<File | null>(null);
+
+  // Wiedererkennung ueber bereits bestaetigte eigene Weine (Bild- oder
+  // Text-Aehnlichkeit) - nur ein Vorschlag, der aktiv bestaetigt werden muss.
+  const [recognizedMatch, setRecognizedMatch] = useState<RecognitionRef | null>(null);
+  // Werden bei jedem Foto-Durchlauf neu gesetzt und beim Speichern verwendet,
+  // um die eigene Referenzdatenbank zu aktualisieren (siehe handleSubmit).
+  const pendingEmbeddingRef = useRef<number[] | null>(null);
+  const pendingOcrTextRef = useRef<string | null>(null);
 
   const [loadingExisting, setLoadingExisting] = useState(mode === 'edit');
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -164,6 +177,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
   useEffect(() => {
     preloadWineReference(); // schon mal im Hintergrund laden, bevor ein Foto gewaehlt wird
     preloadOcrWorker(); // OCR-Sprachmodelle ebenfalls schon vorab laden, spart Zeit beim ersten Foto
+    preloadLabelEmbeddingModel(); // Bild-Embedding-Modell ebenfalls schon vorab laden
     if (mode === 'create') {
       listWines()
         .then(setExistingWinesForCheck)
@@ -239,11 +253,11 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
-  function clearSuggestion(field: SuggestedField) {
+  function clearSuggestion(field: OcrField) {
     setSuggested((s) => {
-      if (!s.has(field)) return s;
-      const next = new Set(s);
-      next.delete(field);
+      if (!(field in s)) return s;
+      const next = { ...s };
+      delete next[field];
       return next;
     });
   }
@@ -258,7 +272,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
       const country = await lookupCountryForRegion(form.region);
       if (country) {
         setForm((f) => (f.country.trim() ? f : { ...f, country }));
-        setSuggested((s) => new Set(s).add('country'));
+        setSuggested((s) => ({ ...s, country: 'high' }));
       }
     }, 500);
     return () => clearTimeout(handle);
@@ -274,7 +288,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
       const country = await lookupCountryForProducer(form.producer);
       if (country) {
         setForm((f) => (f.country.trim() ? f : { ...f, country }));
-        setSuggested((s) => new Set(s).add('country'));
+        setSuggested((s) => ({ ...s, country: 'high' }));
       }
     }, 500);
     return () => clearTimeout(handle);
@@ -287,21 +301,42 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
       const wineType = await lookupTypeForGrape(form.grapeVariety);
       if (wineType) {
         setForm((f) => (f.wineType ? f : { ...f, wineType }));
-        setSuggested((s) => new Set(s).add('wineType'));
+        setSuggested((s) => ({ ...s, wineType: 'high' }));
       }
     }, 500);
     return () => clearTimeout(handle);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.grapeVariety]);
 
-  async function handlePhotoSelect(file: File) {
+  function handlePhotoSelect(file: File) {
     if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
     const objectUrl = URL.createObjectURL(file);
     objectUrlRef.current = objectUrl;
     setPhotoPreviewUrl(objectUrl);
+    setRecognizedMatch(null);
+    ocrSkippedRef.current = false;
+    // Vor der Texterkennung erst den Zuschnitt-Dialog zeigen (siehe
+    // LabelCropper) - Flaschenhals/-boden und Nachbarflaschen entfernen
+    // verbessert die Erkennung deutlich, ist aber jederzeit ueberspringbar.
+    setCropSourceFile(file);
+    setShowCropper(true);
+  }
+
+  function handleCropConfirm(rect: CropRect) {
+    setShowCropper(false);
+    if (cropSourceFile) void processPhoto(cropSourceFile, rect);
+  }
+
+  function handleSkipCrop() {
+    setShowCropper(false);
+    if (cropSourceFile) void processPhoto(cropSourceFile, null);
+  }
+
+  async function processPhoto(file: File, cropRect: CropRect | null) {
     setOcrBusy(true);
     setChips([]);
-    ocrSkippedRef.current = false;
+    pendingEmbeddingRef.current = null;
+    pendingOcrTextRef.current = null;
     try {
       const compressed = await compressImage(file);
       setPendingPhotoBlob(compressed);
@@ -312,57 +347,83 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
       // Etikett-Schrift (Rebsorte, Region, Prozentzahl) verloren geht, wenn
       // man nur die schon auf Speichergroesse verkleinerte Version nutzt.
       // Diese Kopie wird nie gespeichert/hochgeladen, nur an die
-      // Texterkennung uebergeben und danach verworfen.
-      const ocrSource = await compressImage(file, 2200).catch(() => compressed);
+      // Texterkennung/das Embedding uebergeben und danach verworfen.
+      const ocrSourceFull = await compressImage(file, 2200).catch(() => compressed);
+      const croppedSource = cropRect ? await cropImage(ocrSourceFull, cropRect).catch(() => ocrSourceFull) : ocrSourceFull;
 
       // Fuer die Texterkennung zusaetzlich Graustufen + Kontrast anwenden -
       // das gespeicherte Farbfoto bleibt unangetastet, nur die OCR-Eingabe
       // wird optimiert.
-      const ocrInput = await preprocessForOcr(ocrSource).catch(() => ocrSource);
+      const ocrInput = await preprocessForOcr(croppedSource).catch(() => croppedSource);
 
-      // Erkennung darf den Nutzer nie unbegrenzt blockieren - nach 20s wird
-      // abgebrochen und einfach manuell weitergemacht.
-      const suggestions = await Promise.race([
-        recognizeWineLabel(ocrInput),
-        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('OCR-Timeout')), 20000)),
+      // Texterkennung und Bild-Embedding laufen parallel, nicht nacheinander
+      // - beides ist unabhaengig voneinander und muss nicht aufeinander
+      // warten. Erkennung darf den Nutzer nie unbegrenzt blockieren - nach
+      // 20s wird abgebrochen und einfach manuell weitergemacht; das
+      // Embedding ist rein optional (siehe computeLabelEmbedding).
+      const [suggestions, embedding] = await Promise.all([
+        Promise.race([
+          recognizeWineLabel(ocrInput),
+          new Promise<never>((_, reject) => setTimeout(() => reject(new Error('OCR-Timeout')), 20000)),
+        ]).catch((e) => {
+          console.error('OCR fehlgeschlagen:', e);
+          return null;
+        }),
+        computeLabelEmbedding(croppedSource),
       ]);
 
       if (ocrSkippedRef.current) return; // Nutzer wollte manuell eintragen - Ergebnis verwerfen.
 
-      const nextSuggested = new Set<SuggestedField>();
+      pendingEmbeddingRef.current = embedding;
+      pendingOcrTextRef.current = suggestions?.fullText ?? null;
+
+      // Wiedererkennung gegen bereits bestaetigte eigene Weine - zuerst per
+      // Bildaehnlichkeit (zuverlaessiger), sonst per Text-Aehnlichkeit.
+      // Immer nur ein Vorschlag, den der Nutzer aktiv bestaetigen muss (siehe
+      // handleAcceptRecognizedMatch) - nie stillschweigend uebernommen.
+      const refs = await listRecognitionRefs().catch(() => []);
+      const match =
+        (embedding && bestEmbeddingMatch(refs, embedding)) ||
+        (suggestions && bestTextMatch(refs, suggestions.fullText)) ||
+        null;
+      if (match) setRecognizedMatch(match);
+
+      if (!suggestions) return;
+
+      const nextSuggested: Partial<Record<OcrField, FieldConfidence>> = {};
       setForm((f) => {
         const next = { ...f };
         if (suggestions.name) {
           next.name = suggestions.name;
-          nextSuggested.add('name');
+          nextSuggested.name = suggestions.confidence.name ?? 'low';
         }
         if (suggestions.producer) {
           next.producer = suggestions.producer;
-          nextSuggested.add('producer');
+          nextSuggested.producer = suggestions.confidence.producer ?? 'low';
         }
         if (suggestions.vintage) {
           next.vintage = String(suggestions.vintage);
-          nextSuggested.add('vintage');
+          nextSuggested.vintage = suggestions.confidence.vintage ?? 'high';
         }
         if (suggestions.grapeVariety) {
           next.grapeVariety = suggestions.grapeVariety;
-          nextSuggested.add('grapeVariety');
+          nextSuggested.grapeVariety = suggestions.confidence.grapeVariety ?? 'low';
         }
         if (suggestions.region) {
           next.region = suggestions.region;
-          nextSuggested.add('region');
+          nextSuggested.region = suggestions.confidence.region ?? 'low';
         }
         if (suggestions.subregion && !next.subregion.trim()) {
           next.subregion = suggestions.subregion;
-          nextSuggested.add('subregion');
+          nextSuggested.subregion = suggestions.confidence.subregion ?? 'low';
         }
         if (suggestions.country) {
           next.country = suggestions.country;
-          nextSuggested.add('country');
+          nextSuggested.country = suggestions.confidence.country ?? 'low';
         }
         if (suggestions.wineType) {
           next.wineType = suggestions.wineType;
-          nextSuggested.add('wineType');
+          nextSuggested.wineType = suggestions.confidence.wineType ?? 'low';
         }
         return next;
       });
@@ -371,7 +432,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
     } catch (e) {
       // Foto-Erkennung ist nur eine Hilfestellung - schlaegt sie fehl, traegt
       // der Nutzer die Angaben einfach manuell ein. Kein Fehlerbanner noetig.
-      console.error('OCR fehlgeschlagen:', e);
+      console.error('Foto-Erkennung fehlgeschlagen:', e);
     } finally {
       setOcrBusy(false);
     }
@@ -380,6 +441,55 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
   function handleSkipOcr() {
     ocrSkippedRef.current = true;
     setOcrBusy(false);
+  }
+
+  // Wiedererkannten Wein (siehe recognizedMatch) uebernehmen - ueberschreibt
+  // die Felder mit den zuletzt bestaetigten Werten dieses Weins, jeweils als
+  // "high"-Vorschlag, da der Nutzer den gesamten Treffer aktiv bestaetigt.
+  function handleAcceptRecognizedMatch() {
+    const match = recognizedMatch;
+    if (!match) return;
+    const nextSuggested: Partial<Record<OcrField, FieldConfidence>> = {};
+    setForm((f) => {
+      const next = { ...f };
+      next.name = match.name;
+      nextSuggested.name = 'high';
+      if (match.producer) {
+        next.producer = match.producer;
+        nextSuggested.producer = 'high';
+      }
+      if (match.vintage) {
+        next.vintage = String(match.vintage);
+        nextSuggested.vintage = 'high';
+      }
+      if (match.grapeVariety) {
+        next.grapeVariety = match.grapeVariety;
+        nextSuggested.grapeVariety = 'high';
+      }
+      if (match.region) {
+        next.region = match.region;
+        nextSuggested.region = 'high';
+      }
+      if (match.subregion) {
+        next.subregion = match.subregion;
+        nextSuggested.subregion = 'high';
+      }
+      if (match.country) {
+        next.country = match.country;
+        nextSuggested.country = 'high';
+      }
+      if (match.wineType) {
+        next.wineType = match.wineType;
+        nextSuggested.wineType = 'high';
+      }
+      return next;
+    });
+    setSuggested((s) => ({ ...s, ...nextSuggested }));
+    setRecognizedMatch(null);
+  }
+
+  function handleDismissRecognizedMatch() {
+    setRecognizedMatch(null);
   }
 
   async function handleExtraPhotoSelect(file: File) {
@@ -483,6 +593,26 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
         await updateWine(wine.id, { photo_url: primaryPath, photo_urls: photoUrls });
       }
 
+      // Nur wenn in dieser Sitzung tatsaechlich ein Foto durch die Erkennung
+      // gelaufen ist (siehe processPhoto) - schreibt die zuletzt bestaetigten
+      // (ggf. vom Nutzer korrigierten) Werte als Referenz fuer die naechste
+      // Wiedererkennung dieses Weins.
+      if (pendingEmbeddingRef.current || pendingOcrTextRef.current) {
+        await upsertRecognitionRef({
+          wineId: wine.id,
+          ocrText: pendingOcrTextRef.current,
+          embedding: pendingEmbeddingRef.current,
+          name: wine.name,
+          producer: wine.producer,
+          vintage: wine.vintage,
+          grapeVariety: wine.grape_variety,
+          region: wine.region,
+          subregion: wine.subregion,
+          country: wine.country,
+          wineType: wine.wine_type,
+        });
+      }
+
       navigate(`/wine/${wine.id}`);
     } catch (e) {
       setSaveError(e instanceof Error ? e.message : NETWORK_ERROR_MESSAGE);
@@ -541,17 +671,57 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
           Etikett fotografieren oder Angaben von Hand eintragen
         </div>
 
-        <PhotoCapture
-          previewUrl={photoPreviewUrl}
-          onSelect={handlePhotoSelect}
-          busy={ocrBusy}
-          busyLabel="Etikett wird gelesen ..."
-          onSkipBusy={handleSkipOcr}
-        />
-        <div style={{ fontSize: 11.5, fontStyle: 'italic', opacity: 0.55, marginBottom: 12, lineHeight: 1.4 }}>
-          Nach dem Foto traegt die App erkannte Werte direkt ein, wo sie sich sicher ist (z. B. den Jahrgang). Bei
-          allem anderen: unten erscheinen die erkannten Woerter als Chips zum Ziehen - auf das passende Feld ziehen.
-        </div>
+        {showCropper && photoPreviewUrl ? (
+          <div className="card elev-sm" style={{ marginBottom: 16, padding: 12 }}>
+            <LabelCropper imageUrl={photoPreviewUrl} onConfirm={handleCropConfirm} onSkip={handleSkipCrop} />
+          </div>
+        ) : (
+          <>
+            <PhotoCapture
+              previewUrl={photoPreviewUrl}
+              onSelect={handlePhotoSelect}
+              busy={ocrBusy}
+              busyLabel="Etikett wird gelesen ..."
+              onSkipBusy={handleSkipOcr}
+            />
+            <div style={{ fontSize: 11.5, fontStyle: 'italic', opacity: 0.55, marginBottom: 12, lineHeight: 1.4 }}>
+              Nach dem Foto traegt die App erkannte Werte direkt ein, wo sie sich sicher ist (z. B. den Jahrgang).
+              Unsichere Vorschlaege sind als "Bitte pruefen" markiert. Bei allem anderen: unten erscheinen die
+              erkannten Woerter als Chips zum Ziehen - auf das passende Feld ziehen.
+            </div>
+          </>
+        )}
+
+        {recognizedMatch && (
+          <div className="card elev-sm" style={{ marginBottom: 16, padding: 12, border: '1px solid var(--color-accent)' }}>
+            <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 4 }}>
+              Sieht aus wie ein bereits erfasster Wein: {recognizedMatch.name}
+              {recognizedMatch.producer ? ` (${recognizedMatch.producer})` : ''}
+              {recognizedMatch.vintage ? ` ${recognizedMatch.vintage}` : ''}
+            </div>
+            <div style={{ fontSize: 11, opacity: 0.6, marginBottom: 10 }}>
+              Anhand des Fotos wiedererkannt - bekannte Angaben statt neu erkannter uebernehmen?
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                type="button"
+                className="btn btn-primary"
+                style={{ fontSize: 11.5, padding: '4px 10px' }}
+                onClick={handleAcceptRecognizedMatch}
+              >
+                Uebernehmen
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                style={{ fontSize: 11.5, padding: '4px 10px' }}
+                onClick={handleDismissRecognizedMatch}
+              >
+                Verwerfen
+              </button>
+            </div>
+          </div>
+        )}
 
         {suggestedPhotoUrl && (
           <div className="card elev-sm" style={{ display: 'flex', gap: 12, alignItems: 'center', padding: 10, marginBottom: 16 }}>
@@ -700,7 +870,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
           </div>
         )}
 
-        <FormField label="Name" suggested={suggested.has('name')} dropField="name" hovered={hoveredDropField === 'name'}>
+        <FormField label="Name" confidence={suggested.name} dropField="name" hovered={hoveredDropField === 'name'}>
           <input
             className="input"
             required
@@ -714,7 +884,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
 
         <FormField
           label="Produzent"
-          suggested={suggested.has('producer')}
+          confidence={suggested.producer}
           dropField="producer"
           hovered={hoveredDropField === 'producer'}
         >
@@ -731,11 +901,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
         <div className="field" style={{ marginBottom: 13 }}>
           <label>
             Typ
-            {suggested.has('wineType') && (
-              <span className="tag tag-accent" style={{ fontSize: 9 }}>
-                Vorschlag
-              </span>
-            )}
+            <ConfidenceTag confidence={suggested.wineType} />
           </label>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {WINE_TYPE_OPTIONS.map((t) => (
@@ -769,7 +935,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
           <div style={{ flex: 1 }}>
             <FormField
               label="Jahrgang"
-              suggested={suggested.has('vintage')}
+              confidence={suggested.vintage}
               dropField="vintage"
               hovered={hoveredDropField === 'vintage'}
             >
@@ -885,7 +1051,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
         </div>
         <FormField
           label="Rebsorte(n)"
-          suggested={suggested.has('grapeVariety')}
+          confidence={suggested.grapeVariety}
           dropField="grapeVariety"
           hovered={hoveredDropField === 'grapeVariety'}
         >
@@ -904,7 +1070,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
           <div style={{ flex: 1 }}>
             <FormField
               label="Region"
-              suggested={suggested.has('region')}
+              confidence={suggested.region}
               dropField="region"
               hovered={hoveredDropField === 'region'}
             >
@@ -922,7 +1088,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
           <div style={{ flex: 1 }}>
             <FormField
               label="Subregion"
-              suggested={suggested.has('subregion')}
+              confidence={suggested.subregion}
               dropField="subregion"
               hovered={hoveredDropField === 'subregion'}
             >
@@ -939,7 +1105,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
           </div>
         </div>
 
-        <FormField label="Herkunftsland" suggested={suggested.has('country')}>
+        <FormField label="Herkunftsland" confidence={suggested.country}>
           <input
             className="input"
             placeholder="z. B. Frankreich"
@@ -1066,13 +1232,14 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
 
 function FormField({
   label,
-  suggested,
+  confidence,
   dropField,
   hovered,
   children,
 }: {
   label: string;
-  suggested?: boolean;
+  /** "high" = sicherer Treffer (z. B. gegen die Referenzliste), "low" = nur unscharf erkannt - bitte pruefen. */
+  confidence?: FieldConfidence;
   /** Macht dieses Feld zu einem Ablageziel fuer OCR-Chips (siehe OcrChipTray). */
   dropField?: string;
   /** Wird gerade ein Chip darueber gehalten? - fuer die visuelle Hervorhebung. */
@@ -1094,13 +1261,28 @@ function FormField({
     >
       <label>
         {label}
-        {suggested && (
-          <span className="tag tag-accent" style={{ fontSize: 9 }}>
-            Vorschlag
-          </span>
-        )}
+        <ConfidenceTag confidence={confidence} />
       </label>
       {children}
     </div>
   );
+}
+
+/** Zeigt "Vorschlag" (sicher) oder "Bitte pruefen" (unsicher erkannt) neben einem Feld-Label - siehe FieldConfidence in ocr.ts. */
+function ConfidenceTag({ confidence }: { confidence?: FieldConfidence }) {
+  if (confidence === 'high') {
+    return (
+      <span className="tag tag-accent" style={{ fontSize: 9 }}>
+        Vorschlag
+      </span>
+    );
+  }
+  if (confidence === 'low') {
+    return (
+      <span className="tag tag-warn" style={{ fontSize: 9 }}>
+        Bitte pruefen
+      </span>
+    );
+  }
+  return null;
 }

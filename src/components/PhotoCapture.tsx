@@ -15,6 +15,12 @@ const HAS_CAMERA =
 
 export function PhotoCapture({ previewUrl, onSelect, busy, busyLabel, onSkipBusy }: PhotoCaptureProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  // Eigenes, zweites Input-Element OHNE "capture"-Attribut fuer die
+  // Galerie-Buttons: das "capture"-Attribut auf inputRef zwingt mobile
+  // Browser (v.a. iOS Safari), IMMER die Kamera statt der Fotomediathek zu
+  // oeffnen - unabhaengig davon, welcher Button den Klick ausgeloest hat.
+  // War der gemeldete Bug: "Aus Galerie" fuehrte trotzdem zur Kamera.
+  const galleryInputRef = useRef<HTMLInputElement>(null);
   const [showCamera, setShowCamera] = useState(false);
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
@@ -46,6 +52,7 @@ export function PhotoCapture({ previewUrl, onSelect, busy, busyLabel, onSkipBusy
         onChange={handleChange}
         style={{ display: 'none' }}
       />
+      <input ref={galleryInputRef} type="file" accept="image/*" onChange={handleChange} style={{ display: 'none' }} />
 
       {showCamera && <CameraCapture onCapture={handleCameraCapture} onClose={() => setShowCamera(false)} />}
 
@@ -93,7 +100,7 @@ export function PhotoCapture({ previewUrl, onSelect, busy, busyLabel, onSkipBusy
                 type="button"
                 className="btn btn-secondary"
                 style={{ flex: 1 }}
-                onClick={() => inputRef.current?.click()}
+                onClick={() => galleryInputRef.current?.click()}
                 disabled={busy}
               >
                 Aus Galerie
@@ -145,7 +152,7 @@ export function PhotoCapture({ previewUrl, onSelect, busy, busyLabel, onSkipBusy
               type="button"
               className="btn btn-ghost"
               style={{ fontSize: 12.5 }}
-              onClick={() => inputRef.current?.click()}
+              onClick={() => galleryInputRef.current?.click()}
             >
               oder aus der Galerie waehlen
             </button>

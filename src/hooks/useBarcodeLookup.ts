@@ -2,7 +2,8 @@ import { type Dispatch, type MutableRefObject, type SetStateAction, useState } f
 import { compressImage } from '../lib/imageCompression';
 import { lookupBarcodeProduct } from '../lib/barcodeLookup';
 import { matchWineReferences } from '../lib/wineReference';
-import type { FormState, SuggestedField } from '../pages/WineFormPage';
+import type { FieldConfidence, OcrField } from '../lib/ocr';
+import type { FormState } from '../pages/WineFormPage';
 
 // Ein reiner EAN/UPC-Barcode besteht nur aus Ziffern (6-14 Stellen). Ein
 // QR-Code liefert dagegen meist eine URL oder freien Text des Weinguts -
@@ -18,7 +19,7 @@ interface UseBarcodeLookupOptions {
   objectUrlRef: MutableRefObject<string | null>;
   updateField: <K extends keyof FormState>(key: K, value: FormState[K]) => void;
   setForm: Dispatch<SetStateAction<FormState>>;
-  setSuggested: Dispatch<SetStateAction<Set<SuggestedField>>>;
+  setSuggested: Dispatch<SetStateAction<Partial<Record<OcrField, FieldConfidence>>>>;
 }
 
 /**
@@ -55,38 +56,38 @@ export function useBarcodeLookup({
     if (!EAN_LIKE.test(code)) {
       try {
         const matches = await matchWineReferences(code);
-        const nextSuggested = new Set<SuggestedField>();
+        const nextSuggested: Partial<Record<OcrField, FieldConfidence>> = {};
         setForm((f) => {
           const next = { ...f };
           if (matches.producer && !next.producer.trim()) {
             next.producer = matches.producer;
-            nextSuggested.add('producer');
+            nextSuggested.producer = 'high';
           }
           if (matches.region && !next.region.trim()) {
             next.region = matches.region;
-            nextSuggested.add('region');
+            nextSuggested.region = 'high';
           }
           if (matches.subregion && !next.subregion.trim()) {
             next.subregion = matches.subregion;
-            nextSuggested.add('subregion');
+            nextSuggested.subregion = 'high';
           }
           if (matches.country && !next.country.trim()) {
             next.country = matches.country;
-            nextSuggested.add('country');
+            nextSuggested.country = 'high';
           }
           if (matches.grapeVariety && !next.grapeVariety.trim()) {
             next.grapeVariety = matches.grapeVariety;
-            nextSuggested.add('grapeVariety');
+            nextSuggested.grapeVariety = 'high';
           }
           if (matches.wineType && !next.wineType) {
             next.wineType = matches.wineType;
-            nextSuggested.add('wineType');
+            nextSuggested.wineType = 'high';
           }
           return next;
         });
-        setSuggested((s) => new Set([...s, ...nextSuggested]));
+        setSuggested((s) => ({ ...s, ...nextSuggested }));
         setBarcodeLookupMessage(
-          nextSuggested.size > 0
+          Object.keys(nextSuggested).length > 0
             ? 'QR-Code gelesen, passende Angaben uebernommen - bitte pruefen.'
             : 'QR-Code gelesen, aber keine bekannten Angaben darin gefunden - bitte manuell ausfuellen.',
         );
@@ -103,37 +104,37 @@ export function useBarcodeLookup({
         setBarcodeLookupMessage('Kein Eintrag zu diesem Barcode gefunden - bitte manuell ausfuellen.');
         return;
       }
-      const nextSuggested = new Set<SuggestedField>();
+      const nextSuggested: Partial<Record<OcrField, FieldConfidence>> = {};
       setForm((f) => {
         const next = { ...f };
         if (info.name && !next.name.trim()) {
           next.name = info.name;
-          nextSuggested.add('name');
+          nextSuggested.name = 'high';
         }
         if (info.producer && !next.producer.trim()) {
           next.producer = info.producer;
-          nextSuggested.add('producer');
+          nextSuggested.producer = 'high';
         }
         if (info.bottleSize && !next.bottleSize.trim()) next.bottleSize = info.bottleSize;
         if (info.region && !next.region.trim()) {
           next.region = info.region;
-          nextSuggested.add('region');
+          nextSuggested.region = 'high';
         }
         if (info.country && !next.country.trim()) {
           next.country = info.country;
-          nextSuggested.add('country');
+          nextSuggested.country = 'high';
         }
         if (info.grapeVariety && !next.grapeVariety.trim()) {
           next.grapeVariety = info.grapeVariety;
-          nextSuggested.add('grapeVariety');
+          nextSuggested.grapeVariety = 'high';
         }
         if (info.wineType && !next.wineType) {
           next.wineType = info.wineType;
-          nextSuggested.add('wineType');
+          nextSuggested.wineType = 'high';
         }
         return next;
       });
-      setSuggested((s) => new Set([...s, ...nextSuggested]));
+      setSuggested((s) => ({ ...s, ...nextSuggested }));
       // Produktfoto nur vorschlagen, wenn noch kein eigenes Foto gewaehlt
       // wurde - der Nutzer muss es aktiv bestaetigen, es wird nie
       // automatisch als Foto des eigenen Weins uebernommen.
@@ -141,7 +142,7 @@ export function useBarcodeLookup({
         setSuggestedPhotoUrl(info.imageUrl);
       }
       setBarcodeLookupMessage(
-        nextSuggested.size > 0
+        Object.keys(nextSuggested).length > 0
           ? 'Angaben aus einer freien Produktdatenbank uebernommen - bitte pruefen.'
           : 'Eintrag gefunden, aber keine neuen Angaben daraus uebernehmbar.',
       );
