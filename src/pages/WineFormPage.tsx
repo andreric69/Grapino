@@ -99,13 +99,22 @@ const WINE_TYPE_OPTIONS: WineType[] = ['rot', 'weiss', 'rose', 'dessert', 'schau
  * bestehende Tesseract-Erkennung zurueck - nie ein Fehlerzustand fuer den
  * Nutzer, genau wie bisher.
  */
-async function recognizeLabel(colorSource: Blob, preprocessedForTesseract: Blob): Promise<OcrSuggestions | null> {
+async function recognizeLabel(
+  colorSource: Blob,
+  preprocessedForTesseract: Blob,
+  signal: AbortSignal,
+): Promise<OcrSuggestions | null> {
   try {
     return await Promise.race([
-      recognizeLabelWithAi(colorSource),
+      recognizeLabelWithAi(colorSource, signal),
       new Promise<never>((_, reject) => setTimeout(() => reject(new Error('KI-Timeout')), 20000)),
     ]);
   } catch (e) {
+    // Abgebrochen, weil der Nutzer inzwischen ein anderes Foto ausgewaehlt hat
+    // (siehe recognitionAbortRef) - das Ergebnis wird ohnehin verworfen, ein
+    // Tesseract-Fallback fuer ein bereits verlassenes Foto waere verschwendete
+    // Arbeit.
+    if (e instanceof DOMException && e.name === 'AbortError') return null;
     console.error('KI-Etikett-Erkennung fehlgeschlagen, falle auf Tesseract zurueck:', e);
   }
   try {
@@ -220,6 +229,10 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
   // eintreffendes Ergebnis von Foto A (das eigentlich uebersprungen wurde)
   // faelschlich die Formularfelder von Foto B ueberschreiben konnte.
   const ocrGenerationRef = useRef(0);
+  // Bricht einen noch laufenden KI-Erkennungsaufruf ab, sobald er durch ein
+  // neueres Foto ueberholt ist - verhindert unnoetige bezahlte KI-Aufrufe,
+  // wenn der Nutzer schnell mehrere Fotos hintereinander auswaehlt.
+  const recognitionAbortRef = useRef<AbortController | null>(null);
 
   // Merkt sich vom Browser erzeugte Objekt-URLs (Foto-Vorschau vor dem
   // Speichern), damit sie beim Wechsel/Verlassen wieder freigegeben werden.
@@ -388,6 +401,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
     setPhotoPreviewUrl(objectUrl);
     setRecognizedMatch(null);
     ocrGenerationRef.current += 1;
+    recognitionAbortRef.current?.abort();
 
     if (!recognitionEnabled) {
       void applyPhotoWithoutRecognition(file, ocrGenerationRef.current);
@@ -460,8 +474,10 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
       // warten. Erkennung darf den Nutzer nie unbegrenzt blockieren - nach
       // 20s wird abgebrochen und einfach manuell weitergemacht; das
       // Embedding ist rein optional (siehe computeLabelEmbedding).
+      const abortController = new AbortController();
+      recognitionAbortRef.current = abortController;
       const [suggestions, embedding] = await Promise.all([
-        recognizeLabel(croppedSource, ocrInput),
+        recognizeLabel(croppedSource, ocrInput, abortController.signal),
         computeLabelEmbedding(croppedSource),
       ]);
 
@@ -546,6 +562,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
 
   function handleSkipOcr() {
     ocrGenerationRef.current += 1;
+    recognitionAbortRef.current?.abort();
     setOcrBusy(false);
   }
 

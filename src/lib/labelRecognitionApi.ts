@@ -51,8 +51,13 @@ function blobToBase64(blob: Blob): Promise<string> {
  * Wirft bei jedem Fehler (Netzwerk, Tageslimit, Serverfehler) - der Aufrufer
  * (processPhoto in WineFormPage.tsx) faengt das ab und faellt automatisch
  * auf die bestehende Tesseract-Erkennung zurueck.
+ *
+ * `signal` erlaubt dem Aufrufer, eine bereits laufende Anfrage abzubrechen,
+ * wenn der Nutzer inzwischen ein anderes Foto ausgewaehlt hat - verhindert
+ * unnoetige bezahlte KI-Aufrufe fuer ein Foto, dessen Ergebnis ohnehin nicht
+ * mehr verwendet wird (schnelles Foto-Wechseln).
  */
-export async function recognizeLabelWithAi(image: Blob): Promise<OcrSuggestions> {
+export async function recognizeLabelWithAi(image: Blob, signal?: AbortSignal): Promise<OcrSuggestions> {
   const { data: sessionData } = await supabase.auth.getSession();
   const token = sessionData.session?.access_token;
   if (!token) throw new Error('Nicht angemeldet.');
@@ -63,6 +68,7 @@ export async function recognizeLabelWithAi(image: Blob): Promise<OcrSuggestions>
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ image: base64 }),
+    signal,
   });
   if (!res.ok) {
     throw new Error(`KI-Etikett-Erkennung fehlgeschlagen (${res.status}).`);
