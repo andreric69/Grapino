@@ -9,20 +9,6 @@ export async function submitFeedback(input: FeedbackInput): Promise<void> {
   }
 }
 
-/**
- * Wurde jemals Feedback gesendet? Serverseitig geprueft (nicht nur lokal im
- * Browser) - sonst fragt die App auf einem neuen Geraet oder nach Loeschen
- * der Browserdaten faelschlich erneut, obwohl schon laengst Feedback vorliegt.
- */
-export async function hasSubmittedFeedbackEver(): Promise<boolean> {
-  const { data, error } = await supabase.from('app_feedback').select('id').limit(1);
-  if (error) {
-    console.error('Feedback-Fehler:', error);
-    return false;
-  }
-  return (data?.length ?? 0) > 0;
-}
-
 /** Offene, vom Betreiber aktiv angefragte Feedback-Anfrage (falls vorhanden). */
 export async function getUnfulfilledFeedbackRequest(): Promise<{ id: string } | null> {
   const { data, error } = await supabase

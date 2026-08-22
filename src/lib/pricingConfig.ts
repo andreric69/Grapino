@@ -15,7 +15,15 @@ const FALLBACK_PRICING: PricingConfig = {
   minimum: 3,
 };
 
+// Kurzes Cache-Zeitfenster statt eines dauerhaften Caches - eine unbegrenzte
+// Zwischenspeicherung fuehrte dazu, dass ein in der Admin-App geaendeter
+// Preis in einem schon offenen Weinapp-Tab nie ankam, bevor die Seite komplett
+// neu geladen wurde (wirkte wie "Preisaenderung funktioniert nicht"). 60s sind
+// kurz genug fuer zeitnahe Aenderungen, aber immer noch effizient genug, um
+// nicht bei jedem Render/Mount neu zu laden.
+const CACHE_TTL_MS = 60_000;
 let cached: Promise<PricingConfig> | null = null;
+let cachedAt = 0;
 
 async function fetchPricingConfig(): Promise<PricingConfig> {
   const { data, error } = await supabase
@@ -34,14 +42,21 @@ async function fetchPricingConfig(): Promise<PricingConfig> {
   };
 }
 
+function ensureFresh(): Promise<PricingConfig> {
+  if (!cached || Date.now() - cachedAt > CACHE_TTL_MS) {
+    cached = fetchPricingConfig();
+    cachedAt = Date.now();
+  }
+  return cached;
+}
+
 /** Startet das Laden der Preise im Hintergrund, bevor die Chat-Blase ueberhaupt geoeffnet wird. */
 export function preloadPricingConfig() {
-  if (!cached) cached = fetchPricingConfig();
+  ensureFresh();
 }
 
 export function getPricingConfig(): Promise<PricingConfig> {
-  if (!cached) cached = fetchPricingConfig();
-  return cached;
+  return ensureFresh();
 }
 
 /**

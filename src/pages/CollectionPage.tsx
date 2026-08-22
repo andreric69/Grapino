@@ -3,12 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { listWines, getSignedPhotoUrls } from '../lib/wineRepository';
 import { isBackupOverdue } from '../lib/backupReminder';
-import { isFeedbackDelayOver } from '../lib/feedbackReminder';
-import {
-  hasSubmittedFeedbackEver,
-  getUnfulfilledFeedbackRequest,
-  markFeedbackRequestFulfilled,
-} from '../lib/feedbackRepository';
+import { getUnfulfilledFeedbackRequest, markFeedbackRequestFulfilled } from '../lib/feedbackRepository';
 import { getDueAnnouncement, dismissAnnouncement } from '../lib/announcementRepository';
 import { useWineActions } from '../hooks/useWineActions';
 import { WINE_TYPE_LABELS, splitCommaList, type Announcement, type SortOption, type Wine } from '../types';
@@ -26,8 +21,6 @@ import { ChatBubble } from '../components/ChatBubble';
 import { ConsumeDialog } from '../components/ConsumeDialog';
 import { Toast } from '../components/Toast';
 import { useToast } from '../hooks/useToast';
-
-const FEEDBACK_MIN_WINES = 3;
 
 type FilterKey =
   | 'vintage'
@@ -140,17 +133,12 @@ export function CollectionPage() {
       const data = await listWines();
       setWines(data);
       if (data.length > 0 && isBackupOverdue()) setShowBackupReminder(true);
-      // isFeedbackDelayOver() zeichnet beim allerersten Aufruf den "erster
-      // Start"-Zeitpunkt auf - deshalb immer aufrufen (nicht erst ab 3 Weinen),
-      // sonst wuerde die Stunde erst ab dem dritten Wein zu laufen beginnen.
-      const delayOver = isFeedbackDelayOver();
+      // Das Feedback-Popup erscheint nur noch, wenn der Betreiber es ueber
+      // "Feedback anfragen" aktiv ausgeloest hat - keine automatische
+      // Anzeige mehr nach Zeit/Wein-Anzahl.
       const pendingRequest = await getUnfulfilledFeedbackRequest();
       if (pendingRequest) {
-        // Vom Betreiber aktiv angefragt - erscheint sofort, unabhaengig von
-        // der sonstigen Verzoegerung und davon, ob schon einmal Feedback kam.
         setFeedbackRequestId(pendingRequest.id);
-        setShowFeedback(true);
-      } else if (data.length >= FEEDBACK_MIN_WINES && delayOver && !(await hasSubmittedFeedbackEver())) {
         setShowFeedback(true);
       }
       const paths = data.map((w) => w.photo_url).filter((p): p is string => !!p);
