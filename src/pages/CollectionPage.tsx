@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { listWines, getSignedPhotoUrls } from '../lib/wineRepository';
 import { isBackupOverdue } from '../lib/backupReminder';
 import { getUnfulfilledFeedbackRequest, markFeedbackRequestFulfilled } from '../lib/feedbackRepository';
-import { getDueAnnouncement, dismissAnnouncement } from '../lib/announcementRepository';
+import { getDueAnnouncements, dismissAnnouncement } from '../lib/announcementRepository';
 import { useWineActions } from '../hooks/useWineActions';
 import { WINE_TYPE_LABELS, splitCommaList, type Announcement, type SortOption, type Wine } from '../types';
 import { WineCard } from '../components/WineCard';
@@ -106,7 +106,7 @@ export function CollectionPage() {
   const [noPriceOnly, setNoPriceOnly] = useState(persistedFilterState.noPriceOnly ?? false);
   const [drinkNowOnly, setDrinkNowOnly] = useState(persistedFilterState.drinkNowOnly ?? false);
   const [showBackupReminder, setShowBackupReminder] = useState(false);
-  const [unseenAnnouncement, setUnseenAnnouncement] = useState<Announcement | null>(null);
+  const [unseenAnnouncements, setUnseenAnnouncements] = useState<Announcement[]>([]);
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackRequestId, setFeedbackRequestId] = useState<string | null>(null);
   const [pendingConsume, setPendingConsume] = useState<Wine | null>(null);
@@ -145,8 +145,7 @@ export function CollectionPage() {
       const urls = await getSignedPhotoUrls(paths);
       setPhotoUrls(urls);
 
-      const due = await getDueAnnouncement();
-      setUnseenAnnouncement(due);
+      setUnseenAnnouncements(await getDueAnnouncements());
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Unbekannter Fehler.');
     } finally {
@@ -324,15 +323,16 @@ export function CollectionPage() {
         </div>
       </div>
 
-      {unseenAnnouncement && (
+      {unseenAnnouncements.map((a) => (
         <AnnouncementBanner
-          announcement={unseenAnnouncement}
+          key={a.id}
+          announcement={a}
           onDismiss={() => {
-            dismissAnnouncement(unseenAnnouncement.id);
-            setUnseenAnnouncement(null);
+            dismissAnnouncement(a.id);
+            setUnseenAnnouncements((list) => list.filter((x) => x.id !== a.id));
           }}
         />
-      )}
+      ))}
 
       {showBackupReminder && (
         <BackupReminderBanner

@@ -14,12 +14,14 @@ function isDue(announcement: Announcement, dismissedAt: string | undefined): boo
 }
 
 /**
- * Liefert die aktuell faellige Ankuendigung (neueste zuerst) - also eine, die
- * noch nie weggeklickt wurde, oder deren Wiederholungsintervall abgelaufen
- * ist. RLS filtert bereits auf aktive und (an alle oder gezielt an mich
- * gerichtete) Ankuendigungen.
+ * Liefert ALLE aktuell faelligen Ankuendigungen (neueste zuerst) - also
+ * jede, die noch nie weggeklickt wurde, oder deren Wiederholungsintervall
+ * abgelaufen ist. Vorher wurde nur die einzelne neueste geliefert - bei
+ * mehreren gleichzeitig faelligen Ankuendigungen sah der Nutzer dadurch nie
+ * die aelteren. RLS filtert bereits auf aktive und (an alle oder gezielt an
+ * mich gerichtete) Ankuendigungen.
  */
-export async function getDueAnnouncement(): Promise<Announcement | null> {
+export async function getDueAnnouncements(): Promise<Announcement[]> {
   const [{ data: announcements, error: announcementsError }, { data: dismissals, error: dismissalsError }] =
     await Promise.all([
       supabase
@@ -30,12 +32,11 @@ export async function getDueAnnouncement(): Promise<Announcement | null> {
     ]);
   if (announcementsError || dismissalsError) {
     console.error('Ankuendigungen-Fehler:', announcementsError ?? dismissalsError);
-    return null;
+    return [];
   }
 
   const dismissedAtById = new Map((dismissals as Dismissal[]).map((d) => [d.announcement_id, d.dismissed_at]));
-  const due = (announcements as Announcement[]).find((a) => isDue(a, dismissedAtById.get(a.id)));
-  return due ?? null;
+  return (announcements as Announcement[]).filter((a) => isDue(a, dismissedAtById.get(a.id)));
 }
 
 /** Merkt sich, dass der Nutzer diese Ankuendigung jetzt gesehen/weggeklickt hat. */
