@@ -36,8 +36,15 @@ export function useWineActions({ applyUpdate, rollback, showToast, onError }: Us
   async function toggleConsumed(wine: Wine, count = 1) {
     const previous = wine;
     if (wine.is_consumed) {
-      applyUpdate(wine.id, (w) => ({ ...w, is_consumed: false, quantity: Math.max(1, w.quantity) }));
-      showToast?.(`"${wine.name}" wieder im Vorrat.`);
+      // Stellt die tatsaechlich vor dem Trinken vorhandene Menge wieder her
+      // (siehe quantity_before_consumed in wineRepository.restoreToStock) -
+      // nicht immer nur 1 Flasche, auch wenn mehrere auf einmal getrunken
+      // wurden.
+      const restoredCount = wine.quantity_before_consumed ?? 1;
+      applyUpdate(wine.id, (w) => ({ ...w, is_consumed: false, quantity: restoredCount, quantity_before_consumed: null }));
+      showToast?.(
+        `"${wine.name}" wieder im Vorrat (${restoredCount === 1 ? '1 Flasche' : `${restoredCount} Flaschen`}).`,
+      );
       try {
         await restoreToStock(wine);
       } catch (e) {

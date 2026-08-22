@@ -193,21 +193,43 @@ export function SettingsPage() {
         }
       }
 
-      try {
-        if (toCreate.length > 0) {
+      if (toCreate.length > 0) {
+        try {
           await createWines(toCreate);
           imported += toCreate.length;
+        } catch (err) {
+          // Ein einzelner ungueltiger Wein (z. B. Constraint-Verletzung) liess
+          // bisher den gesamten Chunk (bis zu IMPORT_CHUNK_SIZE Weine) still
+          // scheitern - stattdessen einzeln nachversuchen, damit nur der
+          // tatsaechlich fehlerhafte Wein verloren geht, und den Fehler loggen.
+          console.error('CSV-Import: Chunk-Erstellung fehlgeschlagen, versuche einzeln.', err);
+          for (const wine of toCreate) {
+            try {
+              await createWines([wine]);
+              imported += 1;
+            } catch (singleErr) {
+              failed += 1;
+              console.error('CSV-Import: Wein konnte nicht angelegt werden.', wine, singleErr);
+            }
+          }
         }
-      } catch {
-        failed += toCreate.length;
       }
-      try {
-        if (toUpdate.length > 0) {
+      if (toUpdate.length > 0) {
+        try {
           await updateWineQuantities(toUpdate);
           mergedCount += toUpdate.length;
+        } catch (err) {
+          console.error('CSV-Import: Chunk-Mengenupdate fehlgeschlagen, versuche einzeln.', err);
+          for (const update of toUpdate) {
+            try {
+              await updateWineQuantities([update]);
+              mergedCount += 1;
+            } catch (singleErr) {
+              failed += 1;
+              console.error('CSV-Import: Menge konnte nicht aktualisiert werden.', update, singleErr);
+            }
+          }
         }
-      } catch {
-        failed += toUpdate.length;
       }
 
       setImportState((s) => (s.phase === 'importing' ? { ...s, done: Math.min(merged.length, i + chunk.length) } : s));

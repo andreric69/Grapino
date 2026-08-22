@@ -104,19 +104,25 @@ async function logConsumption(wine: Wine): Promise<void> {
   }
 }
 
-/** Loescht den zuletzt fuer diesen Wein geloggten Trinkverlauf-Eintrag (beim Rueckgaengigmachen). */
-async function undoLastConsumptionLog(wineId: string): Promise<void> {
+/**
+ * Loescht die zuletzt fuer diesen Wein geloggten Trinkverlauf-Eintraege (beim
+ * Rueckgaengigmachen) - "count" entspricht der Anzahl Flaschen, die gerade
+ * wiederhergestellt wird (drinkBottles legt pro Flasche einen eigenen
+ * Eintrag an, siehe logConsumption), damit Verlauf und Bestand konsistent
+ * bleiben statt nur den einen zuletzt geschriebenen Eintrag zu loeschen.
+ */
+async function undoLastConsumptionLogs(wineId: string, count: number): Promise<void> {
   try {
     const { data } = await supabase
       .from('wine_consumption_log')
       .select('id')
       .eq('wine_id', wineId)
       .order('consumed_at', { ascending: false })
-      .limit(1);
-    const lastId = data?.[0]?.id;
-    if (lastId) await supabase.from('wine_consumption_log').delete().eq('id', lastId);
+      .limit(count);
+    const ids = (data ?? []).map((row) => row.id);
+    if (ids.length > 0) await supabase.from('wine_consumption_log').delete().in('id', ids);
   } catch (e) {
-    console.error('Trinkverlauf-Eintrag konnte nicht zurueckgenommen werden:', e);
+    console.error('Trinkverlauf-Eintraege konnten nicht zurueckgenommen werden:', e);
   }
 }
 
@@ -134,7 +140,15 @@ export async function drinkOneBottle(wine: Wine): Promise<Wine> {
 export async function drinkBottles(wine: Wine, count: number): Promise<Wine> {
   const clampedCount = Math.min(Math.max(1, count), wine.quantity);
   const nextQuantity = Math.max(0, wine.quantity - clampedCount);
-  const updated = await updateWine(wine.id, { quantity: nextQuantity, is_consumed: nextQuantity === 0 });
+  const updated = await updateWine(wine.id, {
+    quantity: nextQuantity,
+    is_consumed: nextQuantity === 0,
+    // Merkt sich den Bestand VOR diesem Trink-Vorgang nur, wenn er den Wein
+    // gerade auf 0 gebracht hat - das ist die Anzahl, die restoreToStock
+    // spaeter wiederherstellen muss (siehe dort). Sonst (noch Flaschen im
+    // Vorrat) bleibt das Feld irrelevant/null.
+    quantity_before_consumed: nextQuantity === 0 ? wine.quantity : null,
+  });
   for (let i = 0; i < clampedCount; i++) {
     await logConsumption(wine);
   }
@@ -148,8 +162,16 @@ export async function addOneBottle(wine: Wine): Promise<Wine> {
 
 /** Einen als "getrunken" markierten Wein wieder in den Vorrat zurueckholen. */
 export async function restoreToStock(wine: Wine): Promise<Wine> {
-  const updated = await updateWine(wine.id, { is_consumed: false, quantity: Math.max(1, wine.quantity) });
-  await undoLastConsumptionLog(wine.id);
+  // Faellt auf 1 zurueck, falls quantity_before_consumed nicht bekannt ist
+  // (z. B. Wein wurde schon vor dieser Aenderung komplett getrunken) - das
+  // entspricht dem alten, unveraenderten Verhalten fuer solche Altfaelle.
+  const restoredCount = wine.quantity_before_consumed ?? 1;
+  const updated = await updateWine(wine.id, {
+    is_consumed: false,
+    quantity: restoredCount,
+    quantity_before_consumed: null,
+  });
+  await undoLastConsumptionLogs(wine.id, restoredCount);
   return updated;
 }
 

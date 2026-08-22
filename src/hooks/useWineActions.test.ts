@@ -47,6 +47,7 @@ function makeWine(overrides: Partial<Wine> = {}): Wine {
     tasting_body: null,
     ean_code: null,
     photo_urls: [],
+    quantity_before_consumed: null,
     ...overrides,
   };
 }
@@ -136,13 +137,23 @@ describe('useWineActions.toggleConsumed', () => {
     expect(h.toasts[0]).toContain('komplett getrunken');
   });
 
-  it('holt einen getrunkenen Wein wieder in den Vorrat zurueck (mind. 1 Flasche)', async () => {
+  it('holt einen getrunkenen Wein wieder in den Vorrat zurueck (mind. 1 Flasche, falls unbekannt)', async () => {
     restoreToStockMock.mockResolvedValue(undefined);
     const h = makeHarness(makeWine({ quantity: 0, is_consumed: true }));
     await h.actions.toggleConsumed(h.current);
     expect(h.current.is_consumed).toBe(false);
     expect(h.current.quantity).toBe(1);
     expect(h.toasts[0]).toContain('wieder im Vorrat');
+  });
+
+  it('stellt bei mehreren auf einmal getrunkenen Flaschen die volle Anzahl wieder her, nicht nur 1', async () => {
+    restoreToStockMock.mockResolvedValue(undefined);
+    const h = makeHarness(makeWine({ quantity: 0, is_consumed: true, quantity_before_consumed: 6 }));
+    await h.actions.toggleConsumed(h.current);
+    expect(h.current.is_consumed).toBe(false);
+    expect(h.current.quantity).toBe(6);
+    expect(h.current.quantity_before_consumed).toBe(null);
+    expect(h.toasts[0]).toContain('6 Flaschen');
   });
 
   it('macht das Update rueckgaengig und meldet den Fehler, wenn drinkOneBottle fehlschlaegt', async () => {

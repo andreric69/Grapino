@@ -202,7 +202,9 @@ export function rowsToWineInputs(mapping: MappableField[], dataRows: string[][])
 
     const ratingRaw = ratingIdx >= 0 ? (row[ratingIdx] ?? '').replace(',', '.').trim() : '';
     const ratingNum = ratingRaw ? Number(ratingRaw) : NaN;
-    const rating = Number.isFinite(ratingNum) ? Math.min(5, Math.max(1, Math.round(ratingNum))) : null;
+    // Vivino nutzt 0 fuer "nie bewertet" - das darf nicht zu einer erfundenen
+    // 1-Sterne-Bewertung hochgerundet werden, sondern bleibt unbewertet (null).
+    const rating = Number.isFinite(ratingNum) && ratingNum > 0 ? Math.min(5, Math.max(1, Math.round(ratingNum))) : null;
 
     const communityRatingRaw = communityRatingIdx >= 0 ? (row[communityRatingIdx] ?? '').replace(',', '.').trim() : '';
     const communityRatingNum = communityRatingRaw ? Number(communityRatingRaw) : NaN;
@@ -240,6 +242,7 @@ export function rowsToWineInputs(mapping: MappableField[], dataRows: string[][])
       quantity,
       is_favorite: false,
       is_consumed: false,
+      quantity_before_consumed: null,
       price,
       drink_from: null,
       drink_to: null,

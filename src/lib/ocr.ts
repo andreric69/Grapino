@@ -83,7 +83,9 @@ export interface OcrSuggestions {
 const MAX_CHIPS = 14;
 
 const MIN_VINTAGE = 1900;
-const MAX_VINTAGE = 2026; // wie in den Anforderungen spezifiziert (4-stellige Zahl 1900-2026)
+// Naechstes Jahr statt fest verdrahtet, damit das hier nicht jedes Jahr manuell
+// nachgezogen werden muss (Etiketten koennen bereits den kommenden Jahrgang zeigen).
+const MAX_VINTAGE = new Date().getFullYear() + 1;
 
 // Woerter, die auf Etiketten haeufig vorkommen, aber Stilangaben und keine
 // Namen sind - sollen nie als Wein-/Produzentenname vorgeschlagen werden.

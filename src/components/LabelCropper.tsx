@@ -92,13 +92,26 @@ export function LabelCropper({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      <div
-        ref={containerRef}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        style={{ position: 'relative', width: '100%', maxHeight: '55vh', overflow: 'hidden', touchAction: 'none', borderRadius: 'var(--radius-md)' }}
-      >
-        <img src={imageUrl} alt="" style={{ width: '100%', display: 'block', userSelect: 'none' }} draggable={false} />
+      {/*
+        Der aeussere Rahmen begrenzt die Anzeigehoehe (55vh) und scrollt bei
+        hochformatigen Fotos - der innere (containerRef) ist bewusst NICHT
+        begrenzt/geclippt, seine Hoehe entspricht also immer exakt der echten
+        gerenderten Bildhoehe. Waeren beide dasselbe Element (wie zuvor),
+        wuerde getBoundingClientRect() bei hohen Bildern die Hoehe auf 55vh
+        kappen, obwohl das Bild selbst hoeher gerendert ist - die daraus
+        berechneten 0-1-Bruchteile (clientToRelative) würden dann nicht mehr
+        zu den Bruchteilen passen, die cropImage() spaeter auf das volle,
+        unbeschnittene Originalbild anwendet (falscher Bildausschnitt bei
+        Hochformat-Fotos).
+      */}
+      <div style={{ maxHeight: '55vh', overflow: 'auto', borderRadius: 'var(--radius-md)' }}>
+        <div
+          ref={containerRef}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          style={{ position: 'relative', width: '100%', touchAction: 'none' }}
+        >
+          <img src={imageUrl} alt="" style={{ width: '100%', display: 'block', userSelect: 'none' }} draggable={false} />
         {/* Abgedunkelte Bereiche ausserhalb des Rahmens - vier Balken statt
             clip-path mit Loch, das nicht ueberall zuverlaessig unterstuetzt wird. */}
         <div style={{ position: 'absolute', left: 0, top: 0, right: 0, height: `${rect.y * 100}%`, background: 'rgba(0,0,0,0.5)' }} />
@@ -155,6 +168,7 @@ export function LabelCropper({
               }}
             />
           ))}
+          </div>
         </div>
       </div>
       <div style={{ fontSize: 12, opacity: 0.6, textAlign: 'center' }}>

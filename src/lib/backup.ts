@@ -96,6 +96,7 @@ export async function parseWinesBackupFile(file: File): Promise<WineInput[]> {
       tasting_body: typeof e.tasting_body === 'number' ? e.tasting_body : null,
       ean_code: typeof e.ean_code === 'string' ? e.ean_code : null,
       photo_urls: Array.isArray(e.photo_urls) ? e.photo_urls.filter((p): p is string => typeof p === 'string') : [],
+      quantity_before_consumed: typeof e.quantity_before_consumed === 'number' ? e.quantity_before_consumed : null,
     });
   }
 

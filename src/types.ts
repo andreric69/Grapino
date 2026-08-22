@@ -59,6 +59,13 @@ export interface Wine {
   ean_code: string | null;
   /** Mehrere Fotos (Storage-Pfade). "photo_url" bleibt fuer Altdaten erhalten. */
   photo_urls: string[];
+  /**
+   * Bestand unmittelbar VOR dem Trink-Vorgang, der quantity auf 0 gebracht
+   * hat (nur waehrend is_consumed relevant, sonst null) - damit "Zurueck in
+   * den Vorrat" die tatsaechliche Anzahl (z. B. 6 auf einmal getrunkene
+   * Flaschen) wiederherstellen kann statt immer nur 1 Flasche.
+   */
+  quantity_before_consumed: number | null;
 }
 
 export type WineInput = Omit<Wine, 'id' | 'created_at' | 'user_id'>;

@@ -150,10 +150,14 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
     handleIncreaseDuplicateInstead,
   } = useDuplicateCheck({ navigate, setSaveError });
 
-  // Wird gesetzt, wenn der Nutzer die Texterkennung ueberspringt - ein spaeter
-  // eintreffendes OCR-Ergebnis darf dann die manuell eingetragenen Werte nicht
-  // mehr ueberschreiben.
-  const ocrSkippedRef = useRef(false);
+  // Generationszaehler statt einfachem Boolean: sowohl "Ueberspringen" als
+  // auch die Auswahl eines NEUEN Fotos muessen ein noch laufendes
+  // processPhoto() eines fruaheren Fotos ungueltig machen. Mit nur einem
+  // Boolean (frueher: ocrSkippedRef) hat handlePhotoSelect() das Flag beim
+  // naechsten Foto wieder auf false zurueckgesetzt, wodurch ein spaet
+  // eintreffendes Ergebnis von Foto A (das eigentlich uebersprungen wurde)
+  // faelschlich die Formularfelder von Foto B ueberschreiben konnte.
+  const ocrGenerationRef = useRef(0);
 
   // Merkt sich vom Browser erzeugte Objekt-URLs (Foto-Vorschau vor dem
   // Speichern), damit sie beim Wechsel/Verlassen wieder freigegeben werden.
@@ -320,10 +324,10 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
     objectUrlRef.current = objectUrl;
     setPhotoPreviewUrl(objectUrl);
     setRecognizedMatch(null);
-    ocrSkippedRef.current = false;
+    ocrGenerationRef.current += 1;
 
     if (!recognitionEnabled) {
-      void applyPhotoWithoutRecognition(file);
+      void applyPhotoWithoutRecognition(file, ocrGenerationRef.current);
       return;
     }
 
@@ -335,14 +339,19 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
   }
 
   /** Foto einfach nur speichern, ohne Zuschnitt/OCR/Embedding - siehe recognitionEnabled oben. */
-  async function applyPhotoWithoutRecognition(file: File) {
+  async function applyPhotoWithoutRecognition(file: File, generation: number) {
     setOcrBusy(true);
     // Verwirft eine evtl. noch vom letzten Foto stammende Referenz - die
     // wuerde sonst faelschlich zu diesem (unerkannten) Foto gespeichert.
     pendingEmbeddingRef.current = null;
     pendingOcrTextRef.current = null;
     try {
-      setPendingPhotoBlob(await compressImage(file));
+      const compressed = await compressImage(file);
+      // Falls in der Zwischenzeit bereits ein weiteres Foto ausgewaehlt wurde,
+      // gehoert dieses (spaeter fertig komprimierte) Ergebnis nicht mehr zum
+      // aktuellen Foto - verwerfen statt das neuere Foto zu ueberschreiben.
+      if (ocrGenerationRef.current !== generation) return;
+      setPendingPhotoBlob(compressed);
     } finally {
       setOcrBusy(false);
     }
@@ -359,6 +368,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
   }
 
   async function processPhoto(file: File, cropRect: CropRect | null) {
+    const generation = ocrGenerationRef.current;
     setOcrBusy(true);
     setChips([]);
     pendingEmbeddingRef.current = null;
@@ -398,7 +408,9 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
         computeLabelEmbedding(croppedSource),
       ]);
 
-      if (ocrSkippedRef.current) return; // Nutzer wollte manuell eintragen - Ergebnis verwerfen.
+      // Nutzer wollte manuell eintragen (Ueberspringen) ODER hat inzwischen
+      // ein anderes Foto ausgewaehlt - in beiden Faellen Ergebnis verwerfen.
+      if (ocrGenerationRef.current !== generation) return;
 
       pendingEmbeddingRef.current = embedding;
       pendingOcrTextRef.current = suggestions?.fullText ?? null;
@@ -465,7 +477,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
   }
 
   function handleSkipOcr() {
-    ocrSkippedRef.current = true;
+    ocrGenerationRef.current += 1;
     setOcrBusy(false);
   }
 
@@ -579,6 +591,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
         photo_urls: existingWine?.photo_urls ?? [],
         is_favorite: existingWine?.is_favorite ?? false,
         is_consumed: existingWine?.is_consumed ?? false,
+        quantity_before_consumed: existingWine?.quantity_before_consumed ?? null,
         wine_type: form.wineType || null,
         country: form.country.trim() || null,
         subregion: form.subregion.trim() || null,
