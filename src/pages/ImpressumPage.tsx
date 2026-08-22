@@ -1,7 +1,14 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getPricingConfig } from '../lib/pricingConfig';
 
 export function ImpressumPage() {
   const navigate = useNavigate();
+  const [accessFee, setAccessFee] = useState<number | null>(null);
+
+  useEffect(() => {
+    getPricingConfig().then((p) => setAccessFee(p.accessFee));
+  }, []);
 
   return (
     <div className="app-screen">
@@ -23,8 +30,15 @@ export function ImpressumPage() {
 
         <div className="card-kicker" style={{ marginBottom: 6 }}>Kosten</div>
         <p style={{ marginTop: 0, marginBottom: 20 }}>
-          Der Zugang zur App wird einmalig verrechnet. Aktualisierungs-Auftraege (Recherche einzelner Angaben) werden
-          nach Aufwand berechnet - die aktuellen Preise stehen in den Einstellungen.
+          Der Zugang zur App wird einmalig verrechnet
+          {accessFee !== null && (
+            <>
+              {' '}
+              (<strong>{accessFee.toFixed(2)} CHF</strong>)
+            </>
+          )}
+          . Aktualisierungs-Auftraege (Recherche einzelner Angaben) werden nach Aufwand berechnet - die aktuellen
+          Preise stehen in den Einstellungen.
         </p>
         <p style={{ marginTop: 0, marginBottom: 20 }}>
           Sollten fuer den Betrieb der App laufende Kosten anfallen (z. B. eine monatliche Gebuehr fuer benutzte

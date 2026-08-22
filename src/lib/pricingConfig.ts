@@ -1,7 +1,7 @@
 import { supabase } from '../supabaseClient';
 import type { OrderCategory } from '../types';
 
-export type PricingConfig = Record<OrderCategory, number> & { minimum: number };
+export type PricingConfig = Record<OrderCategory, number> & { minimum: number; accessFee: number };
 
 // Rueckfallwerte, falls die Preise (noch) nicht aus der DB geladen werden
 // konnten (z. B. offline) - identisch zu den Standardwerten der
@@ -13,6 +13,7 @@ const FALLBACK_PRICING: PricingConfig = {
   neue_weine: 1,
   ultra: 2.5,
   minimum: 3,
+  accessFee: 45,
 };
 
 // Kurzes Cache-Zeitfenster statt eines dauerhaften Caches - eine unbegrenzte
@@ -28,7 +29,7 @@ let cachedAt = 0;
 async function fetchPricingConfig(): Promise<PricingConfig> {
   const { data, error } = await supabase
     .from('pricing_config')
-    .select('trinkfenster_price, name_price, refresh_price, neue_weine_price, ultra_price, minimum_price')
+    .select('trinkfenster_price, name_price, refresh_price, neue_weine_price, ultra_price, minimum_price, access_fee')
     .eq('id', 1)
     .single();
   if (error || !data) return FALLBACK_PRICING;
@@ -39,6 +40,7 @@ async function fetchPricingConfig(): Promise<PricingConfig> {
     neue_weine: data.neue_weine_price,
     ultra: data.ultra_price,
     minimum: data.minimum_price,
+    accessFee: data.access_fee,
   };
 }
 
