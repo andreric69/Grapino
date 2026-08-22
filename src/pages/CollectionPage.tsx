@@ -6,11 +6,11 @@ import { isBackupOverdue } from '../lib/backupReminder';
 import { getUnfulfilledFeedbackRequest, markFeedbackRequestFulfilled } from '../lib/feedbackRepository';
 import { getDueAnnouncements, dismissAnnouncement } from '../lib/announcementRepository';
 import { useWineActions } from '../hooks/useWineActions';
-import { WINE_TYPE_LABELS, splitCommaList, type Announcement, type SortOption, type Wine } from '../types';
+import { WINE_TYPE_LABELS, splitCommaList, type Announcement, type SortDirection, type SortOption, type Wine } from '../types';
 import { WineCard } from '../components/WineCard';
 import { SearchBar } from '../components/SearchBar';
 import { FilterSheet } from '../components/FilterSheet';
-import { SortMenu } from '../components/SortMenu';
+import { SortMenu, SORT_DEFAULT_DIRECTION } from '../components/SortMenu';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { ThemeToggle } from '../components/ThemeToggle';
@@ -22,28 +22,31 @@ import { ConsumeDialog } from '../components/ConsumeDialog';
 import { Toast } from '../components/Toast';
 import { useToast } from '../hooks/useToast';
 
-type FilterKey =
-  | 'vintage'
-  | 'region'
-  | 'grape_variety'
-  | 'wine_type'
-  | 'country'
-  | 'subregion'
-  | 'bottle_size'
-  | 'food_pairing'
-  | 'community_rating';
+type FilterKey = 'vintage' | 'region' | 'country' | 'grape_variety' | 'wine_type' | 'bottle_size' | 'community_rating';
 type Tab = 'active' | 'consumed' | 'wishlist';
 type ViewMode = 'grid' | 'list';
 const VIEW_MODE_KEY = 'weinsammlung-view-mode';
+
+// Reihenfolge, in der die Filter-Chips angezeigt werden (Kundenperspektive:
+// Jahrgang/Region/Land/Rebsorte sind die haeufigsten Suchkriterien, kommen
+// deshalb zuerst - der Rest ist seltener gebraucht und kommt danach). Kein
+// admin-konfigurierbares Umsortieren pro Person - eine feste, durchdachte
+// Reihenfolge ist fuer 45+ nicht-technische Nutzer einfacher als eine
+// weitere Einstellungsmoeglichkeit.
+const FILTER_ORDER: FilterKey[] = ['vintage', 'region', 'country', 'grape_variety', 'wine_type', 'community_rating', 'bottle_size'];
 
 // Filter/Suche/Sortierung ueberleben damit einen Ausflug auf die
 // Detailseite und zurueck - vorher gingen sie beim Zurueckkommen verloren,
 // weil CollectionPage beim Routenwechsel komplett neu gemountet wird.
 const FILTER_STATE_KEY = 'weinsammlung-filter-state';
+// Gleicher Grund wie oben, aber fuer die Scroll-Position - Papa will nach
+// "Wein anschauen -> zurueck" wieder dort landen, wo er war, nicht ganz oben.
+const SCROLL_STATE_KEY = 'weinsammlung-scroll-position';
 
 interface PersistedFilterState {
   search: string;
   sort: SortOption;
+  sortDirection: SortDirection;
   filters: Record<FilterKey, string[]>;
   favoritesOnly: boolean;
   noPriceOnly: boolean;
@@ -55,12 +58,10 @@ interface PersistedFilterState {
 const DEFAULT_FILTERS: Record<FilterKey, string[]> = {
   vintage: [],
   region: [],
+  country: [],
   grape_variety: [],
   wine_type: [],
-  country: [],
-  subregion: [],
   bottle_size: [],
-  food_pairing: [],
   community_rating: [],
 };
 
@@ -80,12 +81,10 @@ function loadPersistedFilterState(): Partial<PersistedFilterState> {
 const FILTER_LABELS: Record<FilterKey, string> = {
   vintage: 'Jahrgang',
   region: 'Region',
+  country: 'Land',
   grape_variety: 'Rebsorte',
   wine_type: 'Typ',
-  country: 'Land',
-  subregion: 'Subregion',
   bottle_size: 'Flaschengroesse',
-  food_pairing: 'Passt zu',
   community_rating: 'Bewertung',
 };
 
@@ -101,6 +100,9 @@ export function CollectionPage() {
   const persistedFilterState = useMemo(loadPersistedFilterState, []);
   const [search, setSearch] = useState(persistedFilterState.search ?? '');
   const [sort, setSort] = useState<SortOption>(persistedFilterState.sort ?? 'newest');
+  const [sortDirection, setSortDirection] = useState<SortDirection>(
+    persistedFilterState.sortDirection ?? SORT_DEFAULT_DIRECTION[persistedFilterState.sort ?? 'newest'],
+  );
   const [filters, setFilters] = useState<Record<FilterKey, string[]>>(persistedFilterState.filters ?? DEFAULT_FILTERS);
   const [openFilter, setOpenFilter] = useState<FilterKey | null>(null);
   const [favoritesOnly, setFavoritesOnly] = useState(persistedFilterState.favoritesOnly ?? false);
@@ -124,9 +126,39 @@ export function CollectionPage() {
   }
 
   useEffect(() => {
-    const state: PersistedFilterState = { search, sort, filters, favoritesOnly, noPriceOnly, noPhotoOnly, drinkNowOnly, tab };
+    const state: PersistedFilterState = {
+      search,
+      sort,
+      sortDirection,
+      filters,
+      favoritesOnly,
+      noPriceOnly,
+      noPhotoOnly,
+      drinkNowOnly,
+      tab,
+    };
     sessionStorage.setItem(FILTER_STATE_KEY, JSON.stringify(state));
-  }, [search, sort, filters, favoritesOnly, noPriceOnly, noPhotoOnly, drinkNowOnly, tab]);
+  }, [search, sort, sortDirection, filters, favoritesOnly, noPriceOnly, noPhotoOnly, drinkNowOnly, tab]);
+
+  // Scroll-Position merken, solange die Seite offen ist - und nach dem
+  // Laden (z. B. beim Zurueckkommen von der Detailseite, siehe
+  // FILTER_STATE_KEY oben fuer den gleichen Grund) wiederherstellen, statt
+  // Papa jedes Mal ganz nach oben zu werfen.
+  useEffect(() => {
+    function handleScroll() {
+      sessionStorage.setItem(SCROLL_STATE_KEY, String(window.scrollY));
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (loading) return;
+    const saved = Number(sessionStorage.getItem(SCROLL_STATE_KEY));
+    if (!Number.isFinite(saved) || saved <= 0) return;
+    requestAnimationFrame(() => window.scrollTo({ top: saved, behavior: 'auto' }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
 
   async function load() {
     setLoading(true);
@@ -185,12 +217,10 @@ export function CollectionPage() {
     return {
       vintage: uniq(tabWines.map((w) => w.vintage)),
       region: uniq(tabWines.map((w) => w.region)),
+      country: uniq(tabWines.map((w) => w.country)),
       grape_variety: uniqMulti(tabWines.map((w) => w.grape_variety)),
       wine_type: uniq(tabWines.map((w) => (w.wine_type ? WINE_TYPE_LABELS[w.wine_type] : null))),
-      country: uniq(tabWines.map((w) => w.country)),
-      subregion: uniq(tabWines.map((w) => w.subregion)),
       bottle_size: uniq(tabWines.map((w) => w.bottle_size)),
-      food_pairing: uniqMulti(tabWines.map((w) => w.food_pairing)),
       community_rating: uniq(
         tabWines.map((w) => (typeof w.community_rating === 'number' ? w.community_rating.toFixed(1) : null)),
       ),
@@ -220,12 +250,7 @@ export function CollectionPage() {
       result = result.filter((w) => w.wine_type !== null && wanted.includes(WINE_TYPE_LABELS[w.wine_type]));
     }
     if (filters.country.length) result = result.filter((w) => w.country !== null && filters.country.includes(w.country));
-    if (filters.subregion.length) result = result.filter((w) => w.subregion !== null && filters.subregion.includes(w.subregion));
     if (filters.bottle_size.length) result = result.filter((w) => w.bottle_size !== null && filters.bottle_size.includes(w.bottle_size));
-    if (filters.food_pairing.length) {
-      const wanted = filters.food_pairing;
-      result = result.filter((w) => splitCommaList(w.food_pairing).some((f) => wanted.includes(f)));
-    }
     if (filters.community_rating.length) {
       result = result.filter(
         (w) => typeof w.community_rating === 'number' && filters.community_rating.includes(w.community_rating.toFixed(1)),
@@ -245,30 +270,98 @@ export function CollectionPage() {
       );
     }
 
+    // Richtung nur auf die eigentliche Sortierung anwenden - Weine ohne
+    // Trinkfenster bleiben bei "drinkwindow" IMMER ganz hinten, unabhaengig
+    // von der Richtung (sonst wuerden sie bei "laenger haltbar zuerst"
+    // ploetzlich ganz vorne stehen, obwohl "kein Trinkfenster bekannt" das
+    // Gegenteil von "haltbar" bedeutet).
+    const dir = sortDirection === 'asc' ? 1 : -1;
     result = [...result].sort((a, b) => {
-      if (sort === 'name') return a.name.localeCompare(b.name, 'de');
-      if (sort === 'vintage') return (b.vintage ?? 0) - (a.vintage ?? 0);
-      if (sort === 'price') return (b.price ?? -1) - (a.price ?? -1);
-      if (sort === 'rating') return (b.rating ?? 0) - (a.rating ?? 0);
+      if (sort === 'name') return dir * a.name.localeCompare(b.name, 'de');
+      if (sort === 'vintage') return dir * ((a.vintage ?? 0) - (b.vintage ?? 0));
+      if (sort === 'price') return dir * ((a.price ?? -1) - (b.price ?? -1));
+      if (sort === 'rating') return dir * ((a.rating ?? 0) - (b.rating ?? 0));
       if (sort === 'drinkwindow') {
-        // Weine mit Trinkfenster zuerst, danach nach fruehestem Ablauf (drink_to) sortiert -
-        // "bald faellig" oben. Weine ohne Trinkfenster stehen ganz hinten.
         if (a.drink_to === null && b.drink_to === null) return 0;
         if (a.drink_to === null) return 1;
         if (b.drink_to === null) return -1;
-        return a.drink_to - b.drink_to;
+        return dir * (a.drink_to - b.drink_to);
       }
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      return dir * (new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
     });
 
     return result;
-  }, [tabWines, filters, search, sort, favoritesOnly, noPriceOnly, noPhotoOnly, drinkNowOnly]);
+  }, [tabWines, filters, search, sort, sortDirection, favoritesOnly, noPriceOnly, noPhotoOnly, drinkNowOnly]);
 
   const regionCount = useMemo(
     () => new Set(tabWines.map((w) => w.region).filter(Boolean)).size,
     [tabWines],
   );
   const bottleCount = useMemo(() => tabWines.reduce((sum, w) => sum + w.quantity, 0), [tabWines]);
+
+  // Alle Filter-/Schnellwahl-Chips als eine einheitliche Liste, damit sie
+  // sich zusammen sortieren lassen (aktive zuerst, siehe unten) und leere
+  // Filter (nichts zum Filtern vorhanden) einheitlich ausgeblendet werden
+  // koennen - aus Kundensicht soll nie ein Filter angetippt werden koennen,
+  // der eh nichts liefert.
+  const hasNoPrice = useMemo(() => tabWines.some((w) => w.price === null), [tabWines]);
+  const hasNoPhoto = useMemo(() => tabWines.some((w) => !w.photo_url && w.photo_urls.length === 0), [tabWines]);
+  const hasDrinkWindow = useMemo(() => tabWines.some((w) => w.drink_from !== null), [tabWines]);
+
+  const chips = useMemo(() => {
+    const items: { id: string; label: string; active: boolean; onOpen: () => void; onRemove: () => void }[] = [];
+    for (const key of FILTER_ORDER) {
+      if (filterOptions[key].length === 0) continue;
+      const count = filters[key].length;
+      items.push({
+        id: key,
+        label: count === 0 ? FILTER_LABELS[key] : count === 1 ? filters[key][0] : `${FILTER_LABELS[key]} (${count})`,
+        active: count > 0,
+        onOpen: () => setOpenFilter(key),
+        onRemove: () => setFilters((f) => ({ ...f, [key]: [] })),
+      });
+    }
+    if (tab === 'active' && hasDrinkWindow) {
+      items.push({
+        id: 'drinkNow',
+        label: 'Jetzt trinkreif',
+        active: drinkNowOnly,
+        onOpen: () => setDrinkNowOnly((v) => !v),
+        onRemove: () => setDrinkNowOnly(false),
+      });
+    }
+    if (hasNoPrice) {
+      items.push({
+        id: 'noPrice',
+        label: 'Ohne Preis',
+        active: noPriceOnly,
+        onOpen: () => setNoPriceOnly((v) => !v),
+        onRemove: () => setNoPriceOnly(false),
+      });
+    }
+    if (hasNoPhoto) {
+      items.push({
+        id: 'noPhoto',
+        label: 'Ohne Foto',
+        active: noPhotoOnly,
+        onOpen: () => setNoPhotoOnly((v) => !v),
+        onRemove: () => setNoPhotoOnly(false),
+      });
+    }
+    // Aktive Filter kommen ganz nach vorn (links) - auf einen Blick sehen,
+    // was gerade gefiltert wird, statt sie in der festen Reihenfolge suchen
+    // zu muessen. Innerhalb "aktiv"/"inaktiv" bleibt die obige Reihenfolge erhalten.
+    return [...items].sort((a, b) => Number(b.active) - Number(a.active));
+  }, [filterOptions, filters, tab, hasDrinkWindow, drinkNowOnly, hasNoPrice, noPriceOnly, hasNoPhoto, noPhotoOnly]);
+
+  const anyFilterActive = chips.some((c) => c.active);
+
+  function clearAllFilters() {
+    setFilters(DEFAULT_FILTERS);
+    setDrinkNowOnly(false);
+    setNoPriceOnly(false);
+    setNoPhotoOnly(false);
+  }
 
   const { toggleFavorite: handleToggleFavorite, toggleConsumed: handleToggleConsumed } = useWineActions({
     applyUpdate: (wineId, updater) =>
@@ -373,68 +466,47 @@ export function CollectionPage() {
 
       <SearchBar value={search} onChange={setSearch} />
 
-      <div className="filter-row" style={{ padding: '0 20px 8px' }}>
-        {(Object.keys(FILTER_LABELS) as FilterKey[]).map((key) => {
-          const count = filters[key].length;
-          const label = count === 0 ? FILTER_LABELS[key] : count === 1 ? filters[key][0] : `${FILTER_LABELS[key]} (${count})`;
-          return (
+      {chips.length > 0 && (
+        <div className="filter-row" style={{ padding: '0 20px 8px' }}>
+          {anyFilterActive && (
+            <button type="button" className="clear-all-btn" onClick={clearAllFilters}>
+              Alle Filter entfernen
+            </button>
+          )}
+          {chips.map((chip) => (
             <button
-              key={key}
+              key={chip.id}
               type="button"
-              className={`tag tag-outline${count > 0 ? ' is-active' : ''}`}
-              onClick={() => setOpenFilter(key)}
+              className={`tag tag-outline${chip.active ? ' is-active' : ''}`}
+              onClick={chip.onOpen}
               style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}
             >
-              {label}
-              {count > 0 && (
+              {chip.label}
+              {chip.active && (
                 <span
                   role="button"
-                  aria-label={`${FILTER_LABELS[key]}-Filter entfernen`}
+                  aria-label={`${chip.label}-Filter entfernen`}
                   onClick={(e) => {
                     e.stopPropagation();
-                    setFilters((f) => ({ ...f, [key]: [] }));
+                    chip.onRemove();
                   }}
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    opacity: 0.85,
-                    fontSize: 20,
+                    fontSize: 22,
                     lineHeight: 1,
-                    padding: '4px 6px',
-                    margin: '-4px -4px -4px 0',
+                    padding: '6px 8px',
+                    margin: '-6px -8px -6px 2px',
                   }}
                 >
                   &times;
                 </span>
               )}
             </button>
-          );
-        })}
-        <button
-          type="button"
-          className={`tag tag-outline${noPriceOnly ? ' is-active' : ''}`}
-          onClick={() => setNoPriceOnly((v) => !v)}
-        >
-          Ohne Preis
-        </button>
-        <button
-          type="button"
-          className={`tag tag-outline${noPhotoOnly ? ' is-active' : ''}`}
-          onClick={() => setNoPhotoOnly((v) => !v)}
-        >
-          Ohne Foto
-        </button>
-        {tab === 'active' && (
-          <button
-            type="button"
-            className={`tag tag-outline${drinkNowOnly ? ' is-active' : ''}`}
-            onClick={() => setDrinkNowOnly((v) => !v)}
-          >
-            Jetzt trinkreif
-          </button>
-        )}
-      </div>
+          ))}
+        </div>
+      )}
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, alignItems: 'center', padding: '0 20px 14px' }}>
         <div style={{ display: 'flex', border: '1px solid var(--color-divider)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
           <button
@@ -473,7 +545,7 @@ export function CollectionPage() {
             </svg>
           </button>
         </div>
-        <SortMenu value={sort} onChange={setSort} />
+        <SortMenu value={sort} direction={sortDirection} onChange={setSort} onChangeDirection={setSortDirection} />
       </div>
 
       {loading && <LoadingSpinner label="Sammlung wird geladen ..." />}

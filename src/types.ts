@@ -71,6 +71,7 @@ export interface Wine {
 export type WineInput = Omit<Wine, 'id' | 'created_at' | 'user_id'>;
 
 export type SortOption = 'newest' | 'vintage' | 'name' | 'price' | 'rating' | 'drinkwindow';
+export type SortDirection = 'asc' | 'desc';
 
 /** Zerlegt ein kommagetrenntes Feld (Rebsorten, Passt-zu) in einzelne, getrimmte Werte. */
 export function splitCommaList(value: string | null): string[] {

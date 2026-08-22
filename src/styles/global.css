@@ -410,6 +410,25 @@ textarea.input {
   background: none;
   font: inherit;
 }
+/* Aktive Filter muessen auf den ersten Blick auffallen (dunkelrot statt nur
+   leicht getoent) - Kunden sollen sofort sehen, dass gefiltert wird, ohne
+   die Pille lesen zu muessen. */
+.filter-row .tag-outline.is-active {
+  background: var(--color-bordeaux);
+  border-color: var(--color-bordeaux);
+  color: #fff;
+}
+.filter-row .clear-all-btn {
+  white-space: nowrap;
+  cursor: pointer;
+  background: none;
+  font: inherit;
+  border: 1.5px solid var(--color-bordeaux);
+  color: var(--color-bordeaux);
+  font-weight: 600;
+  border-radius: calc(var(--radius-md) * 0.75);
+  padding: 3px 10px;
+}
 
 .wine-grid {
   display: grid;

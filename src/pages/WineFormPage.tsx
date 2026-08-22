@@ -15,6 +15,7 @@ import { preloadOcrWorker, recognizeWineLabel, type FieldConfidence, type OcrFie
 import { preloadWineReference, lookupCountryForRegion, lookupCountryForProducer, lookupTypeForGrape } from '../lib/wineReference';
 import { preloadLabelEmbeddingModel, computeLabelEmbedding } from '../lib/labelEmbedding';
 import { listRecognitionRefs, upsertRecognitionRef, bestEmbeddingMatch, bestTextMatch, type RecognitionRef } from '../lib/recognitionRefs';
+import { lookupWineKnowledge } from '../lib/wineKnowledgeCache';
 import { WINE_TYPE_LABELS, type Wine, type WineType } from '../types';
 import { PhotoCapture } from '../components/PhotoCapture';
 import { OcrChipTray } from '../components/OcrChipTray';
@@ -90,6 +91,32 @@ const EMPTY_FORM: FormState = {
 
 const WINE_TYPE_OPTIONS: WineType[] = ['rot', 'weiss', 'rose', 'dessert', 'schaumwein'];
 
+/** Ob dieser Wein schon "erweiterte" Angaben hat - dann startet das Formular aufgeklappt, statt sie zu verstecken. */
+function wineHasAdvancedData(wine: Wine): boolean {
+  return (
+    wine.wine_type !== null ||
+    wine.is_wishlist ||
+    wine.price !== null ||
+    wine.bottle_size !== null ||
+    wine.storage_location !== null ||
+    wine.drink_from !== null ||
+    wine.drink_to !== null ||
+    wine.grape_variety !== null ||
+    wine.region !== null ||
+    wine.subregion !== null ||
+    wine.rating !== null ||
+    wine.tasting_tannin !== null ||
+    wine.tasting_acidity !== null ||
+    wine.tasting_sweetness !== null ||
+    wine.tasting_body !== null ||
+    wine.community_rating !== null ||
+    wine.critic_scores !== null ||
+    wine.food_pairing !== null ||
+    wine.ean_code !== null ||
+    wine.notes !== null
+  );
+}
+
 interface ExtraPhoto {
   id: string;
   blob: Blob | null;
@@ -139,6 +166,13 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
 
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  // Kundensicht: beim Neuanlegen sieht man erst nur Name/Produzent/Jahrgang/
+  // Anzahl/Herkunft - alles andere ist eingeklappt, damit das Formular nicht
+  // erschlaegt. Klappt sich automatisch auf, sobald es etwas zu zeigen gibt
+  // (bestehende Angaben beim Bearbeiten, oder von der Fotoerkennung
+  // ausgefuellte erweiterte Felder) - nie stillschweigend Daten verstecken.
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const {
     setExistingWinesForCheck,
@@ -210,6 +244,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
       try {
         const wine = await getWine(id);
         setExistingWine(wine);
+        if (wineHasAdvancedData(wine)) setShowAdvanced(true);
         setForm({
           name: wine.name,
           producer: wine.producer ?? '',
@@ -467,6 +502,17 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
       });
       setSuggested(nextSuggested);
       setChips(suggestions.chips);
+      // Wurde eines der "erweiterten" Felder erkannt, gleich aufklappen -
+      // sonst sieht der Nutzer nicht, dass die Erkennung dort etwas
+      // eingetragen hat.
+      if (['grapeVariety', 'region', 'subregion', 'wineType'].some((k) => k in nextSuggested)) {
+        setShowAdvanced(true);
+      }
+      void applyKnowledgeCache(
+        suggestions.name ?? form.name,
+        suggestions.producer ?? (form.producer || null),
+        suggestions.vintage ?? (form.vintage ? Number(form.vintage) : null),
+      );
     } catch (e) {
       // Foto-Erkennung ist nur eine Hilfestellung - schlaegt sie fehl, traegt
       // der Nutzer die Angaben einfach manuell ein. Kein Fehlerbanner noetig.
@@ -479,6 +525,32 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
   function handleSkipOcr() {
     ocrGenerationRef.current += 1;
     setOcrBusy(false);
+  }
+
+  /**
+   * Gleicht Name+Produzent+Jahrgang gegen den geteilten Wissens-Cache ab
+   * (siehe wineKnowledgeCache.ts) - Trinkfenster/Kritiker-Punkte/Food-Pairing
+   * stehen sofort zur Verfuegung, wenn irgendein Nutzer (bzw. eine
+   * Admin-Recherche) diesen Wein schon einmal aktualisiert hat. Kein
+   * eigener Schritt fuer den Nutzer, laeuft im Hintergrund wie die
+   * bestehende Foto-Wiedererkennung, und ueberschreibt nie bereits
+   * ausgefuellte Felder.
+   */
+  async function applyKnowledgeCache(name: string, producer: string | null, vintage: number | null) {
+    if (!name.trim()) return;
+    const knowledge = await lookupWineKnowledge(name, producer, vintage).catch(() => null);
+    if (!knowledge) return;
+    const gotSomething =
+      knowledge.drink_from !== null || knowledge.drink_to !== null || !!knowledge.critic_scores || !!knowledge.food_pairing;
+    if (!gotSomething) return;
+    setForm((f) => ({
+      ...f,
+      drinkFrom: f.drinkFrom || (knowledge.drink_from !== null ? String(knowledge.drink_from) : f.drinkFrom),
+      drinkTo: f.drinkTo || (knowledge.drink_to !== null ? String(knowledge.drink_to) : f.drinkTo),
+      criticScores: f.criticScores || knowledge.critic_scores || f.criticScores,
+      foodPairing: f.foodPairing || knowledge.food_pairing || f.foodPairing,
+    }));
+    setShowAdvanced(true);
   }
 
   // Wiedererkannten Wein (siehe recognizedMatch) uebernehmen - ueberschreibt
@@ -524,6 +596,8 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
     });
     setSuggested((s) => ({ ...s, ...nextSuggested }));
     setRecognizedMatch(null);
+    setShowAdvanced(true);
+    void applyKnowledgeCache(match.name, match.producer, match.vintage);
   }
 
   function handleDismissRecognizedMatch() {
@@ -961,39 +1035,6 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
           />
         </FormField>
 
-        <div className="field" style={{ marginBottom: 13 }}>
-          <label>
-            Typ
-            <ConfidenceTag confidence={suggested.wineType} />
-          </label>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {WINE_TYPE_OPTIONS.map((t) => (
-              <button
-                key={t}
-                type="button"
-                className={`tag tag-outline${form.wineType === t ? ' is-active' : ''}`}
-                onClick={() => {
-                  updateField('wineType', form.wineType === t ? '' : t);
-                  clearSuggestion('wineType');
-                }}
-              >
-                {WINE_TYPE_LABELS[t]}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="field" style={{ marginBottom: 13 }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              checked={form.isWishlist}
-              onChange={(e) => updateField('isWishlist', e.target.checked)}
-            />
-            Auf die Wunschliste (noch nicht im Bestand)
-          </label>
-        </div>
-
         <div style={{ display: 'flex', gap: 12 }}>
           <div style={{ flex: 1 }}>
             <FormField
@@ -1033,141 +1074,6 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
           )}
         </div>
 
-        <div className="hr" />
-        <div className="card-kicker" style={{ marginBottom: 10 }}>
-          Preis &amp; Lagerung
-        </div>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <div style={{ flex: 1 }}>
-            <FormField label="Preis pro Flasche">
-              <input
-                className="input"
-                type="number"
-                inputMode="decimal"
-                step="0.01"
-                min={0}
-                placeholder="z. B. 25.90"
-                value={form.price}
-                onChange={(e) => updateField('price', e.target.value)}
-              />
-            </FormField>
-          </div>
-          <div style={{ flex: 1 }}>
-            <FormField label="Flaschengroesse">
-              <input
-                className="input"
-                placeholder="z. B. 75cl, 1.5l"
-                value={form.bottleSize}
-                onChange={(e) => updateField('bottleSize', e.target.value)}
-              />
-            </FormField>
-          </div>
-        </div>
-
-        <FormField label="Lagerort">
-          <input
-            className="input"
-            placeholder="z. B. Keller Regal 3"
-            value={form.storageLocation}
-            onChange={(e) => updateField('storageLocation', e.target.value)}
-          />
-        </FormField>
-
-        <div className="hr" />
-        <div className="card-kicker" style={{ marginBottom: 10 }}>
-          Trinkfenster
-        </div>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <div style={{ flex: 1 }}>
-            <FormField label="Trinkfenster von">
-              <input
-                className="input"
-                type="number"
-                inputMode="numeric"
-                min={1900}
-                max={2100}
-                placeholder="z. B. 2026"
-                value={form.drinkFrom}
-                onChange={(e) => updateField('drinkFrom', e.target.value)}
-              />
-            </FormField>
-          </div>
-          <div style={{ flex: 1 }}>
-            <FormField label="Trinkfenster bis">
-              <input
-                className="input"
-                type="number"
-                inputMode="numeric"
-                min={1900}
-                max={2100}
-                placeholder="z. B. 2034"
-                value={form.drinkTo}
-                onChange={(e) => updateField('drinkTo', e.target.value)}
-              />
-            </FormField>
-          </div>
-        </div>
-
-        <div className="hr" />
-        <div className="card-kicker" style={{ marginBottom: 10 }}>
-          Herkunft
-        </div>
-        <FormField
-          label="Rebsorte(n)"
-          confidence={suggested.grapeVariety}
-          dropField="grapeVariety"
-          hovered={hoveredDropField === 'grapeVariety'}
-        >
-          <input
-            className="input"
-            placeholder="z. B. Cabernet Sauvignon, Merlot"
-            value={form.grapeVariety}
-            onChange={(e) => {
-              updateField('grapeVariety', e.target.value);
-              clearSuggestion('grapeVariety');
-            }}
-          />
-        </FormField>
-
-        <div style={{ display: 'flex', gap: 12 }}>
-          <div style={{ flex: 1 }}>
-            <FormField
-              label="Region"
-              confidence={suggested.region}
-              dropField="region"
-              hovered={hoveredDropField === 'region'}
-            >
-              <input
-                className="input"
-                placeholder="z. B. Bordeaux"
-                value={form.region}
-                onChange={(e) => {
-                  updateField('region', e.target.value);
-                  clearSuggestion('region');
-                }}
-              />
-            </FormField>
-          </div>
-          <div style={{ flex: 1 }}>
-            <FormField
-              label="Subregion"
-              confidence={suggested.subregion}
-              dropField="subregion"
-              hovered={hoveredDropField === 'subregion'}
-            >
-              <input
-                className="input"
-                placeholder="z. B. Pauillac"
-                value={form.subregion}
-                onChange={(e) => {
-                  updateField('subregion', e.target.value);
-                  clearSuggestion('subregion');
-                }}
-              />
-            </FormField>
-          </div>
-        </div>
-
         <FormField label="Herkunftsland" confidence={suggested.country}>
           <input
             className="input"
@@ -1179,6 +1085,185 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
             }}
           />
         </FormField>
+
+        <button
+          type="button"
+          className="btn btn-secondary btn-block"
+          style={{ marginBottom: 13 }}
+          onClick={() => setShowAdvanced((v) => !v)}
+        >
+          {showAdvanced ? 'Erweiterte Erfassung ausblenden' : 'Erweiterte Erfassung (Typ, Preis, Trinkfenster, Rebsorte ...)'}
+        </button>
+
+        {showAdvanced && (
+          <>
+            <div className="field" style={{ marginBottom: 13 }}>
+              <label>
+                Typ
+                <ConfidenceTag confidence={suggested.wineType} />
+              </label>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                {WINE_TYPE_OPTIONS.map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    className={`tag tag-outline${form.wineType === t ? ' is-active' : ''}`}
+                    onClick={() => {
+                      updateField('wineType', form.wineType === t ? '' : t);
+                      clearSuggestion('wineType');
+                    }}
+                  >
+                    {WINE_TYPE_LABELS[t]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="field" style={{ marginBottom: 13 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={form.isWishlist}
+                  onChange={(e) => updateField('isWishlist', e.target.checked)}
+                />
+                Auf die Wunschliste (noch nicht im Bestand)
+              </label>
+            </div>
+
+            <div className="hr" />
+            <div className="card-kicker" style={{ marginBottom: 10 }}>
+              Preis &amp; Lagerung
+            </div>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <div style={{ flex: 1 }}>
+                <FormField label="Preis pro Flasche">
+                  <input
+                    className="input"
+                    type="number"
+                    inputMode="decimal"
+                    step="0.01"
+                    min={0}
+                    placeholder="z. B. 25.90"
+                    value={form.price}
+                    onChange={(e) => updateField('price', e.target.value)}
+                  />
+                </FormField>
+              </div>
+              <div style={{ flex: 1 }}>
+                <FormField label="Flaschengroesse">
+                  <input
+                    className="input"
+                    placeholder="z. B. 75cl, 1.5l"
+                    value={form.bottleSize}
+                    onChange={(e) => updateField('bottleSize', e.target.value)}
+                  />
+                </FormField>
+              </div>
+            </div>
+
+            <FormField label="Lagerort">
+              <input
+                className="input"
+                placeholder="z. B. Keller Regal 3"
+                value={form.storageLocation}
+                onChange={(e) => updateField('storageLocation', e.target.value)}
+              />
+            </FormField>
+
+            <div className="hr" />
+            <div className="card-kicker" style={{ marginBottom: 10 }}>
+              Trinkfenster
+            </div>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <div style={{ flex: 1 }}>
+                <FormField label="Trinkfenster von">
+                  <input
+                    className="input"
+                    type="number"
+                    inputMode="numeric"
+                    min={1900}
+                    max={2100}
+                    placeholder="z. B. 2026"
+                    value={form.drinkFrom}
+                    onChange={(e) => updateField('drinkFrom', e.target.value)}
+                  />
+                </FormField>
+              </div>
+              <div style={{ flex: 1 }}>
+                <FormField label="Trinkfenster bis">
+                  <input
+                    className="input"
+                    type="number"
+                    inputMode="numeric"
+                    min={1900}
+                    max={2100}
+                    placeholder="z. B. 2034"
+                    value={form.drinkTo}
+                    onChange={(e) => updateField('drinkTo', e.target.value)}
+                  />
+                </FormField>
+              </div>
+            </div>
+
+            <div className="hr" />
+            <div className="card-kicker" style={{ marginBottom: 10 }}>
+              Rebsorte &amp; Region
+            </div>
+            <FormField
+              label="Rebsorte(n)"
+              confidence={suggested.grapeVariety}
+              dropField="grapeVariety"
+              hovered={hoveredDropField === 'grapeVariety'}
+            >
+              <input
+                className="input"
+                placeholder="z. B. Cabernet Sauvignon, Merlot"
+                value={form.grapeVariety}
+                onChange={(e) => {
+                  updateField('grapeVariety', e.target.value);
+                  clearSuggestion('grapeVariety');
+                }}
+              />
+            </FormField>
+
+            <div style={{ display: 'flex', gap: 12 }}>
+              <div style={{ flex: 1 }}>
+                <FormField
+                  label="Region"
+                  confidence={suggested.region}
+                  dropField="region"
+                  hovered={hoveredDropField === 'region'}
+                >
+                  <input
+                    className="input"
+                    placeholder="z. B. Bordeaux"
+                    value={form.region}
+                    onChange={(e) => {
+                      updateField('region', e.target.value);
+                      clearSuggestion('region');
+                    }}
+                  />
+                </FormField>
+              </div>
+              <div style={{ flex: 1 }}>
+                <FormField
+                  label="Subregion"
+                  confidence={suggested.subregion}
+                  dropField="subregion"
+                  hovered={hoveredDropField === 'subregion'}
+                >
+                  <input
+                    className="input"
+                    placeholder="z. B. Pauillac"
+                    value={form.subregion}
+                    onChange={(e) => {
+                      updateField('subregion', e.target.value);
+                      clearSuggestion('subregion');
+                    }}
+                  />
+                </FormField>
+              </div>
+            </div>
 
         <div className="hr" />
         <div className="card-kicker" style={{ marginBottom: 10 }}>
@@ -1274,14 +1359,16 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
           )}
         </FormField>
 
-        <FormField label="Notizen">
-          <textarea
-            className="input"
-            placeholder="Eigene Verkostungsnotizen ..."
-            value={form.notes}
-            onChange={(e) => updateField('notes', e.target.value)}
-          />
-        </FormField>
+            <FormField label="Notizen">
+              <textarea
+                className="input"
+                placeholder="Eigene Verkostungsnotizen ..."
+                value={form.notes}
+                onChange={(e) => updateField('notes', e.target.value)}
+              />
+            </FormField>
+          </>
+        )}
 
         {saveError && <ErrorBanner message={saveError} />}
 
