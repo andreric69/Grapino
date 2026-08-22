@@ -72,3 +72,10 @@ export function computeOrderPrice(pricing: PricingConfig, category: OrderCategor
   const raw = pricing[category] * Math.sqrt(wineCount);
   return Math.max(pricing.minimum, Math.round(raw * 20) / 20); // auf 5 Rappen runden
 }
+
+/** Referenz-Mengen fuer die Preistabelle, die bei jeder Angebots-Auswahl angezeigt wird - gibt eine Groessenordnung, bevor jemand die genaue Flaschenzahl kennt. */
+export const PRICE_TABLE_COUNTS = [10, 50, 100, 200, 500, 1000] as const;
+
+export function buildPriceTable(pricing: PricingConfig, category: OrderCategory): { count: number; price: number }[] {
+  return PRICE_TABLE_COUNTS.map((count) => ({ count, price: computeOrderPrice(pricing, category, count) }));
+}

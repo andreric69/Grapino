@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { OrderCategory, Wine } from '../types';
 import { sendMessage } from '../lib/messageRepository';
 import { submitOrder, ORDER_CATEGORY_INFO } from '../lib/orderRepository';
-import { computeOrderPrice, getPricingConfig, type PricingConfig } from '../lib/pricingConfig';
+import { buildPriceTable, computeOrderPrice, getPricingConfig, type PricingConfig } from '../lib/pricingConfig';
 import { FeedbackModal } from './FeedbackModal';
 
 type Tab = 'allgemein' | 'vorschlag' | 'auftrag';
@@ -210,6 +210,27 @@ export function ChatBubble({ wines }: { wines: Wine[] }) {
                         {ORDER_CATEGORY_INFO[orderCategory].description} Bei grossen Sammlungen wird es pro Flasche
                         guenstiger - der genaue Preis unten ist immer massgebend.
                       </div>
+
+                      {pricing && (
+                        <div
+                          style={{
+                            display: 'flex',
+                            gap: 4,
+                            overflowX: 'auto',
+                            marginTop: 8,
+                            padding: '8px 10px',
+                            borderRadius: 'var(--radius-sm)',
+                            background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)',
+                          }}
+                        >
+                          {buildPriceTable(pricing, orderCategory).map((row) => (
+                            <div key={row.count} style={{ textAlign: 'center', flexShrink: 0, minWidth: 52 }}>
+                              <div style={{ fontSize: 10.5, opacity: 0.6 }}>{row.count} Weine</div>
+                              <div style={{ fontSize: 12.5, fontWeight: 600 }}>{row.price.toFixed(2)}</div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     <div>
