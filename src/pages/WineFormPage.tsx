@@ -119,6 +119,12 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
   const [showCropper, setShowCropper] = useState(false);
   const [cropSourceFile, setCropSourceFile] = useState<File | null>(null);
 
+  // Beim Bearbeiten eines bestehenden Weins soll ein neues Foto NICHT
+  // automatisch die Erkennung anwerfen - die Felder sind ja meist schon
+  // richtig ausgefuellt, ein neuer (z. B. besserer) Schnappschuss soll das
+  // nicht ungefragt ueberschreiben. Beim Neuanlegen bleibt es wie bisher an.
+  const [recognitionEnabled, setRecognitionEnabled] = useState(mode === 'create');
+
   // Wiedererkennung ueber bereits bestaetigte eigene Weine (Bild- oder
   // Text-Aehnlichkeit) - nur ein Vorschlag, der aktiv bestaetigt werden muss.
   const [recognizedMatch, setRecognizedMatch] = useState<RecognitionRef | null>(null);
@@ -315,11 +321,31 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
     setPhotoPreviewUrl(objectUrl);
     setRecognizedMatch(null);
     ocrSkippedRef.current = false;
+
+    if (!recognitionEnabled) {
+      void applyPhotoWithoutRecognition(file);
+      return;
+    }
+
     // Vor der Texterkennung erst den Zuschnitt-Dialog zeigen (siehe
     // LabelCropper) - Flaschenhals/-boden und Nachbarflaschen entfernen
     // verbessert die Erkennung deutlich, ist aber jederzeit ueberspringbar.
     setCropSourceFile(file);
     setShowCropper(true);
+  }
+
+  /** Foto einfach nur speichern, ohne Zuschnitt/OCR/Embedding - siehe recognitionEnabled oben. */
+  async function applyPhotoWithoutRecognition(file: File) {
+    setOcrBusy(true);
+    // Verwirft eine evtl. noch vom letzten Foto stammende Referenz - die
+    // wuerde sonst faelschlich zu diesem (unerkannten) Foto gespeichert.
+    pendingEmbeddingRef.current = null;
+    pendingOcrTextRef.current = null;
+    try {
+      setPendingPhotoBlob(await compressImage(file));
+    } finally {
+      setOcrBusy(false);
+    }
   }
 
   function handleCropConfirm(rect: CropRect) {
@@ -677,6 +703,25 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
           </div>
         ) : (
           <>
+            {mode === 'edit' && (
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  fontSize: 12.5,
+                  marginBottom: 10,
+                  cursor: 'pointer',
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={recognitionEnabled}
+                  onChange={(e) => setRecognitionEnabled(e.target.checked)}
+                />
+                Bilderkennung fuer das naechste Foto einschalten
+              </label>
+            )}
             <PhotoCapture
               previewUrl={photoPreviewUrl}
               onSelect={handlePhotoSelect}
@@ -684,11 +729,13 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
               busyLabel="Etikett wird gelesen ..."
               onSkipBusy={handleSkipOcr}
             />
-            <div style={{ fontSize: 11.5, fontStyle: 'italic', opacity: 0.55, marginBottom: 12, lineHeight: 1.4 }}>
-              Nach dem Foto traegt die App erkannte Werte direkt ein, wo sie sich sicher ist (z. B. den Jahrgang).
-              Unsichere Vorschlaege sind als "Bitte pruefen" markiert. Bei allem anderen: unten erscheinen die
-              erkannten Woerter als Chips zum Ziehen - auf das passende Feld ziehen.
-            </div>
+            {recognitionEnabled && (
+              <div style={{ fontSize: 11.5, fontStyle: 'italic', opacity: 0.55, marginBottom: 12, lineHeight: 1.4 }}>
+                Nach dem Foto traegt die App erkannte Werte direkt ein, wo sie sich sicher ist (z. B. den Jahrgang).
+                Unsichere Vorschlaege sind als "Bitte pruefen" markiert. Bei allem anderen: unten erscheinen die
+                erkannten Woerter als Chips zum Ziehen - auf das passende Feld ziehen.
+              </div>
+            )}
           </>
         )}
 
