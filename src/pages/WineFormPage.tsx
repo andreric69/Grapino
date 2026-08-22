@@ -579,17 +579,62 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
     if (!name.trim()) return;
     const knowledge = await lookupWineKnowledge(name, producer, vintage).catch(() => null);
     if (!knowledge) return;
+
+    // "unsicher" = Treffer nur ueber Name+Jahrgang gefunden (kein Produzent
+    // auf dem Etikett erkannt) - dann als "low"-Vorschlag markieren statt
+    // stillschweigend zu uebernehmen, siehe lookupWineKnowledge().
+    const confidence: FieldConfidence = knowledge.uncertain ? 'low' : 'high';
+    const nextSuggested: Partial<Record<OcrField, FieldConfidence>> = {};
+
+    setForm((f) => {
+      const next = { ...f };
+      if (!next.producer.trim() && knowledge.producer) {
+        next.producer = knowledge.producer;
+        nextSuggested.producer = confidence;
+      }
+      if (!next.grapeVariety.trim() && knowledge.grapeVariety) {
+        next.grapeVariety = knowledge.grapeVariety;
+        nextSuggested.grapeVariety = confidence;
+      }
+      if (!next.region.trim() && knowledge.region) {
+        next.region = knowledge.region;
+        nextSuggested.region = confidence;
+      }
+      if (!next.subregion.trim() && knowledge.subregion) {
+        next.subregion = knowledge.subregion;
+        nextSuggested.subregion = confidence;
+      }
+      if (!next.country.trim() && knowledge.country) {
+        next.country = knowledge.country;
+        nextSuggested.country = confidence;
+      }
+      if (!next.wineType && knowledge.wineType) {
+        next.wineType = knowledge.wineType;
+        nextSuggested.wineType = confidence;
+      }
+      if (!next.drinkFrom && knowledge.drinkFrom !== null) next.drinkFrom = String(knowledge.drinkFrom);
+      if (!next.drinkTo && knowledge.drinkTo !== null) next.drinkTo = String(knowledge.drinkTo);
+      if (!next.criticScores && knowledge.criticScores) next.criticScores = knowledge.criticScores;
+      if (!next.foodPairing && knowledge.foodPairing) next.foodPairing = knowledge.foodPairing;
+      return next;
+    });
+
+    if (Object.keys(nextSuggested).length > 0) {
+      setSuggested((s) => ({ ...s, ...nextSuggested }));
+    }
+
     const gotSomething =
-      knowledge.drink_from !== null || knowledge.drink_to !== null || !!knowledge.critic_scores || !!knowledge.food_pairing;
-    if (!gotSomething) return;
-    setForm((f) => ({
-      ...f,
-      drinkFrom: f.drinkFrom || (knowledge.drink_from !== null ? String(knowledge.drink_from) : f.drinkFrom),
-      drinkTo: f.drinkTo || (knowledge.drink_to !== null ? String(knowledge.drink_to) : f.drinkTo),
-      criticScores: f.criticScores || knowledge.critic_scores || f.criticScores,
-      foodPairing: f.foodPairing || knowledge.food_pairing || f.foodPairing,
-    }));
-    setShowAdvanced(true);
+      knowledge.producer ||
+      knowledge.grapeVariety ||
+      knowledge.region ||
+      knowledge.subregion ||
+      knowledge.country ||
+      knowledge.wineType ||
+      knowledge.drinkFrom !== null ||
+      knowledge.drinkTo !== null ||
+      knowledge.criticScores ||
+      knowledge.foodPairing;
+    if (gotSomething) setShowAdvanced(true);
   }
 
   // Wiedererkannten Wein (siehe recognizedMatch) uebernehmen - ueberschreibt
