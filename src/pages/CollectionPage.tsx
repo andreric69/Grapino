@@ -277,7 +277,13 @@ export function CollectionPage() {
     // Gegenteil von "haltbar" bedeutet).
     const dir = sortDirection === 'asc' ? 1 : -1;
     result = [...result].sort((a, b) => {
-      if (sort === 'name') return dir * a.name.localeCompare(b.name, 'de');
+      if (sort === 'name') {
+        // Bei gleichem Namen (z. B. derselbe Wein in mehreren Jahrgaengen)
+        // zusaetzlich nach Jahrgang sortieren, statt die Reihenfolge dem
+        // Zufall zu ueberlassen - so stehen alle Jahrgaenge eines Weins
+        // gruppiert und geordnet beieinander.
+        return dir * (a.name.localeCompare(b.name, 'de') || (a.vintage ?? 0) - (b.vintage ?? 0));
+      }
       if (sort === 'vintage') return dir * ((a.vintage ?? 0) - (b.vintage ?? 0));
       if (sort === 'price') return dir * ((a.price ?? -1) - (b.price ?? -1));
       if (sort === 'rating') return dir * ((a.rating ?? 0) - (b.rating ?? 0));
