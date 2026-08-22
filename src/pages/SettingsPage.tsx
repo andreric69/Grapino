@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import {
   listWines,
-  createWine,
-  updateWine,
+  createWines,
+  updateWineQuantities,
   requestCollectionDeletion,
   getPendingDeletionRequest,
   cancelDeletionRequest,
@@ -160,32 +160,59 @@ export function SettingsPage() {
   // Zeile anzulegen), und gleicht danach jeden Eintrag gegen den bereits
   // vorhandenen Bestand ab - findet sich ein Treffer, wird dort nur die
   // Menge erhoeht statt einen neuen Eintrag zu erzeugen.
+  // Bewusst in Bloecken statt einzeln importiert - bei einem grossen Import
+  // (z. B. ein Vivino-Export mit ueber tausend Flaschen) waeren tausende
+  // einzelne Requests viel zu langsam (mehrere Minuten, Abbruchrisiko bei
+  // Verbindungsproblemen). In 150er-Bloecken sind es nur eine Handvoll
+  // Requests, die Fortschrittsanzeige aktualisiert sich nach jedem Block.
+  const IMPORT_CHUNK_SIZE = 150;
+
   async function handleConfirmImport(toImport: WineInput[]) {
     const merged = mergeDuplicatesWithinBatch(toImport);
     setImportState({ phase: 'importing', total: merged.length, done: 0 });
+    // Nur einmal zu Beginn gebaut - mergeDuplicatesWithinBatch hat vorher
+    // bereits alle identischen Weine INNERHALB des Imports zusammengefasst,
+    // jeder Schluessel taucht in "merged" also hoechstens einmal auf. Der
+    // Index muss deshalb waehrend des Imports nicht mehr aktualisiert werden.
     const existingIndex = buildExistingActiveIndex(wines);
+
     let imported = 0;
     let mergedCount = 0;
     let failed = 0;
-    for (const wine of merged) {
-      try {
+
+    for (let i = 0; i < merged.length; i += IMPORT_CHUNK_SIZE) {
+      const chunk = merged.slice(i, i + IMPORT_CHUNK_SIZE);
+      const toCreate: WineInput[] = [];
+      const toUpdate: { id: string; quantity: number }[] = [];
+      for (const wine of chunk) {
         const existing = findExistingMatch(wine, existingIndex);
         if (existing) {
-          const updated = await updateWine(existing.id, { quantity: existing.quantity + wine.quantity });
-          existingIndex.set(
-            `${wine.name.trim().toLowerCase()}|${(wine.producer ?? '').trim().toLowerCase()}|${wine.vintage ?? ''}`,
-            updated,
-          );
-          mergedCount++;
+          toUpdate.push({ id: existing.id, quantity: existing.quantity + wine.quantity });
         } else {
-          await createWine(wine);
-          imported++;
+          toCreate.push(wine);
+        }
+      }
+
+      try {
+        if (toCreate.length > 0) {
+          await createWines(toCreate);
+          imported += toCreate.length;
         }
       } catch {
-        failed++;
+        failed += toCreate.length;
       }
-      setImportState((s) => (s.phase === 'importing' ? { ...s, done: s.done + 1 } : s));
+      try {
+        if (toUpdate.length > 0) {
+          await updateWineQuantities(toUpdate);
+          mergedCount += toUpdate.length;
+        }
+      } catch {
+        failed += toUpdate.length;
+      }
+
+      setImportState((s) => (s.phase === 'importing' ? { ...s, done: Math.min(merged.length, i + chunk.length) } : s));
     }
+
     setImportState({ phase: 'done', imported, merged: mergedCount, failed });
     loadWines();
   }

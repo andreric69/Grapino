@@ -51,6 +51,25 @@ export async function createWine(input: WineInput): Promise<Wine> {
   return data as Wine;
 }
 
+/**
+ * Legt mehrere Weine in EINEM Request an - fuer grosse Importe (z. B. ein
+ * Vivino-Export mit hunderten/tausenden Flaschen) massiv schneller als ein
+ * einzelner Request pro Wein, siehe importWines() in SettingsPage.tsx.
+ */
+export async function createWines(inputs: WineInput[]): Promise<Wine[]> {
+  if (inputs.length === 0) return [];
+  const { data, error } = await supabase.from('wines').insert(inputs).select();
+  if (error) throw toFriendlyError(error);
+  return data as Wine[];
+}
+
+/** Bulk-Variante von updateWine, nur fuer die Menge - aktualisiert mehrere bereits bestehende Weine in einem Request (z. B. beim Import gefundene Duplikate, deren Bestand nur erhoeht wird). */
+export async function updateWineQuantities(updates: { id: string; quantity: number }[]): Promise<void> {
+  if (updates.length === 0) return;
+  const { error } = await supabase.from('wines').upsert(updates);
+  if (error) throw toFriendlyError(error);
+}
+
 export async function updateWine(id: string, input: Partial<WineInput>): Promise<Wine> {
   const { data, error } = await supabase.from('wines').update(input).eq('id', id).select().single();
   if (error) throw toFriendlyError(error);

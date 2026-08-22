@@ -37,7 +37,7 @@ export function WineCard({ wine, photoUrl, onToggleFavorite, onToggleConsumed, c
       >
         <div style={{ width: 52, height: 52, borderRadius: 'var(--radius-md)', overflow: 'hidden', flexShrink: 0, background: 'var(--color-divider)' }}>
           {photoUrl ? (
-            <img src={photoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={photoUrl} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           ) : (
             <div style={{ width: '100%', height: '100%', padding: 3, boxSizing: 'border-box' }}>
               <WineBottlePlaceholder name={wine.name} wineType={wine.wine_type} />
@@ -88,7 +88,7 @@ export function WineCard({ wine, photoUrl, onToggleFavorite, onToggleConsumed, c
     >
       <div className="plate" style={{ position: 'relative' }}>
         {photoUrl ? (
-          <img src={photoUrl} alt="" />
+          <img src={photoUrl} alt="" loading="lazy" />
         ) : (
           <div style={{ width: '100%', height: '100%', padding: '10% 0' }}>
             <WineBottlePlaceholder name={wine.name} wineType={wine.wine_type} />

@@ -639,7 +639,10 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
         });
       }
 
-      navigate(`/wine/${wine.id}`);
+      // replace statt push - sonst bleibt das (jetzt sinnlose) Formular als
+      // Eintrag in der Browser-Historie stehen, und "Zurueck" muss erst
+      // durch das leere Formular klicken, bevor es wirklich zurueckgeht.
+      navigate(`/wine/${wine.id}`, { replace: true });
     } catch (e) {
       setSaveError(e instanceof Error ? e.message : NETWORK_ERROR_MESSAGE);
       setSaving(false);
