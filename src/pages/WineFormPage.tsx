@@ -11,7 +11,8 @@ import {
   uploadWinePhotos,
 } from '../lib/wineRepository';
 import { compressImage, cropImage, preprocessForOcr } from '../lib/imageCompression';
-import { preloadOcrWorker, recognizeWineLabel, type FieldConfidence, type OcrField } from '../lib/ocr';
+import { preloadOcrWorker, recognizeWineLabel, type FieldConfidence, type OcrField, type OcrSuggestions } from '../lib/ocr';
+import { recognizeLabelWithAi } from '../lib/labelRecognitionApi';
 import { preloadWineReference, lookupCountryForRegion, lookupCountryForProducer, lookupTypeForGrape } from '../lib/wineReference';
 import { preloadLabelEmbeddingModel, computeLabelEmbedding } from '../lib/labelEmbedding';
 import { listRecognitionRefs, upsertRecognitionRef, bestEmbeddingMatch, bestTextMatch, type RecognitionRef } from '../lib/recognitionRefs';
@@ -90,6 +91,33 @@ const EMPTY_FORM: FormState = {
 };
 
 const WINE_TYPE_OPTIONS: WineType[] = ['rot', 'weiss', 'rose', 'dessert', 'schaumwein'];
+
+/**
+ * Liest ein Etikett - versucht zuerst die KI-Erkennung (deutlich
+ * zuverlaessiger, siehe labelRecognitionApi.ts), faellt bei jedem Fehler
+ * (Netzwerk, Tageslimit, Serverfehler) automatisch und unbemerkt auf die
+ * bestehende Tesseract-Erkennung zurueck - nie ein Fehlerzustand fuer den
+ * Nutzer, genau wie bisher.
+ */
+async function recognizeLabel(colorSource: Blob, preprocessedForTesseract: Blob): Promise<OcrSuggestions | null> {
+  try {
+    return await Promise.race([
+      recognizeLabelWithAi(colorSource),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('KI-Timeout')), 20000)),
+    ]);
+  } catch (e) {
+    console.error('KI-Etikett-Erkennung fehlgeschlagen, falle auf Tesseract zurueck:', e);
+  }
+  try {
+    return await Promise.race([
+      recognizeWineLabel(preprocessedForTesseract),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('OCR-Timeout')), 20000)),
+    ]);
+  } catch (e) {
+    console.error('OCR fehlgeschlagen:', e);
+    return null;
+  }
+}
 
 /** Ob dieser Wein schon "erweiterte" Angaben hat - dann startet das Formular aufgeklappt, statt sie zu verstecken. */
 function wineHasAdvancedData(wine: Wine): boolean {
@@ -433,13 +461,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
       // 20s wird abgebrochen und einfach manuell weitergemacht; das
       // Embedding ist rein optional (siehe computeLabelEmbedding).
       const [suggestions, embedding] = await Promise.all([
-        Promise.race([
-          recognizeWineLabel(ocrInput),
-          new Promise<never>((_, reject) => setTimeout(() => reject(new Error('OCR-Timeout')), 20000)),
-        ]).catch((e) => {
-          console.error('OCR fehlgeschlagen:', e);
-          return null;
-        }),
+        recognizeLabel(croppedSource, ocrInput),
         computeLabelEmbedding(croppedSource),
       ]);
 
