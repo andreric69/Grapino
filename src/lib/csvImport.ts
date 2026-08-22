@@ -88,12 +88,17 @@ export function guessField(header: string): MappableField {
   return 'ignore';
 }
 
+// Bewusst NICHT auf den gesamten Zellinhalt verankert (kein ^...$) - Vivino-
+// Exporte schreiben hier z. B. "Red Wine" statt nur "Red", ein exakter
+// Volltreffer haette das nie erkannt und JEDE importierte Flasche waere ohne
+// Typ geblieben. \b sorgt trotzdem dafuer, dass z. B. "rose" nicht in einem
+// unverwandten laengeren Wort anschlaegt.
 const WINE_TYPE_VALUE_MAP: Array<{ type: WineType; pattern: RegExp }> = [
-  { type: 'rot', pattern: /^(red|rot|rouge|rosso|tinto)$/i },
-  { type: 'weiss', pattern: /^(white|weiss|weiß|blanc|bianco|blanco)$/i },
-  { type: 'rose', pattern: /^(ros[eé])$/i },
-  { type: 'schaumwein', pattern: /(sparkl|schaum|champagne|champagner|prosecco|cava|sekt)/i },
-  { type: 'dessert', pattern: /(dessert|sweet|s[uü]ss|port|portwein)/i },
+  { type: 'schaumwein', pattern: /(sparkl|schaum|champagne|champagner|prosecco|cava|\bsekt\b)/i },
+  { type: 'dessert', pattern: /(dessert|\bsweet\b|s[uü]ss|\bport\b|portwein)/i },
+  { type: 'rose', pattern: /\bros[eé]\b/i },
+  { type: 'rot', pattern: /\b(red|rot|rouge|rosso|tinto)\b/i },
+  { type: 'weiss', pattern: /\b(white|weiss|weiß|blanc|bianco|blanco)\b/i },
 ];
 
 function mapWineTypeValue(raw: string): WineType | null {

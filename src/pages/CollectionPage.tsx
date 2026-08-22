@@ -47,6 +47,7 @@ interface PersistedFilterState {
   filters: Record<FilterKey, string[]>;
   favoritesOnly: boolean;
   noPriceOnly: boolean;
+  noPhotoOnly: boolean;
   drinkNowOnly: boolean;
   tab: Tab;
 }
@@ -104,6 +105,7 @@ export function CollectionPage() {
   const [openFilter, setOpenFilter] = useState<FilterKey | null>(null);
   const [favoritesOnly, setFavoritesOnly] = useState(persistedFilterState.favoritesOnly ?? false);
   const [noPriceOnly, setNoPriceOnly] = useState(persistedFilterState.noPriceOnly ?? false);
+  const [noPhotoOnly, setNoPhotoOnly] = useState(persistedFilterState.noPhotoOnly ?? false);
   const [drinkNowOnly, setDrinkNowOnly] = useState(persistedFilterState.drinkNowOnly ?? false);
   const [showBackupReminder, setShowBackupReminder] = useState(false);
   const [unseenAnnouncements, setUnseenAnnouncements] = useState<Announcement[]>([]);
@@ -122,9 +124,9 @@ export function CollectionPage() {
   }
 
   useEffect(() => {
-    const state: PersistedFilterState = { search, sort, filters, favoritesOnly, noPriceOnly, drinkNowOnly, tab };
+    const state: PersistedFilterState = { search, sort, filters, favoritesOnly, noPriceOnly, noPhotoOnly, drinkNowOnly, tab };
     sessionStorage.setItem(FILTER_STATE_KEY, JSON.stringify(state));
-  }, [search, sort, filters, favoritesOnly, noPriceOnly, drinkNowOnly, tab]);
+  }, [search, sort, filters, favoritesOnly, noPriceOnly, noPhotoOnly, drinkNowOnly, tab]);
 
   async function load() {
     setLoading(true);
@@ -200,6 +202,7 @@ export function CollectionPage() {
 
     if (favoritesOnly) result = result.filter((w) => w.is_favorite);
     if (noPriceOnly) result = result.filter((w) => w.price === null);
+    if (noPhotoOnly) result = result.filter((w) => !w.photo_url && w.photo_urls.length === 0);
     if (drinkNowOnly) {
       const year = new Date().getFullYear();
       result = result.filter(
@@ -259,7 +262,7 @@ export function CollectionPage() {
     });
 
     return result;
-  }, [tabWines, filters, search, sort, favoritesOnly, noPriceOnly, drinkNowOnly]);
+  }, [tabWines, filters, search, sort, favoritesOnly, noPriceOnly, noPhotoOnly, drinkNowOnly]);
 
   const regionCount = useMemo(
     () => new Set(tabWines.map((w) => w.region).filter(Boolean)).size,
@@ -414,6 +417,13 @@ export function CollectionPage() {
           onClick={() => setNoPriceOnly((v) => !v)}
         >
           Ohne Preis
+        </button>
+        <button
+          type="button"
+          className={`tag tag-outline${noPhotoOnly ? ' is-active' : ''}`}
+          onClick={() => setNoPhotoOnly((v) => !v)}
+        >
+          Ohne Foto
         </button>
         {tab === 'active' && (
           <button
