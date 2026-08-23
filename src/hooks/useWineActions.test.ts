@@ -156,6 +156,23 @@ describe('useWineActions.toggleConsumed', () => {
     expect(h.toasts[0]).toContain('6 Flaschen');
   });
 
+  it('stellt nach Trinken UND sofortigem Zurueckholen (ohne Neuladen) trotzdem die volle Anzahl wieder her', async () => {
+    drinkBottlesMock.mockResolvedValue(undefined);
+    restoreToStockMock.mockResolvedValue(undefined);
+    const h = makeHarness(makeWine({ quantity: 6, is_consumed: false }));
+    // Alle 6 auf einmal trinken - der optimistische Zwischenzustand muss
+    // quantity_before_consumed selbst setzen (kein Neuladen zwischen den
+    // beiden Aktionen, wie es bei einem echten Doppel-Tap ohne Seitenwechsel
+    // waere).
+    await h.actions.toggleConsumed(h.current, 6);
+    expect(h.current.is_consumed).toBe(true);
+    expect(h.current.quantity_before_consumed).toBe(6);
+    // Sofort danach, ohne Neuladen, wieder zurueckholen.
+    await h.actions.toggleConsumed(h.current);
+    expect(h.current.is_consumed).toBe(false);
+    expect(h.current.quantity).toBe(6);
+  });
+
   it('macht das Update rueckgaengig und meldet den Fehler, wenn drinkOneBottle fehlschlaegt', async () => {
     drinkBottlesMock.mockRejectedValue(new Error('Server nicht erreichbar'));
     const h = makeHarness(makeWine({ quantity: 1, is_consumed: false }));

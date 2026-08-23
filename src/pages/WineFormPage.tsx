@@ -1141,7 +1141,11 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
               />
             </FormField>
           </div>
-          {!form.isWishlist && (
+          {/* Bei einem bereits getrunkenen Wein ist die Menge fix 0 (siehe
+              is_consumed-Invariante) - hier bearbeitbar zu machen wuerde sie
+              brechen, ohne dass "Zurueck in den Vorrat" (die eigentlich
+              richtige Aktion) beteiligt ist. */}
+          {!form.isWishlist && !existingWine?.is_consumed && (
             <div style={{ flex: 1 }}>
               <FormField label="Anzahl Flaschen">
                 <input

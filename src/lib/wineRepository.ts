@@ -255,18 +255,33 @@ export async function getSignedPhotoUrl(path: string, expiresInSeconds = 3600): 
 }
 
 /** Erzeugt Signed URLs fuer mehrere Fotopfade in einem Request (fuer die Grid-Ansicht). */
+// Supabase begrenzt Batch-Operationen wie createSignedUrls auf eine
+// Hoechstanzahl Pfade pro Aufruf (dieselbe Groessenordnung wie das
+// list()-Limit anderswo in dieser Datei) - bei einer grossen Sammlung
+// (z. B. 1500 Weine mit Foto) in Bloecke aufteilen, sonst wuerde ein
+// einzelner Aufruf mit allen Pfaden fehlschlagen oder Ergebnisse fehlen.
+const SIGNED_URL_CHUNK_SIZE = 500;
+
 export async function getSignedPhotoUrls(
   paths: string[],
   expiresInSeconds = 3600,
 ): Promise<Record<string, string>> {
   if (paths.length === 0) return {};
-  const { data, error } = await supabase.storage
-    .from(WINE_PHOTOS_BUCKET)
-    .createSignedUrls(paths, expiresInSeconds);
-  if (error || !data) return {};
+  const chunks: string[][] = [];
+  for (let i = 0; i < paths.length; i += SIGNED_URL_CHUNK_SIZE) {
+    chunks.push(paths.slice(i, i + SIGNED_URL_CHUNK_SIZE));
+  }
+
+  const results = await Promise.all(
+    chunks.map((chunk) => supabase.storage.from(WINE_PHOTOS_BUCKET).createSignedUrls(chunk, expiresInSeconds)),
+  );
+
   const map: Record<string, string> = {};
-  for (const entry of data) {
-    if (entry.signedUrl && entry.path) map[entry.path] = entry.signedUrl;
+  for (const { data, error } of results) {
+    if (error || !data) continue;
+    for (const entry of data) {
+      if (entry.signedUrl && entry.path) map[entry.path] = entry.signedUrl;
+    }
   }
   return map;
 }

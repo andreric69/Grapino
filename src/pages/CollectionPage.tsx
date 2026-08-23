@@ -145,8 +145,19 @@ export function CollectionPage() {
   // FILTER_STATE_KEY oben fuer den gleichen Grund) wiederherstellen, statt
   // Papa jedes Mal ganz nach oben zu werfen.
   useEffect(() => {
+    // Ein "scroll"-Event feuert waehrend Momentum-Scrolling viele Male pro
+    // Sekunde - bei einer langen Liste (z. B. 1500 Weine) auf jedes einzelne
+    // synchron in sessionStorage zu schreiben kann spuerbar ruckeln. Max.
+    // einmal pro Frame schreiben reicht fuer den Zweck (Position beim
+    // naechsten Mount wiederherstellen) voellig aus.
+    let scheduled = false;
     function handleScroll() {
-      sessionStorage.setItem(SCROLL_STATE_KEY, String(window.scrollY));
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(() => {
+        sessionStorage.setItem(SCROLL_STATE_KEY, String(window.scrollY));
+        scheduled = false;
+      });
     }
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -233,7 +244,10 @@ export function CollectionPage() {
     if (favoritesOnly) result = result.filter((w) => w.is_favorite);
     if (noPriceOnly) result = result.filter((w) => w.price === null);
     if (noPhotoOnly) result = result.filter((w) => !w.photo_url && w.photo_urls.length === 0);
-    if (drinkNowOnly) {
+    // Der Chip dafuer existiert nur im Vorrat-Tab (siehe chips-Liste unten) -
+    // ohne diese Bedingung bliebe der Filter beim Wechsel zu Wunschliste/
+    // Getrunken unsichtbar aktiv, ohne Moeglichkeit, ihn dort auszuschalten.
+    if (drinkNowOnly && tab === 'active') {
       const year = new Date().getFullYear();
       result = result.filter(
         (w) => w.drink_from !== null && w.drink_from <= year && (w.drink_to === null || w.drink_to >= year),

@@ -56,7 +56,17 @@ export function useWineActions({ applyUpdate, rollback, showToast, onError }: Us
 
     const clampedCount = Math.min(Math.max(1, count), wine.quantity);
     const nextQuantity = Math.max(0, wine.quantity - clampedCount);
-    applyUpdate(wine.id, (w) => ({ ...w, quantity: nextQuantity, is_consumed: nextQuantity === 0 }));
+    applyUpdate(wine.id, (w) => ({
+      ...w,
+      quantity: nextQuantity,
+      is_consumed: nextQuantity === 0,
+      // Muss dieselbe Regel wie drinkBottles() in wineRepository.ts spiegeln
+      // (dort serverseitig gesetzt) - sonst haette der lokale Zustand hier
+      // weiterhin den alten (meist null) Wert, und ein sofortiges
+      // "zurueckholen" ohne Neuladen wuerde faelschlich nur 1 Flasche statt
+      // aller wiederherstellen.
+      quantity_before_consumed: nextQuantity === 0 ? wine.quantity : null,
+    }));
     showToast?.(
       nextQuantity === 0
         ? `"${wine.name}" komplett getrunken - jetzt im Bereich "Getrunken".`
