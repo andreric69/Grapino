@@ -60,7 +60,7 @@ export function ChatBubble({ wines }: { wines: Wine[] }) {
   }
 
   // --- Auftrag ---
-  const [orderCategory, setOrderCategory] = useState<OrderCategory>('trinkfenster');
+  const [orderCategory, setOrderCategory] = useState<OrderCategory>('refresh');
   const [orderFilter, setOrderFilter] = useState<FilterPreset>('ohne_trinkfenster');
   const [orderNote, setOrderNote] = useState('');
   const [sendingOrder, setSendingOrder] = useState(false);

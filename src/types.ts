@@ -124,7 +124,7 @@ export interface MyFeedback {
   reply_created_at: string | null;
 }
 
-export type OrderCategory = 'trinkfenster' | 'name' | 'refresh' | 'neue_weine' | 'ultra';
+export type OrderCategory = 'refresh' | 'neue_weine' | 'ultra';
 
 export interface EnrichmentOrder {
   id: string;

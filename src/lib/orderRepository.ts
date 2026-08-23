@@ -4,14 +4,6 @@ import type { EnrichmentOrder, OrderCategory } from '../types';
 
 /** Nur Beschriftung/Beschreibung - die eigentlichen Preise kommen aus pricing_config (siehe pricingConfig.ts), vom Betreiber jederzeit in der Admin-App aenderbar. */
 export const ORDER_CATEGORY_INFO: Record<OrderCategory, { label: string; description: string }> = {
-  trinkfenster: {
-    label: 'Nur Trinkfenster',
-    description: 'Recherchiert und ergaenzt ausschliesslich das Trinkfenster (von/bis Jahr).',
-  },
-  name: {
-    label: 'Nur Name',
-    description: 'Prueft und korrigiert ausschliesslich Name/Bezeichnung des Weins.',
-  },
   refresh: {
     label: 'Aktualisierung aller Weine',
     description: 'Aktualisiert alle recherchierbaren Angaben (Region, Rebsorte, Trinkfenster, Kritiker-Punkte etc.).',
