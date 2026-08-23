@@ -85,13 +85,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    // Individuelles Tageslimit hat Vorrang vor dem globalen Standard (siehe
+    // grapino-admin: UserDetailPanel -> "KI-Tageslimit"). RLS beschraenkt
+    // diese Abfrage automatisch auf die eigene Zeile - kein Service-Role-Key
+    // noetig.
+    const { data: accessRow } = await supabase.from('user_access').select('ai_daily_limit').eq('user_id', userData.user.id).maybeSingle();
+    const dailyLimit = accessRow?.ai_daily_limit ?? DAILY_LIMIT;
+
     const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const { count, error: countError } = await supabase
       .from('label_recognition_log')
       .select('id', { count: 'exact', head: true })
       .gte('created_at', cutoff);
     if (countError) throw countError;
-    if ((count ?? 0) >= DAILY_LIMIT) {
+    if ((count ?? 0) >= dailyLimit) {
       res.status(429).json({ error: 'Tageslimit fuer die Etikett-Erkennung erreicht.' });
       return;
     }

@@ -207,8 +207,9 @@ export function ChatBubble({ wines }: { wines: Wine[] }) {
                         ))}
                       </select>
                       <div style={{ fontSize: 11.5, opacity: 0.6, marginTop: 4 }}>
-                        {ORDER_CATEGORY_INFO[orderCategory].description} Bei grossen Sammlungen wird es pro Flasche
-                        guenstiger - der genaue Preis unten ist immer massgebend.
+                        {ORDER_CATEGORY_INFO[orderCategory].description} Preis richtet sich nach Anzahl
+                        unterschiedlicher Weine (nicht Flaschen) - bei vielen wird es pro Wein guenstiger, der genaue
+                        Preis unten ist immer massgebend.
                       </div>
 
                       {pricing && (

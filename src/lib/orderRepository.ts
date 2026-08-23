@@ -13,16 +13,16 @@ export const ORDER_CATEGORY_INFO: Record<OrderCategory, { label: string; descrip
     description: 'Prueft und korrigiert ausschliesslich Name/Bezeichnung des Weins.',
   },
   refresh: {
-    label: 'Refresh (alles aktualisieren)',
+    label: 'Aktualisierung aller Weine',
     description: 'Aktualisiert alle recherchierbaren Angaben (Region, Rebsorte, Trinkfenster, Kritiker-Punkte etc.).',
   },
   neue_weine: {
-    label: 'Für neue Weine',
-    description: 'Basis-Ergaenzung fuer frisch importierte Weine ohne weitere Angaben.',
+    label: 'Neue Weine (ohne Foto)',
+    description: 'Fuer Weine, die du per Foto hinzugefuegt hast - Etikett ist schon da, ergaenzt nur Trinkfenster, Region, Rebsorte etc.',
   },
   ultra: {
-    label: 'Ultra Import Paket',
-    description: 'Rundum-sorglos: Fotos, Regionen, Rebsorten, Trinkfenster, Kritiker-Punkte - alles.',
+    label: 'Import-Aktualisierung (inkl. Foto)',
+    description: 'Rundum-sorglos fuer importierte Weine ohne Foto: Etikett-Foto, Region, Rebsorte, Trinkfenster, Kritiker-Punkte - alles.',
   },
 };
 
