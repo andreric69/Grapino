@@ -7,6 +7,16 @@ import { z } from 'zod';
 // Reine Sicherheitsnetz-Grenze gegen einen Bug/eine Endlosschleife im
 // Frontend - nicht wegen der Kosten (siehe label-recognition-log-2026-08-22.sql).
 const DAILY_LIMIT = 100;
+// Kurzzeit-Bremse zusaetzlich zum Tageslimit - verhindert, dass ein
+// kompromittiertes/missbrauchtes Konto das Tageslimit in wenigen Sekunden
+// verballert (jeder Aufruf kostet echtes Geld bei Anthropic).
+const BURST_LIMIT = 5;
+const BURST_WINDOW_MS = 60 * 1000;
+// Client komprimiert bereits auf max. 1500px Breite JPEG q0.82 (siehe
+// imageCompression.ts) - realistische Fotos liegen weit darunter. Grosszuegige
+// Obergrenze, die nur missbraeuchlich riesige Payloads abfaengt.
+const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
+const JPEG_MAGIC = Buffer.from([0xff, 0xd8, 0xff]);
 
 const LABEL_FIELDS = [
   'name',
@@ -103,9 +113,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
 
+    const burstCutoff = new Date(Date.now() - BURST_WINDOW_MS).toISOString();
+    const { count: burstCount, error: burstError } = await supabase
+      .from('label_recognition_log')
+      .select('id', { count: 'exact', head: true })
+      .gte('created_at', burstCutoff);
+    if (burstError) throw burstError;
+    if ((burstCount ?? 0) >= BURST_LIMIT) {
+      res.status(429).json({ error: 'Zu viele Anfragen kurz hintereinander - bitte kurz warten.' });
+      return;
+    }
+
     const { image } = (req.body ?? {}) as { image?: string };
     if (!image) {
       res.status(400).json({ error: 'image erforderlich.' });
+      return;
+    }
+
+    let imageBytes: Buffer;
+    try {
+      imageBytes = Buffer.from(image, 'base64');
+    } catch {
+      res.status(400).json({ error: 'Ungueltiges Bildformat.' });
+      return;
+    }
+    if (imageBytes.length === 0 || imageBytes.length > MAX_IMAGE_BYTES) {
+      res.status(413).json({ error: 'Bild zu gross.' });
+      return;
+    }
+    if (!imageBytes.subarray(0, 3).equals(JPEG_MAGIC)) {
+      res.status(400).json({ error: 'Nur JPEG-Bilder werden unterstuetzt.' });
       return;
     }
 
@@ -140,7 +177,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     res.status(200).json(parsed);
   } catch (e) {
+    // Nie die rohe Fehlermeldung an den Client durchreichen - SDK-/Anthropic-
+    // Fehlertexte koennen interne Details verraten. Vollstaendiger Fehler nur
+    // ins Server-Log (nie das Bild oder den Access-Token selbst).
     console.error('Etikett-Erkennung fehlgeschlagen:', e);
-    res.status(502).json({ error: e instanceof Error ? e.message : 'Unbekannter Fehler.' });
+    res.status(502).json({ error: 'Etikett-Erkennung momentan nicht verfuegbar.' });
   }
 }
