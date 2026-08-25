@@ -333,17 +333,24 @@ export function WineDetailPage() {
         )}
 
         {(wine.drink_from || wine.drink_to || wine.storage_location) && (
-          <div style={{ display: 'flex', gap: 16, marginTop: 14, flexWrap: 'wrap', fontSize: 12.5 }}>
+          <div style={{ display: 'flex', gap: 10, marginTop: 14, flexWrap: 'wrap' }}>
             {(wine.drink_from || wine.drink_to) && (
-              <div>
-                <span style={{ opacity: 0.55 }}>Trinkfenster: </span>
-                {wine.drink_from ?? '?'}&ndash;{wine.drink_to ?? '?'}
+              <div className="card" style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '8px 12px' }}>
+                <span style={{ color: 'var(--color-accent)', opacity: 0.8, display: 'inline-flex' }}>
+                  <CalendarIcon />
+                </span>
+                <span style={{ fontSize: 12.5 }}>
+                  <span style={{ opacity: 0.55 }}>Trinkfenster </span>
+                  {wine.drink_from ?? '?'}&ndash;{wine.drink_to ?? '?'}
+                </span>
               </div>
             )}
             {wine.storage_location && (
-              <div>
-                <span style={{ opacity: 0.55 }}>Lagerort: </span>
-                {wine.storage_location}
+              <div className="card" style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: '8px 12px' }}>
+                <span style={{ color: 'var(--color-accent)', opacity: 0.8, display: 'inline-flex' }}>
+                  <PinIcon />
+                </span>
+                <span style={{ fontSize: 12.5 }}>{wine.storage_location}</span>
               </div>
             )}
           </div>
@@ -358,8 +365,13 @@ export function WineDetailPage() {
           </div>
         )}
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 18 }}>
-          <span className="card-kicker">Bestand</span>
+        <div className="card" style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 18, padding: '10px 14px' }}>
+          <span style={{ color: 'var(--color-accent)', opacity: 0.8, display: 'inline-flex' }}>
+            <BottleIcon />
+          </span>
+          <span className="card-kicker" style={{ margin: 0 }}>
+            Bestand
+          </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <button
               type="button"
@@ -457,6 +469,35 @@ const TASTING_ROWS: Array<{ key: 'tasting_tannin' | 'tasting_acidity' | 'tasting
   { key: 'tasting_sweetness', label: 'Suesse' },
   { key: 'tasting_body', label: 'Koerper' },
 ];
+
+/* ---- kleine Linien-Icons, einheitlich mit der Statistik-Seite ------------- */
+function iconProps(size: number) {
+  return { width: size, height: size, viewBox: '0 0 24 24', fill: 'none' as const, stroke: 'currentColor', strokeWidth: 1.7, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+}
+function CalendarIcon({ size = 15 }: { size?: number }) {
+  return (
+    <svg {...iconProps(size)}>
+      <rect x="3.5" y="5" width="17" height="15.5" rx="2" />
+      <path d="M3.5 10h17M8 3v4M16 3v4" />
+    </svg>
+  );
+}
+function PinIcon({ size = 15 }: { size?: number }) {
+  return (
+    <svg {...iconProps(size)}>
+      <path d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z" />
+      <circle cx="12" cy="10" r="2.3" />
+    </svg>
+  );
+}
+function BottleIcon({ size = 17 }: { size?: number }) {
+  return (
+    <svg {...iconProps(size)}>
+      <path d="M10 2h4v3.2l1.7 2.6c.2.3.3.7.3 1.1V20a2 2 0 01-2 2h-4a2 2 0 01-2-2V8.9c0-.4.1-.8.3-1.1L10 5.2V2z" />
+      <path d="M9 12h6" />
+    </svg>
+  );
+}
 
 function TastingNotesDisplay({ wine }: { wine: Wine }) {
   return (

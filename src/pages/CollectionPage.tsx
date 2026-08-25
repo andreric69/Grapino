@@ -427,7 +427,10 @@ export function CollectionPage() {
       <div className="app-header">
         <div className="kicker">{displayName ? `Hallo, ${displayName}` : 'Private Sammlung'}</div>
         <h1>Meine Weine</h1>
-        <div className="subtitle">
+        <div className="subtitle" style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+          <span style={{ color: 'var(--color-accent)', opacity: 0.8, display: 'inline-flex' }}>
+            <BottleIcon />
+          </span>
           {bottleCount} {bottleCount === 1 ? 'Flasche' : 'Flaschen'}
           {regionCount > 0 && (
             <>
@@ -464,6 +467,7 @@ export function CollectionPage() {
           style={{ flex: 1 }}
           onClick={() => setTab('active')}
         >
+          <BottleIcon size={14} />
           Vorrat
         </button>
         <button
@@ -472,6 +476,7 @@ export function CollectionPage() {
           style={{ flex: 1 }}
           onClick={() => setTab('wishlist')}
         >
+          <BookmarkIcon size={14} />
           Wunschliste
         </button>
         <button
@@ -480,6 +485,7 @@ export function CollectionPage() {
           style={{ flex: 1 }}
           onClick={() => setTab('consumed')}
         >
+          <CheckIcon size={14} />
           Getrunken
         </button>
       </div>
@@ -640,5 +646,33 @@ export function CollectionPage() {
 
       <Toast message={toastMessage} />
     </div>
+  );
+}
+
+/* ---- kleine Linien-Icons, einheitlich mit der Statistik-Seite ------------- */
+function iconProps(size: number) {
+  return { width: size, height: size, viewBox: '0 0 24 24', fill: 'none' as const, stroke: 'currentColor', strokeWidth: 1.7, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+}
+function BottleIcon({ size = 15 }: { size?: number }) {
+  return (
+    <svg {...iconProps(size)}>
+      <path d="M10 2h4v3.2l1.7 2.6c.2.3.3.7.3 1.1V20a2 2 0 01-2 2h-4a2 2 0 01-2-2V8.9c0-.4.1-.8.3-1.1L10 5.2V2z" />
+      <path d="M9 12h6" />
+    </svg>
+  );
+}
+function BookmarkIcon({ size = 15 }: { size?: number }) {
+  return (
+    <svg {...iconProps(size)}>
+      <path d="M6.5 3h11a1 1 0 011 1v17l-6.5-4.2L5.5 21V4a1 1 0 011-1z" />
+    </svg>
+  );
+}
+function CheckIcon({ size = 15 }: { size?: number }) {
+  return (
+    <svg {...iconProps(size)}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M8 12.3l2.6 2.6L16 9.5" />
+    </svg>
   );
 }
