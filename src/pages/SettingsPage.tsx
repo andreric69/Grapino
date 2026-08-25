@@ -477,6 +477,29 @@ export function SettingsPage() {
 
         <section style={{ marginBottom: 28 }}>
           <div className="card-kicker" style={{ marginBottom: 8 }}>
+            Hilfe
+          </div>
+          <div className="card" style={{ gap: 10 }}>
+            <div style={{ fontSize: 12.5, opacity: 0.65, lineHeight: 1.5 }}>
+              Anleitungen zur Bedienung von Grapino.
+            </div>
+            <a href="/Grapino-Anleitung.docx" target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }}>
+              Erste Schritte (Anleitung)
+            </a>
+            <a href="/Grapino-Anleitung-Weine-Anlegen.pdf" target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }}>
+              Weine anlegen (PDF)
+            </a>
+            <a href="/Grapino-Anleitung-App.pdf" target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }}>
+              So funktioniert die App (PDF)
+            </a>
+            <a href="/Grapino-Anleitung-Nachrichten.pdf" target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }}>
+              Kontakt und Nachrichten (PDF)
+            </a>
+          </div>
+        </section>
+
+        <section style={{ marginBottom: 28 }}>
+          <div className="card-kicker" style={{ marginBottom: 8 }}>
             Statistik
           </div>
           <div className="card" style={{ gap: 12 }}>
