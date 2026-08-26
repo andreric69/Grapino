@@ -48,6 +48,7 @@ export interface FormState {
   country: string;
   subregion: string;
   bottleSize: string;
+  alcoholContent: string;
   communityRating: string;
   criticScores: string;
   foodPairing: string;
@@ -76,6 +77,7 @@ const EMPTY_FORM: FormState = {
   country: '',
   subregion: '',
   bottleSize: '',
+  alcoholContent: '',
   communityRating: '',
   criticScores: '',
   foodPairing: '',
@@ -135,6 +137,7 @@ function wineHasAdvancedData(wine: Wine): boolean {
     wine.is_wishlist ||
     wine.price !== null ||
     wine.bottle_size !== null ||
+    wine.alcohol_content !== null ||
     wine.storage_location !== null ||
     wine.drink_from !== null ||
     wine.drink_to !== null ||
@@ -300,6 +303,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
           country: wine.country ?? '',
           subregion: wine.subregion ?? '',
           bottleSize: wine.bottle_size ?? '',
+          alcoholContent: typeof wine.alcohol_content === 'number' ? String(wine.alcohol_content) : '',
           communityRating: typeof wine.community_rating === 'number' ? String(wine.community_rating) : '',
           criticScores: wine.critic_scores ?? '',
           foodPairing: wine.food_pairing ?? '',
@@ -754,6 +758,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
         country: form.country.trim() || null,
         subregion: form.subregion.trim() || null,
         bottle_size: form.bottleSize.trim() || null,
+        alcohol_content: form.alcoholContent.trim() ? Number(form.alcoholContent) : null,
         community_rating: form.communityRating.trim()
           ? Math.min(5, Math.max(0, Number(form.communityRating)))
           : null,
@@ -1249,14 +1254,33 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
               </div>
             </div>
 
-            <FormField label="Lagerort">
-              <input
-                className="input"
-                placeholder="z. B. Keller Regal 3"
-                value={form.storageLocation}
-                onChange={(e) => updateField('storageLocation', e.target.value)}
-              />
-            </FormField>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <div style={{ flex: 1 }}>
+                <FormField label="Alkoholgehalt (% vol)">
+                  <input
+                    className="input"
+                    type="number"
+                    inputMode="decimal"
+                    step="0.1"
+                    min={0}
+                    max={100}
+                    placeholder="z. B. 14.5"
+                    value={form.alcoholContent}
+                    onChange={(e) => updateField('alcoholContent', e.target.value)}
+                  />
+                </FormField>
+              </div>
+              <div style={{ flex: 1 }}>
+                <FormField label="Lagerort">
+                  <input
+                    className="input"
+                    placeholder="z. B. Keller Regal 3"
+                    value={form.storageLocation}
+                    onChange={(e) => updateField('storageLocation', e.target.value)}
+                  />
+                </FormField>
+              </div>
+            </div>
 
             <div className="hr" />
             <div className="card-kicker" style={{ marginBottom: 10 }}>

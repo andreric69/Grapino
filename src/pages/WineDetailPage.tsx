@@ -313,6 +313,7 @@ export function WineDetailPage() {
           )}
           {wine.bottle_size && <span className="tag tag-outline">{wine.bottle_size}</span>}
           {wine.price !== null && <span className="tag tag-outline">{wine.price.toFixed(2)}</span>}
+          {wine.alcohol_content !== null && <span className="tag tag-outline">{wine.alcohol_content}% vol</span>}
           {typeof wine.community_rating === 'number' && (
             <span className="tag tag-outline">⌀ {wine.community_rating.toFixed(1)}/5</span>
           )}

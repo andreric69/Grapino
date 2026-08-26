@@ -232,6 +232,7 @@ export function rowsToWineInputs(mapping: MappableField[], dataRows: string[][])
       country: countryIdx >= 0 ? (row[countryIdx]?.trim() || null) : null,
       wine_type,
       bottle_size: bottleSizeIdx >= 0 ? (row[bottleSizeIdx]?.trim() || null) : null,
+      alcohol_content: null,
       critic_scores: criticScoresIdx >= 0 ? (row[criticScoresIdx]?.trim() || null) : null,
       food_pairing: foodPairingIdx >= 0 ? (row[foodPairingIdx]?.trim() || null) : null,
       community_rating,

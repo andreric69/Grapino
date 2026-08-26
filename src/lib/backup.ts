@@ -80,6 +80,7 @@ export async function parseWinesBackupFile(file: File): Promise<WineInput[]> {
       country: typeof e.country === 'string' ? e.country : null,
       subregion: typeof e.subregion === 'string' ? e.subregion : null,
       bottle_size: typeof e.bottle_size === 'string' ? e.bottle_size : null,
+      alcohol_content: typeof e.alcohol_content === 'number' ? e.alcohol_content : null,
       community_rating:
         typeof e.community_rating === 'number' && e.community_rating >= 0 && e.community_rating <= 5
           ? e.community_rating

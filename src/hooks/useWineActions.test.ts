@@ -34,6 +34,7 @@ function makeWine(overrides: Partial<Wine> = {}): Wine {
     country: null,
     subregion: null,
     bottle_size: null,
+    alcohol_content: null,
     community_rating: null,
     critic_scores: null,
     food_pairing: null,

@@ -37,6 +37,8 @@ export interface Wine {
   subregion: string | null;
   /** Flaschengroesse, z. B. "75cl" oder "1.5l". */
   bottle_size: string | null;
+  /** Alkoholgehalt in % vol, z. B. 14.5. */
+  alcohol_content: number | null;
   /** Externe Durchschnittsbewertung (z. B. Vivino-Community), 0-5, getrennt von der eigenen Bewertung. */
   community_rating: number | null;
   /** Freitext fuer Kritiker-Punkte, z. B. "Parker 94, James Suckling 96". */
