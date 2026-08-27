@@ -28,6 +28,11 @@ export default defineConfig({
         // kein Kernbestandteil - wird nur bei Bedarf geladen (normaler
         // Browser-Cache), damit die eigentliche App-Installation klein bleibt.
         globIgnores: ['data/wine-lexicon.json'],
+        // Ohne das faengt der Service Worker JEDE Navigation (auch Klicks auf
+        // /Grapino-Anleitung*.pdf) als SPA-Route ab und liefert statt der Datei
+        // die App selbst aus ("Link geht nicht") - alles mit Dateiendung soll
+        // stattdessen normal vom Netzwerk/Cache kommen.
+        navigateFallbackDenylist: [/\.[a-zA-Z0-9]+$/],
       },
     }),
   ],
