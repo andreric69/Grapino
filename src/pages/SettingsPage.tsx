@@ -116,6 +116,14 @@ export function SettingsPage() {
   const [pricing, setPricing] = useState<PricingConfig | null>(null);
   const ownActiveWineCount = wines.filter((w) => !w.is_consumed && !w.is_wishlist).length;
 
+  // In der als Home-Bildschirm-App installierten PWA gibt es keine
+  // Browser-Chrome (keine Adresszeile, kein Zurueck) - ein Link, der die
+  // Anleitung als eigene Seite oeffnet, liess sich dort nur durch komplettes
+  // Schliessen und Neustarten der App wieder verlassen. Stattdessen wird das
+  // PDF jetzt in einem Overlay innerhalb der App angezeigt, mit einem immer
+  // sichtbaren Schliessen-Button.
+  const [openPdf, setOpenPdf] = useState<{ url: string; title: string } | null>(null);
+
   async function handleDeleteFeedback() {
     if (!feedbackToDelete) return;
     setDeletingFeedback(true);
@@ -546,18 +554,38 @@ export function SettingsPage() {
             <div style={{ fontSize: 12.5, opacity: 0.65, lineHeight: 1.5 }}>
               Anleitungen zur Bedienung von Grapino.
             </div>
-            <a href="/Grapino-Anleitung.pdf" target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{ alignSelf: 'flex-start' }}
+              onClick={() => setOpenPdf({ url: '/Grapino-Anleitung.pdf', title: 'Erste Schritte' })}
+            >
               Erste Schritte (PDF)
-            </a>
-            <a href="/Grapino-Anleitung-Weine-Anlegen.pdf" target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }}>
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{ alignSelf: 'flex-start' }}
+              onClick={() => setOpenPdf({ url: '/Grapino-Anleitung-Weine-Anlegen.pdf', title: 'Weine anlegen' })}
+            >
               Weine anlegen (PDF)
-            </a>
-            <a href="/Grapino-Anleitung-App.pdf" target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }}>
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{ alignSelf: 'flex-start' }}
+              onClick={() => setOpenPdf({ url: '/Grapino-Anleitung-App.pdf', title: 'So funktioniert die App' })}
+            >
               So funktioniert die App (PDF)
-            </a>
-            <a href="/Grapino-Anleitung-Nachrichten.pdf" target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }}>
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{ alignSelf: 'flex-start' }}
+              onClick={() => setOpenPdf({ url: '/Grapino-Anleitung-Nachrichten.pdf', title: 'Kontakt und Nachrichten' })}
+            >
               Kontakt und Nachrichten (PDF)
-            </a>
+            </button>
           </div>
         </section>
 
@@ -926,6 +954,40 @@ export function SettingsPage() {
                 {deletingFeedback ? 'Wird gelöscht ...' : 'Löschen'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {openPdf && (
+        <div className="dialog-backdrop" onClick={() => setOpenPdf(null)} style={{ padding: 0 }}>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%',
+              height: '100%',
+              maxWidth: 720,
+              display: 'flex',
+              flexDirection: 'column',
+              background: 'var(--color-surface)',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: 10,
+                padding: '12px 16px',
+                paddingTop: 'calc(12px + env(safe-area-inset-top))',
+                borderBottom: '1px solid var(--color-divider)',
+              }}
+            >
+              <strong style={{ fontSize: 15 }}>{openPdf.title}</strong>
+              <button type="button" className="btn btn-secondary" onClick={() => setOpenPdf(null)}>
+                Schliessen
+              </button>
+            </div>
+            <iframe src={openPdf.url} title={openPdf.title} style={{ flex: 1, border: 'none' }} />
           </div>
         </div>
       )}
