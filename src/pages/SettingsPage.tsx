@@ -118,11 +118,21 @@ export function SettingsPage() {
 
   // In der als Home-Bildschirm-App installierten PWA gibt es keine
   // Browser-Chrome (keine Adresszeile, kein Zurueck) - ein Link, der die
-  // Anleitung als eigene Seite oeffnet, liess sich dort nur durch komplettes
-  // Schliessen und Neustarten der App wieder verlassen. Stattdessen wird das
-  // PDF jetzt in einem Overlay innerhalb der App angezeigt, mit einem immer
-  // sichtbaren Schliessen-Button.
-  const [openPdf, setOpenPdf] = useState<{ url: string; title: string } | null>(null);
+  // Anleitung als eigene Seite oeffnete, liess sich dort nur durch komplettes
+  // Schliessen und Neustarten der App wieder verlassen. Ein <iframe> mit dem
+  // PDF direkt loeste das nicht zuverlaessig - iOS/WKWebView rendert PDFs in
+  // einem iframe oft schlicht als leere weisse Seite (bekannte
+  // WebKit-Einschraenkung). Die Anleitungen liegen deshalb zusaetzlich als
+  // vorgerenderte Seitenbilder vor (siehe public/anleitung-pages/), die in
+  // einem Overlay innerhalb der App angezeigt werden - funktioniert ueberall
+  // gleich, mit einem immer sichtbaren Schliessen-Button.
+  const ANLEITUNG_PAGE_COUNTS: Record<string, number> = {
+    onboarding: 3,
+    'weine-anlegen': 2,
+    app: 2,
+    nachrichten: 1,
+  };
+  const [openPdf, setOpenPdf] = useState<{ key: string; title: string } | null>(null);
 
   async function handleDeleteFeedback() {
     if (!feedbackToDelete) return;
@@ -558,7 +568,7 @@ export function SettingsPage() {
               type="button"
               className="btn btn-secondary"
               style={{ alignSelf: 'flex-start' }}
-              onClick={() => setOpenPdf({ url: '/Grapino-Anleitung.pdf', title: 'Erste Schritte' })}
+              onClick={() => setOpenPdf({ key: 'onboarding', title: 'Erste Schritte' })}
             >
               Erste Schritte (PDF)
             </button>
@@ -566,7 +576,7 @@ export function SettingsPage() {
               type="button"
               className="btn btn-secondary"
               style={{ alignSelf: 'flex-start' }}
-              onClick={() => setOpenPdf({ url: '/Grapino-Anleitung-Weine-Anlegen.pdf', title: 'Weine anlegen' })}
+              onClick={() => setOpenPdf({ key: 'weine-anlegen', title: 'Weine anlegen' })}
             >
               Weine anlegen (PDF)
             </button>
@@ -574,7 +584,7 @@ export function SettingsPage() {
               type="button"
               className="btn btn-secondary"
               style={{ alignSelf: 'flex-start' }}
-              onClick={() => setOpenPdf({ url: '/Grapino-Anleitung-App.pdf', title: 'So funktioniert die App' })}
+              onClick={() => setOpenPdf({ key: 'app', title: 'So funktioniert die App' })}
             >
               So funktioniert die App (PDF)
             </button>
@@ -582,7 +592,7 @@ export function SettingsPage() {
               type="button"
               className="btn btn-secondary"
               style={{ alignSelf: 'flex-start' }}
-              onClick={() => setOpenPdf({ url: '/Grapino-Anleitung-Nachrichten.pdf', title: 'Kontakt und Nachrichten' })}
+              onClick={() => setOpenPdf({ key: 'nachrichten', title: 'Kontakt und Nachrichten' })}
             >
               Kontakt und Nachrichten (PDF)
             </button>
@@ -987,7 +997,16 @@ export function SettingsPage() {
                 Schliessen
               </button>
             </div>
-            <iframe src={openPdf.url} title={openPdf.title} style={{ flex: 1, border: 'none' }} />
+            <div style={{ flex: 1, overflowY: 'auto', padding: '12px 12px calc(12px + env(safe-area-inset-bottom))', display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {Array.from({ length: ANLEITUNG_PAGE_COUNTS[openPdf.key] ?? 1 }, (_, i) => i + 1).map((page) => (
+                <img
+                  key={page}
+                  src={`/anleitung-pages/${openPdf.key}/${page}.jpg`}
+                  alt={`${openPdf.title}, Seite ${page}`}
+                  style={{ width: '100%', borderRadius: 'var(--radius-sm)', boxShadow: 'var(--shadow-sm)' }}
+                />
+              ))}
+            </div>
           </div>
         </div>
       )}
