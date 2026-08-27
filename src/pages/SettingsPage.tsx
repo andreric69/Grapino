@@ -483,8 +483,8 @@ export function SettingsPage() {
             <div style={{ fontSize: 12.5, opacity: 0.65, lineHeight: 1.5 }}>
               Anleitungen zur Bedienung von Grapino.
             </div>
-            <a href="/Grapino-Anleitung.docx" target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }}>
-              Erste Schritte (Anleitung)
+            <a href="/Grapino-Anleitung.pdf" target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }}>
+              Erste Schritte (PDF)
             </a>
             <a href="/Grapino-Anleitung-Weine-Anlegen.pdf" target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }}>
               Weine anlegen (PDF)
