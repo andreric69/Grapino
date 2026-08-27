@@ -33,7 +33,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   }, [session]);
 
   useEffect(() => {
-    if (!session || access === undefined || access) return; // erst nach bestandener Blockade-Pruefung
+    if (!session || access === undefined || access) return; // erst nach bestandener Blockade-Prüfung
     let cancelled = false;
     listMyPaymentRequests().then((list) => {
       if (!cancelled) setOpenPayments(list.filter((p) => p.status === 'open'));
@@ -55,7 +55,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   if (loading) {
     return (
       <div style={{ display: 'grid', placeItems: 'center', minHeight: '100vh' }}>
-        <LoadingSpinner label="Anmeldung wird geprueft ..." />
+        <LoadingSpinner label="Anmeldung wird geprüft ..." />
       </div>
     );
   }
@@ -67,7 +67,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   if (access === undefined) {
     return (
       <div style={{ display: 'grid', placeItems: 'center', minHeight: '100vh' }}>
-        <LoadingSpinner label="Zugang wird geprueft ..." />
+        <LoadingSpinner label="Zugang wird geprüft ..." />
       </div>
     );
   }

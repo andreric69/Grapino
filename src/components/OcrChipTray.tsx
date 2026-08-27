@@ -55,7 +55,7 @@ export function OcrChipTray({ chips, onAssign, onHoverFieldChange }: OcrChipTray
   return (
     <div style={{ marginBottom: 18 }}>
       <div style={{ fontSize: 11.5, opacity: 0.6, marginBottom: 8 }}>
-        Erkannt - auf ein Feld ziehen, um es zu uebernehmen (mehrfach moeglich):
+        Erkannt - auf ein Feld ziehen, um es zu übernehmen (mehrfach möglich):
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
         {chips.map((chip) => (

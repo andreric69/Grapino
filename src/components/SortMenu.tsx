@@ -10,12 +10,12 @@ export const SORT_DEFAULT_DIRECTION: Record<SortOption, SortDirection> = {
 };
 
 const OPTIONS: { value: SortOption; label: string; ascLabel: string; descLabel: string }[] = [
-  { value: 'newest', label: 'Hinzugefuegt', ascLabel: 'aelteste zuerst', descLabel: 'neueste zuerst' },
-  { value: 'vintage', label: 'Jahrgang', ascLabel: 'aeltester zuerst', descLabel: 'neuester zuerst' },
+  { value: 'newest', label: 'Hinzugefügt', ascLabel: 'älteste zuerst', descLabel: 'neueste zuerst' },
+  { value: 'vintage', label: 'Jahrgang', ascLabel: 'ältester zuerst', descLabel: 'neuester zuerst' },
   { value: 'name', label: 'Name', ascLabel: 'A bis Z', descLabel: 'Z bis A' },
-  { value: 'price', label: 'Preis', ascLabel: 'guenstigste zuerst', descLabel: 'teuerste zuerst' },
+  { value: 'price', label: 'Preis', ascLabel: 'günstigste zuerst', descLabel: 'teuerste zuerst' },
   { value: 'rating', label: 'Eigene Bewertung', ascLabel: 'schlechteste zuerst', descLabel: 'beste zuerst' },
-  { value: 'drinkwindow', label: 'Trinkfenster', ascLabel: 'bald faellig zuerst', descLabel: 'laenger haltbar zuerst' },
+  { value: 'drinkwindow', label: 'Trinkfenster', ascLabel: 'bald fällig zuerst', descLabel: 'länger haltbar zuerst' },
 ];
 
 export function SortMenu({

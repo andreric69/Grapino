@@ -39,7 +39,7 @@ export function PrintPage() {
     <div style={{ padding: 24, maxWidth: 900, margin: '0 auto', fontFamily: 'var(--font-body)', color: '#1a1a1a', background: '#fff' }}>
       <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
         <button type="button" className="btn btn-secondary" onClick={() => navigate(-1)}>
-          Zurueck
+          Zurück
         </button>
         <button type="button" className="btn btn-primary" onClick={() => window.print()} disabled={loading || wines.length === 0}>
           Drucken / als PDF speichern

@@ -32,7 +32,7 @@ export function ConsumeDialog({
                 : `${count} von ${max} Flaschen "${wine.name}" werden vom Vorrat abgebucht.`}
             </>
           ) : (
-            `"${wine.name}" wandert in den Bereich "Getrunken" und wird im Rueckblick vermerkt.`
+            `"${wine.name}" wandert in den Bereich "Getrunken" und wird im Rückblick vermerkt.`
           )}
         </div>
 
@@ -68,7 +68,7 @@ export function ConsumeDialog({
             Abbrechen
           </button>
           <button type="button" className="btn btn-primary" onClick={() => onConfirm(count)}>
-            Bestaetigen
+            Bestätigen
           </button>
         </div>
       </div>

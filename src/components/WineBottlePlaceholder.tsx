@@ -66,13 +66,13 @@ export function WineBottlePlaceholder({ name, wineType }: WineBottlePlaceholderP
       height="100%"
       preserveAspectRatio="xMidYMid meet"
       role="img"
-      aria-label={`Kein Foto - Platzhalter-Flasche fuer ${name}`}
+      aria-label={`Kein Foto - Platzhalter-Flasche für ${name}`}
     >
       {/* Kapsel */}
       <rect x="46" y="6" width="28" height="20" rx="4" fill={colors.glassDark} />
       {/* Hals */}
       <rect x="50" y="24" width="20" height="46" fill={colors.glass} />
-      {/* Schulter + Koerper */}
+      {/* Schulter + Körper */}
       <path
         d="M 50 68 C 50 68 32 92 32 118 L 32 214 C 32 228 42 236 60 236 C 78 236 88 228 88 214 L 88 118 C 88 92 70 68 70 68 Z"
         fill={colors.glass}

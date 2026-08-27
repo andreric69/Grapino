@@ -56,7 +56,7 @@ export function BarcodeScanner({ onDetect, onClose }: BarcodeScannerProps) {
         },
       )
       .catch(() => {
-        setError('Kamera konnte nicht geoeffnet werden. Bitte Kamerazugriff erlauben oder EAN von Hand eintragen.');
+        setError('Kamera konnte nicht geöffnet werden. Bitte Kamerazugriff erlauben oder EAN von Hand eintragen.');
       });
 
     return () => {

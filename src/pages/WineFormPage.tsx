@@ -28,6 +28,7 @@ import { LabelCropper, type CropRect } from '../components/LabelCropper';
 import { HAS_CAMERA_SCANNER } from '../lib/cameraSupport';
 import { useBarcodeLookup } from '../hooks/useBarcodeLookup';
 import { useDuplicateCheck } from '../hooks/useDuplicateCheck';
+import { saveWineDraft, loadWineDraft, clearWineDraft, isDraftMeaningful } from '../lib/wineDraft';
 
 // Code-Splitting: die Scanner-Bibliothek (ZXing) ist relativ gross und wird
 // so nur geladen, wenn der Nutzer den Scanner tatsaechlich oeffnet, statt bei
@@ -117,7 +118,7 @@ async function recognizeLabel(
     // Tesseract-Fallback fuer ein bereits verlassenes Foto waere verschwendete
     // Arbeit.
     if (e instanceof DOMException && e.name === 'AbortError') return null;
-    console.error('KI-Etikett-Erkennung fehlgeschlagen, falle auf Tesseract zurueck:', e);
+    console.error('KI-Etikett-Erkennung fehlgeschlagen, falle auf Tesseract zurück:', e);
   }
   try {
     return await Promise.race([
@@ -154,6 +155,33 @@ function wineHasAdvancedData(wine: Wine): boolean {
     wine.food_pairing !== null ||
     wine.ean_code !== null ||
     wine.notes !== null
+  );
+}
+
+/** Gleiche Idee wie wineHasAdvancedData(), nur fuer einen wiederhergestellten Entwurf statt einen gespeicherten Wein. */
+function formHasAdvancedData(form: FormState): boolean {
+  return (
+    form.wineType !== '' ||
+    form.isWishlist ||
+    form.price.trim() !== '' ||
+    form.bottleSize.trim() !== '' ||
+    form.alcoholContent.trim() !== '' ||
+    form.storageLocation.trim() !== '' ||
+    form.drinkFrom !== '' ||
+    form.drinkTo !== '' ||
+    form.grapeVariety.trim() !== '' ||
+    form.region.trim() !== '' ||
+    form.subregion.trim() !== '' ||
+    form.rating !== null ||
+    form.tastingTannin !== null ||
+    form.tastingAcidity !== null ||
+    form.tastingSweetness !== null ||
+    form.tastingBody !== null ||
+    form.communityRating.trim() !== '' ||
+    form.criticScores.trim() !== '' ||
+    form.foodPairing.trim() !== '' ||
+    form.eanCode.trim() !== '' ||
+    form.notes.trim() !== ''
   );
 }
 
@@ -263,7 +291,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
   });
 
   useEffect(() => {
-    preloadWineReference(); // schon mal im Hintergrund laden, bevor ein Foto gewaehlt wird
+    preloadWineReference(); // schon mal im Hintergrund laden, bevor ein Foto gewählt wird
     preloadOcrWorker(); // OCR-Sprachmodelle ebenfalls schon vorab laden, spart Zeit beim ersten Foto
     preloadLabelEmbeddingModel(); // Bild-Embedding-Modell ebenfalls schon vorab laden
     if (mode === 'create') {
@@ -272,6 +300,11 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
         .catch(() => {
           /* Duplikat-Check ist nur eine Hilfestellung - bei Fehler einfach ohne ihn weitermachen. */
         });
+      const draft = loadWineDraft();
+      if (draft) {
+        setForm(draft);
+        if (formHasAdvancedData(draft)) setShowAdvanced(true);
+      }
     }
     return () => {
       if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
@@ -342,6 +375,18 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
   }
+
+  // Speichert einen begonnenen, aber nicht abgeschlossenen neuen Wein als
+  // Entwurf (nur Textfelder, siehe wineDraft.ts) - taucht als Erinnerung auf
+  // der Uebersicht wieder auf, falls die Seite verlassen wird, ohne zu speichern.
+  useEffect(() => {
+    if (mode !== 'create') return;
+    const handle = setTimeout(() => {
+      if (isDraftMeaningful(form)) saveWineDraft(form);
+      else clearWineDraft();
+    }, 800);
+    return () => clearTimeout(handle);
+  }, [mode, form]);
 
   function clearSuggestion(field: OcrField) {
     setSuggested((s) => {
@@ -815,6 +860,8 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
         });
       }
 
+      if (mode === 'create') clearWineDraft();
+
       // replace statt push - sonst bleibt das (jetzt sinnlose) Formular als
       // Eintrag in der Browser-Historie stehen, und "Zurueck" muss erst
       // durch das leere Formular klicken, bevor es wirklich zurueckgeht.
@@ -839,7 +886,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
         <ErrorBanner message={loadError} onRetry={() => window.location.reload()} />
         <div style={{ padding: '0 20px' }}>
           <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>
-            Zur Uebersicht
+            Zur Übersicht
           </button>
         </div>
       </div>
@@ -870,7 +917,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
 
       <form className="form-page" style={{ paddingTop: 0 }} onSubmit={handleSubmit}>
         <h1 style={{ fontSize: 25, marginBottom: 4 }}>
-          {mode === 'edit' ? 'Wein bearbeiten' : 'Neuen Wein hinzufuegen'}
+          {mode === 'edit' ? 'Wein bearbeiten' : 'Neuen Wein hinzufügen'}
         </h1>
         <div style={{ fontSize: 12.5, opacity: 0.6, marginBottom: 18 }}>
           Etikett fotografieren oder Angaben von Hand eintragen
@@ -898,7 +945,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
                   checked={recognitionEnabled}
                   onChange={(e) => setRecognitionEnabled(e.target.checked)}
                 />
-                Bilderkennung fuer das naechste Foto einschalten
+                Bilderkennung für das nächste Foto einschalten
               </label>
             )}
             <PhotoCapture
@@ -910,9 +957,9 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
             />
             {recognitionEnabled && (
               <div style={{ fontSize: 11.5, fontStyle: 'italic', opacity: 0.55, marginBottom: 12, lineHeight: 1.4 }}>
-                Nach dem Foto traegt die App erkannte Werte direkt ein, wo sie sich sicher ist (z. B. den Jahrgang).
-                Unsichere Vorschlaege sind als "Bitte pruefen" markiert. Bei allem anderen: unten erscheinen die
-                erkannten Woerter als Chips zum Ziehen - auf das passende Feld ziehen.
+                Nach dem Foto trägt die App erkannte Werte direkt ein, wo sie sich sicher ist (z. B. den Jahrgang).
+                Unsichere Vorschläge sind als "Bitte prüfen" markiert. Bei allem anderen: unten erscheinen die
+                erkannten Wörter als Chips zum Ziehen - auf das passende Feld ziehen.
               </div>
             )}
           </>
@@ -926,7 +973,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
               {recognizedMatch.vintage ? ` ${recognizedMatch.vintage}` : ''}
             </div>
             <div style={{ fontSize: 11, opacity: 0.6, marginBottom: 10 }}>
-              Anhand des Fotos wiedererkannt - bekannte Angaben statt neu erkannter uebernehmen?
+              Anhand des Fotos wiedererkannt - bekannte Angaben statt neu erkannter übernehmen?
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
               <button
@@ -935,7 +982,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
                 style={{ fontSize: 11.5, padding: '4px 10px' }}
                 onClick={handleAcceptRecognizedMatch}
               >
-                Uebernehmen
+                Übernehmen
               </button>
               <button
                 type="button"
@@ -959,7 +1006,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 12.5, fontWeight: 600 }}>Foto aus einer freien Produktdatenbank gefunden</div>
               <div style={{ fontSize: 11, opacity: 0.6, marginTop: 2 }}>
-                Achtung: Jahrgang/Etikett kann abweichen - bitte pruefen, bevor du es uebernimmst.
+                Achtung: Jahrgang/Etikett kann abweichen - bitte prüfen, bevor du es übernimmst.
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>
@@ -970,7 +1017,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
                 onClick={handleAcceptSuggestedPhoto}
                 disabled={suggestedPhotoBusy}
               >
-                {suggestedPhotoBusy ? 'Laedt ...' : 'Uebernehmen'}
+                {suggestedPhotoBusy ? 'Lädt ...' : 'Übernehmen'}
               </button>
               <button
                 type="button"
@@ -988,7 +1035,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
         {photoPreviewUrl && (
           <div style={{ marginBottom: 16 }}>
             <div className="card-kicker" style={{ marginBottom: 8 }}>
-              Weitere Fotos (z. B. Rueckenetikett)
+              Weitere Fotos (z. B. Rückenetikett)
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {extraPhotos.map((p) => (
@@ -1023,7 +1070,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
               ))}
               <button
                 type="button"
-                aria-label="Weiteres Foto hinzufuegen"
+                aria-label="Weiteres Foto hinzufügen"
                 onClick={() => extraPhotoInputRef.current?.click()}
                 style={{
                   width: 64,
@@ -1076,7 +1123,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
                   handleIncreaseDuplicateInstead(form.quantity ? Math.max(1, Math.round(Number(form.quantity))) : 1)
                 }
               >
-                {duplicateBusy ? 'Wird gespeichert ...' : 'Stattdessen Bestand erhoehen'}
+                {duplicateBusy ? 'Wird gespeichert ...' : 'Stattdessen Bestand erhöhen'}
               </button>
               <button
                 type="button"
@@ -1147,8 +1194,8 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
             </FormField>
           </div>
           {/* Bei einem bereits getrunkenen Wein ist die Menge fix 0 (siehe
-              is_consumed-Invariante) - hier bearbeitbar zu machen wuerde sie
-              brechen, ohne dass "Zurueck in den Vorrat" (die eigentlich
+              is_consumed-Invariante) - hier bearbeitbar zu machen würde sie
+              brechen, ohne dass "Zurück in den Vorrat" (die eigentlich
               richtige Aktion) beteiligt ist. */}
           {!form.isWishlist && !existingWine?.is_consumed && (
             <div style={{ flex: 1 }}>
@@ -1243,7 +1290,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
                 </FormField>
               </div>
               <div style={{ flex: 1 }}>
-                <FormField label="Flaschengroesse">
+                <FormField label="Flaschengrösse">
                   <input
                     className="input"
                     placeholder="z. B. 75cl, 1.5l"
@@ -1542,7 +1589,7 @@ function ConfidenceTag({ confidence }: { confidence?: FieldConfidence }) {
   if (confidence === 'low') {
     return (
       <span className="tag tag-warn" style={{ fontSize: 9 }}>
-        Bitte pruefen
+        Bitte prüfen
       </span>
     );
   }

@@ -6,10 +6,10 @@ interface TastingNotesValue {
 }
 
 const ROWS: Array<{ key: keyof TastingNotesValue; label: string; lowLabel: string; highLabel: string }> = [
-  { key: 'tannin', label: 'Tannin', lowLabel: 'weich', highLabel: 'kraeftig' },
-  { key: 'acidity', label: 'Saeure', lowLabel: 'mild', highLabel: 'frisch' },
-  { key: 'sweetness', label: 'Suesse', lowLabel: 'trocken', highLabel: 'suess' },
-  { key: 'body', label: 'Koerper', lowLabel: 'leicht', highLabel: 'voll' },
+  { key: 'tannin', label: 'Tannin', lowLabel: 'weich', highLabel: 'kräftig' },
+  { key: 'acidity', label: 'Säure', lowLabel: 'mild', highLabel: 'frisch' },
+  { key: 'sweetness', label: 'Süsse', lowLabel: 'trocken', highLabel: 'süss' },
+  { key: 'body', label: 'Körper', lowLabel: 'leicht', highLabel: 'voll' },
 ];
 
 export function TastingNotesInput({

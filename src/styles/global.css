@@ -291,6 +291,37 @@ textarea.input {
   background: color-mix(in srgb, var(--color-bordeaux) 12%, transparent);
 }
 
+.chat-tab-row {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  border: 1px solid var(--color-divider);
+}
+.chat-tab {
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 7px 6px;
+  border-radius: calc(var(--radius-md) * 0.7);
+  color: var(--color-text);
+  opacity: 0.7;
+  transition: background-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+.chat-tab.is-active {
+  background: var(--color-bordeaux);
+  color: #fff;
+  opacity: 1;
+  font-weight: 600;
+}
+
 /* ---- dialog ---------------------------------------------------------------- */
 @keyframes weinsammlung-backdrop-in {
   from {

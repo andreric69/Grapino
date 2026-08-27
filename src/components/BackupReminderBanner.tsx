@@ -20,14 +20,14 @@ export function BackupReminderBanner({
     >
       <div style={{ fontSize: 13.5, lineHeight: 1.5 }}>
         Es ist eine Weile her, seit die Sammlung zuletzt gesichert wurde. Eine Sicherung speichert alle Angaben als
-        Datei auf dem Geraet - zusaetzlich zur Datenbank.
+        Datei auf dem Gerät - zusätzlich zur Datenbank.
       </div>
       <div style={{ display: 'flex', gap: 8 }}>
         <button type="button" className="btn btn-primary" onClick={onOpenSettings}>
           Jetzt sichern
         </button>
         <button type="button" className="btn btn-secondary" onClick={onDismiss}>
-          Spaeter erinnern
+          Später erinnern
         </button>
       </div>
     </div>

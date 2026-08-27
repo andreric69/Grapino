@@ -16,6 +16,8 @@ import { ErrorBanner } from '../components/ErrorBanner';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { BackupReminderBanner } from '../components/BackupReminderBanner';
 import { AnnouncementBanner } from '../components/AnnouncementBanner';
+import { DraftReminderBanner } from '../components/DraftReminderBanner';
+import { hasWineDraft, clearWineDraft } from '../lib/wineDraft';
 import { FeedbackModal } from '../components/FeedbackModal';
 import { ChatBubble } from '../components/ChatBubble';
 import { ConsumeDialog } from '../components/ConsumeDialog';
@@ -84,7 +86,7 @@ const FILTER_LABELS: Record<FilterKey, string> = {
   country: 'Land',
   grape_variety: 'Rebsorte',
   wine_type: 'Typ',
-  bottle_size: 'Flaschengroesse',
+  bottle_size: 'Flaschengrösse',
   community_rating: 'Bewertung',
 };
 
@@ -110,6 +112,7 @@ export function CollectionPage() {
   const [noPhotoOnly, setNoPhotoOnly] = useState(persistedFilterState.noPhotoOnly ?? false);
   const [drinkNowOnly, setDrinkNowOnly] = useState(persistedFilterState.drinkNowOnly ?? false);
   const [showBackupReminder, setShowBackupReminder] = useState(false);
+  const [showDraftReminder, setShowDraftReminder] = useState(false);
   const [unseenAnnouncements, setUnseenAnnouncements] = useState<Announcement[]>([]);
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackRequestId, setFeedbackRequestId] = useState<string | null>(null);
@@ -178,6 +181,7 @@ export function CollectionPage() {
       const data = await listWines();
       setWines(data);
       if (data.length > 0 && isBackupOverdue()) setShowBackupReminder(true);
+      if (hasWineDraft()) setShowDraftReminder(true);
       // Das Feedback-Popup erscheint nur noch, wenn der Betreiber es ueber
       // "Feedback anfragen" aktiv ausgeloest hat - keine automatische
       // Anzeige mehr nach Zeit/Wein-Anzahl.
@@ -460,6 +464,16 @@ export function CollectionPage() {
         />
       )}
 
+      {showDraftReminder && (
+        <DraftReminderBanner
+          onContinue={() => navigate('/wine/new')}
+          onDiscard={() => {
+            clearWineDraft();
+            setShowDraftReminder(false);
+          }}
+        />
+      )}
+
       <div style={{ display: 'flex', gap: 8, padding: '0 20px 14px' }}>
         <button
           type="button"
@@ -580,7 +594,7 @@ export function CollectionPage() {
       {!loading && !error && visibleWines.length === 0 && (
         <div style={{ padding: '40px 20px', textAlign: 'center', opacity: 0.6, fontSize: 14 }}>
           {wines.length === 0
-            ? 'Noch keine Weine erfasst. Tippe auf + um den ersten Wein hinzuzufuegen.'
+            ? 'Noch keine Weine erfasst. Tippe auf + um den ersten Wein hinzuzufügen.'
             : tab === 'consumed'
               ? 'Noch keine Weine als getrunken markiert.'
               : tab === 'wishlist'
@@ -606,7 +620,7 @@ export function CollectionPage() {
         </div>
       )}
 
-      <button type="button" className="fab" aria-label="Neuen Wein hinzufuegen" onClick={() => navigate('/wine/new')}>
+      <button type="button" className="fab" aria-label="Neuen Wein hinzufügen" onClick={() => navigate('/wine/new')}>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f4ede1" strokeWidth="2.2" strokeLinecap="round">
           <line x1="12" y1="5" x2="12" y2="19" />
           <line x1="5" y1="12" x2="19" y2="12" />

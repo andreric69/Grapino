@@ -93,7 +93,7 @@ export function PhotoCapture({ previewUrl, onSelect, busy, busyLabel, onSkipBusy
           )}
           <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
             <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={openPrimary} disabled={busy}>
-              {HAS_CAMERA ? 'Neues Foto' : 'Anderes Foto waehlen'}
+              {HAS_CAMERA ? 'Neues Foto' : 'Anderes Foto wählen'}
             </button>
             {HAS_CAMERA && (
               <button
@@ -144,7 +144,7 @@ export function PhotoCapture({ previewUrl, onSelect, busy, busyLabel, onSkipBusy
               </svg>
             </div>
             <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 14.5 }}>
-              {HAS_CAMERA ? 'Etikett fotografieren' : 'Foto auswaehlen'}
+              {HAS_CAMERA ? 'Etikett fotografieren' : 'Foto auswählen'}
             </div>
           </button>
           {HAS_CAMERA && (
@@ -154,7 +154,7 @@ export function PhotoCapture({ previewUrl, onSelect, busy, busyLabel, onSkipBusy
               style={{ fontSize: 12.5 }}
               onClick={() => galleryInputRef.current?.click()}
             >
-              oder aus der Galerie waehlen
+              oder aus der Galerie wählen
             </button>
           )}
         </div>

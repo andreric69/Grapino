@@ -103,7 +103,7 @@ export function RueckblickPage() {
   return (
     <div className="app-screen">
       <div className="top-bar">
-        <button type="button" className="icon-btn" aria-label="Zurueck" onClick={() => navigate(-1)}>
+        <button type="button" className="icon-btn" aria-label="Zurück" onClick={() => navigate(-1)}>
           <svg width="12" height="18" viewBox="0 0 12 18" fill="none" stroke="var(--color-text)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M10 1L2 9l8 8" />
           </svg>
@@ -111,10 +111,10 @@ export function RueckblickPage() {
       </div>
 
       <div style={{ padding: '0 20px 40px' }}>
-        <h1 style={{ fontSize: 25, marginBottom: 4 }}>Rueckblick</h1>
+        <h1 style={{ fontSize: 25, marginBottom: 4 }}>Rückblick</h1>
         <div style={{ fontSize: 12.5, opacity: 0.6, marginBottom: 20 }}>Dein Trinkverlauf der letzten 12 Monate</div>
 
-        {loading && <LoadingSpinner label="Rueckblick wird geladen ..." />}
+        {loading && <LoadingSpinner label="Rückblick wird geladen ..." />}
         {error && <ErrorBanner message={error} onRetry={load} />}
 
         {!loading && !error && (
@@ -189,7 +189,7 @@ export function RueckblickPage() {
                   style={{ fontSize: 11.5, padding: 0, color: 'var(--color-bordeaux)' }}
                   onClick={() => setConfirmClearAll(true)}
                 >
-                  Verlauf loeschen
+                  Verlauf löschen
                 </button>
               )}
             </div>
@@ -206,7 +206,7 @@ export function RueckblickPage() {
                       </span>
                       <button
                         type="button"
-                        aria-label="Eintrag loeschen"
+                        aria-label="Eintrag löschen"
                         disabled={deletingEntryId === e.id}
                         onClick={() => handleDeleteEntry(e.id)}
                         style={{
@@ -233,10 +233,10 @@ export function RueckblickPage() {
       {confirmClearAll && (
         <div className="dialog-backdrop" onClick={() => !clearingAll && setConfirmClearAll(false)}>
           <div className="dialog" onClick={(e) => e.stopPropagation()}>
-            <div className="dialog-title">Trinkverlauf loeschen?</div>
+            <div className="dialog-title">Trinkverlauf löschen?</div>
             <div className="dialog-body">
-              Der gesamte Trinkverlauf ({entries.length} {entries.length === 1 ? 'Eintrag' : 'Eintraege'}) wird
-              unwiderruflich geloescht. Die Weine selbst bleiben davon unberuehrt.
+              Der gesamte Trinkverlauf ({entries.length} {entries.length === 1 ? 'Eintrag' : 'Einträge'}) wird
+              unwiderruflich gelöscht. Die Weine selbst bleiben davon unberührt.
               {clearError && <ErrorBanner message={clearError} />}
             </div>
             <div className="dialog-actions">
@@ -244,7 +244,7 @@ export function RueckblickPage() {
                 Abbrechen
               </button>
               <button type="button" className="btn btn-danger" onClick={handleClearAll} disabled={clearingAll}>
-                {clearingAll ? 'Wird geloescht ...' : 'Loeschen'}
+                {clearingAll ? 'Wird gelöscht ...' : 'Löschen'}
               </button>
             </div>
           </div>

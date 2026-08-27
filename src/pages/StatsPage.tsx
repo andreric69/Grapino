@@ -146,7 +146,7 @@ export function StatsPage() {
   return (
     <div className="app-screen">
       <div className="top-bar">
-        <button type="button" className="icon-btn" aria-label="Zurueck" onClick={() => navigate(-1)}>
+        <button type="button" className="icon-btn" aria-label="Zurück" onClick={() => navigate(-1)}>
           <svg width="12" height="18" viewBox="0 0 12 18" fill="none" stroke="var(--color-text)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M10 1L2 9l8 8" />
           </svg>
@@ -157,7 +157,7 @@ export function StatsPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <h1 style={{ fontSize: 25, margin: 0 }}>Statistik</h1>
           <button type="button" className="btn btn-secondary" style={{ fontSize: 12.5 }} onClick={() => navigate('/rueckblick')}>
-            Rueckblick
+            Rückblick
           </button>
         </div>
 
@@ -248,17 +248,17 @@ export function StatsPage() {
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '4px 0 16px' }}>
               <div className="card-kicker" style={{ margin: 0 }}>
-                Aufschluesselung
+                Aufschlüsselung
               </div>
               <ModeToggle mode={mode} onChange={setMode} />
             </div>
 
             <StatList title="Nach Typ" rows={byType} emptyText="Noch keine Weintypen erfasst." />
             <StatList title="Nach Region" rows={byRegion} emptyText="Noch keine Regionen erfasst." limit={8} />
-            <StatList title="Nach Land" rows={byCountry} emptyText="Noch keine Laender erfasst." limit={8} />
+            <StatList title="Nach Land" rows={byCountry} emptyText="Noch keine Länder erfasst." limit={8} />
             <StatList title="Nach Rebsorte" rows={byGrape} emptyText="Noch keine Rebsorten erfasst." limit={8} />
             <StatList title="Nach Produzent" rows={byProducer} emptyText="Noch keine Produzenten erfasst." limit={8} />
-            <StatList title="Nach Jahrgang" rows={byVintage} emptyText="Noch keine Jahrgaenge erfasst." />
+            <StatList title="Nach Jahrgang" rows={byVintage} emptyText="Noch keine Jahrgänge erfasst." />
           </>
         )}
       </div>
@@ -328,8 +328,9 @@ function StatTile({ icon, value, label, small }: { icon: React.ReactNode; value:
 }
 
 function StatList({ title, rows, emptyText, limit }: { title: string; rows: Row[]; emptyText: string; limit?: number }) {
+  const [expanded, setExpanded] = useState(false);
   const max = rows[0]?.count ?? 1;
-  const shown = limit ? rows.slice(0, limit) : rows;
+  const shown = limit && !expanded ? rows.slice(0, limit) : rows;
   const remaining = rows.length - shown.length;
   return (
     <div style={{ marginBottom: 26 }}>
@@ -361,9 +362,22 @@ function StatList({ title, rows, emptyText, limit }: { title: string; rows: Row[
             ))}
           </div>
           {remaining > 0 && (
-            <div style={{ fontSize: 12, opacity: 0.5, marginTop: 8 }}>
+            <button
+              type="button"
+              onClick={() => setExpanded(true)}
+              style={{ fontSize: 12, opacity: 0.65, marginTop: 8, background: 'none', border: 'none', padding: 0, color: 'var(--color-accent)', cursor: 'pointer' }}
+            >
               + {remaining} weitere
-            </div>
+            </button>
+          )}
+          {expanded && limit && rows.length > limit && (
+            <button
+              type="button"
+              onClick={() => setExpanded(false)}
+              style={{ fontSize: 12, opacity: 0.65, marginTop: 8, background: 'none', border: 'none', padding: 0, color: 'var(--color-accent)', cursor: 'pointer' }}
+            >
+              Weniger anzeigen
+            </button>
           )}
         </>
       )}

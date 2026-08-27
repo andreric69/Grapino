@@ -13,7 +13,7 @@ const FILTER_LABELS: Record<FilterPreset, string> = {
   ohne_trinkfenster: 'Alle ohne Trinkfenster',
   ohne_foto: 'Alle ohne Foto',
   ohne_preis: 'Alle ohne Preis',
-  neu: 'Neu hinzugefuegt (letzte 30 Tage)',
+  neu: 'Neu hinzugefügt (letzte 30 Tage)',
 };
 
 function matchesFilter(wine: Wine, filter: FilterPreset): boolean {
@@ -120,6 +120,7 @@ export function ChatBubble({ wines }: { wines: Wine[] }) {
           width: 48,
           height: 48,
           background: 'var(--color-surface)',
+          border: '2px solid var(--color-bordeaux)',
           boxShadow: 'var(--shadow-lg)',
         }}
       >
@@ -132,7 +133,7 @@ export function ChatBubble({ wines }: { wines: Wine[] }) {
         <div className="dialog-backdrop" onClick={closeAndReset}>
           <div className="dialog" style={{ maxWidth: 440 }} onClick={(e) => e.stopPropagation()}>
             <div className="dialog-title">Kontakt</div>
-            <div style={{ display: 'flex', gap: 6, padding: '0 20px 8px', flexWrap: 'wrap' }}>
+            <div className="chat-tab-row" style={{ margin: '0 20px 8px' }}>
               {(
                 [
                   ['allgemein', 'Allgemein'],
@@ -144,8 +145,7 @@ export function ChatBubble({ wines }: { wines: Wine[] }) {
                 <button
                   key={key}
                   type="button"
-                  className={tab === key ? 'btn btn-primary' : 'btn btn-secondary'}
-                  style={{ padding: '5px 10px', fontSize: 12.5 }}
+                  className={`chat-tab${tab === key ? ' is-active' : ''}`}
                   onClick={() => {
                     if (key === 'bewertung') {
                       setShowFeedback(true);
@@ -164,8 +164,8 @@ export function ChatBubble({ wines }: { wines: Wine[] }) {
               <div className="dialog-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <div style={{ fontSize: 12.5, opacity: 0.65 }}>
                   {tab === 'allgemein'
-                    ? 'Schreib mir, was dir gefaellt oder nicht gefaellt.'
-                    : 'Schlag mir eine Aenderung oder ein neues Feature vor.'}
+                    ? 'Schreib mir, was dir gefällt oder nicht gefällt.'
+                    : 'Schlag mir eine Änderung oder ein neues Feature vor.'}
                 </div>
                 {messageSent ? (
                   <div style={{ fontSize: 13.5, color: 'var(--color-bordeaux)' }}>Gesendet, danke!</div>
@@ -188,7 +188,7 @@ export function ChatBubble({ wines }: { wines: Wine[] }) {
               <div className="dialog-body" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {orderSent ? (
                   <div style={{ fontSize: 13.5, color: 'var(--color-bordeaux)' }}>
-                    Auftrag gesendet - du bekommst eine Zahlungsanfrage, sobald er bestaetigt ist.
+                    Auftrag gesendet - du bekommst eine Zahlungsanfrage, sobald er bestätigt ist.
                   </div>
                 ) : (
                   <>
@@ -199,16 +199,21 @@ export function ChatBubble({ wines }: { wines: Wine[] }) {
                         value={orderCategory}
                         onChange={(e) => setOrderCategory(e.target.value as OrderCategory)}
                       >
-                        {Object.entries(ORDER_CATEGORY_INFO).map(([key, info]) => (
-                          <option key={key} value={key}>
-                            {info.label}
-                            {pricing ? ` (ab ${pricing[key as OrderCategory].toFixed(2)} CHF/Wein)` : ''}
-                          </option>
-                        ))}
+                        {Object.entries(ORDER_CATEGORY_INFO).map(([key, info]) => {
+                          const isUltra = key === 'ultra';
+                          const min = pricing ? (isUltra ? pricing.ultraMin : pricing.standardMin) : null;
+                          const max = pricing ? (isUltra ? pricing.ultraMax : pricing.standardMax) : null;
+                          return (
+                            <option key={key} value={key}>
+                              {info.label}
+                              {min !== null && max !== null ? ` (${min.toFixed(2)}-${max.toFixed(2)} CHF)` : ''}
+                            </option>
+                          );
+                        })}
                       </select>
                       <div style={{ fontSize: 11.5, opacity: 0.6, marginTop: 4 }}>
                         {ORDER_CATEGORY_INFO[orderCategory].description} Preis richtet sich nach Anzahl
-                        unterschiedlicher Weine (nicht Flaschen) - bei vielen wird es pro Wein guenstiger, der genaue
+                        unterschiedlicher Weine (nicht Flaschen) - bei vielen wird es pro Wein günstiger, der genaue
                         Preis unten ist immer massgebend.
                       </div>
 

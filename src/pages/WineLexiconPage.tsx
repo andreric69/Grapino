@@ -51,7 +51,7 @@ export function WineLexiconPage() {
     try {
       setData(await loadLexicon());
     } catch {
-      setError('Weinlexikon konnte nicht geladen werden. Bitte Internetverbindung pruefen und erneut versuchen.');
+      setError('Weinlexikon konnte nicht geladen werden. Bitte Internetverbindung prüfen und erneut versuchen.');
     } finally {
       setLoading(false);
     }
@@ -86,7 +86,7 @@ export function WineLexiconPage() {
   return (
     <div className="app-screen">
       <div className="top-bar">
-        <button type="button" className="icon-btn" aria-label="Zurueck" onClick={() => navigate(-1)}>
+        <button type="button" className="icon-btn" aria-label="Zurück" onClick={() => navigate(-1)}>
           <svg width="12" height="18" viewBox="0 0 12 18" fill="none" stroke="var(--color-text)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M10 1L2 9l8 8" />
           </svg>
@@ -140,14 +140,14 @@ export function WineLexiconPage() {
           <>
             {!search.trim() && (
               <div style={{ textAlign: 'center', opacity: 0.55, fontSize: 13.5, padding: '30px 10px' }}>
-                {entries?.length ?? 0} {tab === 'grapes' ? 'Rebsorten' : 'Regionen'} verfuegbar - tippe oben, um zu
+                {entries?.length ?? 0} {tab === 'grapes' ? 'Rebsorten' : 'Regionen'} verfügbar - tippe oben, um zu
                 suchen.
               </div>
             )}
 
             {search.trim() && filtered.length === 0 && (
               <div style={{ textAlign: 'center', opacity: 0.55, fontSize: 13.5, padding: '30px 10px' }}>
-                Keine Treffer fuer "{search}".
+                Keine Treffer für "{search}".
               </div>
             )}
 

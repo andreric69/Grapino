@@ -34,7 +34,7 @@ export function CameraCapture({ onCapture, onClose }: CameraCaptureProps) {
         setReady(true);
       })
       .catch(() => {
-        setError('Kamera konnte nicht geoeffnet werden. Bitte Kamerazugriff erlauben oder ein Foto auswaehlen.');
+        setError('Kamera konnte nicht geöffnet werden. Bitte Kamerazugriff erlauben oder ein Foto auswählen.');
       });
 
     return () => {

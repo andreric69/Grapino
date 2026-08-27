@@ -10,7 +10,7 @@ export function FavoriteButton({ active, onToggle, style }: FavoriteButtonProps)
   return (
     <button
       type="button"
-      aria-label={active ? 'Von Favoriten entfernen' : 'Zu Favoriten hinzufuegen'}
+      aria-label={active ? 'Von Favoriten entfernen' : 'Zu Favoriten hinzufügen'}
       aria-pressed={active}
       onClick={(e) => {
         e.stopPropagation();

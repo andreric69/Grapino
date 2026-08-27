@@ -107,7 +107,7 @@ export function WineDetailPage() {
       await deleteWine(wine);
       navigate('/');
     } catch (e) {
-      setDeleteError(e instanceof Error ? e.message : 'Loeschen fehlgeschlagen.');
+      setDeleteError(e instanceof Error ? e.message : 'Löschen fehlgeschlagen.');
       setDeleting(false);
     }
   }
@@ -126,7 +126,7 @@ export function WineDetailPage() {
         <ErrorBanner message={error ?? 'Wein nicht gefunden.'} onRetry={load} />
         <div style={{ padding: '0 20px' }}>
           <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>
-            Zur Uebersicht
+            Zur Übersicht
           </button>
         </div>
       </div>
@@ -136,7 +136,7 @@ export function WineDetailPage() {
   return (
     <div className="app-screen" style={{ paddingBottom: 40, position: 'relative' }}>
       <div className="top-bar">
-        <button type="button" className="icon-btn" aria-label="Zurueck" onClick={() => navigate(-1)}>
+        <button type="button" className="icon-btn" aria-label="Zurück" onClick={() => navigate(-1)}>
           <svg width="12" height="18" viewBox="0 0 12 18" fill="none" stroke="var(--color-text)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M10 1L2 9l8 8" />
           </svg>
@@ -193,7 +193,7 @@ export function WineDetailPage() {
             </button>
             <button
               type="button"
-              aria-label="Naechstes Foto"
+              aria-label="Nächstes Foto"
               onClick={() => setActivePhoto((i) => (i + 1) % photoUrls.length)}
               style={{
                 position: 'absolute',
@@ -423,7 +423,7 @@ export function WineDetailPage() {
 
         <div className="hr" />
         <button type="button" className="btn btn-danger" onClick={() => setConfirmDelete(true)}>
-          Wein loeschen
+          Wein löschen
         </button>
         {deleteError && <ErrorBanner message={deleteError} onRetry={handleDelete} />}
       </div>
@@ -432,16 +432,16 @@ export function WineDetailPage() {
       {confirmDelete && (
         <div className="dialog-backdrop" onClick={() => !deleting && setConfirmDelete(false)}>
           <div className="dialog" onClick={(e) => e.stopPropagation()}>
-            <div className="dialog-title">Wein loeschen?</div>
+            <div className="dialog-title">Wein löschen?</div>
             <div className="dialog-body">
-              "{wine.name}" wird unwiderruflich geloescht, inklusive Foto. Das kann nicht rueckgaengig gemacht werden.
+              "{wine.name}" wird unwiderruflich gelöscht, inklusive Foto. Das kann nicht rückgängig gemacht werden.
             </div>
             <div className="dialog-actions">
               <button type="button" className="btn btn-secondary" onClick={() => setConfirmDelete(false)} disabled={deleting}>
                 Abbrechen
               </button>
               <button type="button" className="btn btn-danger" onClick={handleDelete} disabled={deleting}>
-                {deleting ? 'Wird geloescht ...' : 'Loeschen'}
+                {deleting ? 'Wird gelöscht ...' : 'Löschen'}
               </button>
             </div>
           </div>
@@ -466,9 +466,9 @@ export function WineDetailPage() {
 
 const TASTING_ROWS: Array<{ key: 'tasting_tannin' | 'tasting_acidity' | 'tasting_sweetness' | 'tasting_body'; label: string }> = [
   { key: 'tasting_tannin', label: 'Tannin' },
-  { key: 'tasting_acidity', label: 'Saeure' },
-  { key: 'tasting_sweetness', label: 'Suesse' },
-  { key: 'tasting_body', label: 'Koerper' },
+  { key: 'tasting_acidity', label: 'Säure' },
+  { key: 'tasting_sweetness', label: 'Süsse' },
+  { key: 'tasting_body', label: 'Körper' },
 ];
 
 /* ---- kleine Linien-Icons, einheitlich mit der Statistik-Seite ------------- */

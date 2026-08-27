@@ -1,16 +1,25 @@
 import { supabase } from '../supabaseClient';
 import type { OrderCategory } from '../types';
 
-export type PricingConfig = Record<OrderCategory, number> & { minimum: number; accessFee: number };
+export type PricingConfig = Record<OrderCategory, number> & {
+  standardMin: number;
+  standardMax: number;
+  ultraMin: number;
+  ultraMax: number;
+  accessFee: number;
+};
 
 // Rueckfallwerte, falls die Preise (noch) nicht aus der DB geladen werden
 // konnten (z. B. offline) - identisch zu den Standardwerten der
 // Datenbank-Migration, damit ein Auftrag notfalls trotzdem sinnvoll bepreist wird.
 const FALLBACK_PRICING: PricingConfig = {
-  refresh: 0.65,
-  neue_weine: 0.4,
-  ultra: 1.25,
-  minimum: 3,
+  refresh: 1.3,
+  neue_weine: 1.0,
+  ultra: 2.2,
+  standardMin: 5,
+  standardMax: 30,
+  ultraMin: 10,
+  ultraMax: 50,
   accessFee: 45,
 };
 
@@ -27,7 +36,7 @@ let cachedAt = 0;
 async function fetchPricingConfig(): Promise<PricingConfig> {
   const { data, error } = await supabase
     .from('pricing_config')
-    .select('refresh_price, neue_weine_price, ultra_price, minimum_price, access_fee')
+    .select('refresh_price, neue_weine_price, ultra_price, standard_min_price, standard_max_price, ultra_min_price, ultra_max_price, access_fee')
     .eq('id', 1)
     .single();
   if (error || !data) return FALLBACK_PRICING;
@@ -35,7 +44,10 @@ async function fetchPricingConfig(): Promise<PricingConfig> {
     refresh: data.refresh_price,
     neue_weine: data.neue_weine_price,
     ultra: data.ultra_price,
-    minimum: data.minimum_price,
+    standardMin: data.standard_min_price,
+    standardMax: data.standard_max_price,
+    ultraMin: data.ultra_min_price,
+    ultraMax: data.ultra_max_price,
     accessFee: data.access_fee,
   };
 }
@@ -69,8 +81,11 @@ export function getPricingConfig(): Promise<PricingConfig> {
  * 10-fachen (statt dem 100-fachen).
  */
 export function computeOrderPrice(pricing: PricingConfig, category: OrderCategory, wineCount: number): number {
+  const isUltra = category === 'ultra';
+  const min = isUltra ? pricing.ultraMin : pricing.standardMin;
+  const max = isUltra ? pricing.ultraMax : pricing.standardMax;
   const raw = pricing[category] * Math.sqrt(wineCount);
-  return Math.max(pricing.minimum, Math.round(raw * 20) / 20); // auf 5 Rappen runden
+  return Math.round(Math.min(max, Math.max(min, raw)) * 20) / 20; // auf 5 Rappen runden
 }
 
 /** Referenz-Mengen fuer die Preistabelle, die bei jeder Angebots-Auswahl angezeigt wird - gibt eine Groessenordnung, bevor jemand die genaue Flaschenzahl kennt. */

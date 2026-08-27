@@ -42,7 +42,7 @@ export function FeedbackModal({ onSubmitted, onClose }: { onSubmitted: () => voi
   return (
     <div className="dialog-backdrop" onClick={onClose}>
       <div className="dialog" onClick={(e) => e.stopPropagation()}>
-        <div className="dialog-title">Wie gefaellt dir Grapino?</div>
+        <div className="dialog-title">Wie gefällt dir Grapino?</div>
         <div className="dialog-body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <StarRating value={rating} onChange={setRating} size={30} />
@@ -93,7 +93,7 @@ export function FeedbackModal({ onSubmitted, onClose }: { onSubmitted: () => voi
                 aria-label="Trinkgeld-Betrag"
               />
               <div style={{ fontSize: 12, opacity: 0.6 }}>
-                Nur eine Wertschaetzung - keine echte Zahlung ueber die App.
+                Nur eine Wertschätzung - keine echte Zahlung über die App.
               </div>
             </div>
           )}
