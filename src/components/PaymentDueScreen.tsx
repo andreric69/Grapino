@@ -40,8 +40,8 @@ export function PaymentDueScreen({ requests, onDismiss }: { requests: PaymentReq
           ))}
         </div>
         <div style={{ fontSize: 12.5, opacity: 0.65 }}>
-          Bitte wie besprochen begleichen (Überweisung/TWINT an Andrin). Der Betrag steht auch jederzeit unter
-          Einstellungen.
+          Bitte per TWINT an <strong>077 456 31 23</strong> (Andrin) begleichen. Der Betrag steht auch jederzeit
+          unter Einstellungen.
         </div>
         <button type="button" className="btn btn-primary" onClick={onDismiss} style={{ marginTop: 4 }}>
           Verstanden, weiter zur App

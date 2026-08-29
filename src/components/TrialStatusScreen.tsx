@@ -1,3 +1,11 @@
+import { useEffect, useState } from 'react';
+import { getPricingConfig } from '../lib/pricingConfig';
+
+// Kein Zahlungsanbieter (Stripe o. ae.) - bewusst einfach gehalten wie der
+// Rest der Zahlungsabwicklung in der App: TWINT/Ueberweisung von Hand an
+// Andrin, der die Zahlung danach in der Admin-App als "bezahlt" vermerkt.
+const TWINT_NUMBER = '077 456 31 23';
+
 /**
  * Reine Berechnung, getrennt von der Komponente - separat testbar ohne
  * React-Testing-Setup. Rechnet in ganzen KALENDERTAGEN (beide Daten auf
@@ -28,6 +36,18 @@ export function TrialStatusScreen({ trialEndsAt, onDismiss }: { trialEndsAt: str
     month: '2-digit',
     year: 'numeric',
   });
+  const [accessFee, setAccessFee] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!isExpired) return;
+    let cancelled = false;
+    getPricingConfig().then((pricing) => {
+      if (!cancelled) setAccessFee(pricing.accessFee);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [isExpired]);
 
   return (
     <div style={{ display: 'grid', placeItems: 'center', minHeight: '100vh', padding: 24 }}>
@@ -48,11 +68,25 @@ export function TrialStatusScreen({ trialEndsAt, onDismiss }: { trialEndsAt: str
             <>Du hast eine kostenlose Testphase bis zum {formattedDate}.</>
           )}
         </div>
-        <div style={{ fontSize: 12.5, opacity: 0.65 }}>
-          {isExpired
-            ? 'Melde dich bei Andrin, um weiterzumachen - über die Chat-Blase unten links oder direkt.'
-            : 'Bei Fragen jederzeit über die Chat-Blase unten links melden.'}
-        </div>
+        {isExpired ? (
+          <>
+            <div style={{ fontSize: 14, lineHeight: 1.5 }}>
+              Um weiterzumachen, bitte die Zugangsgebühr
+              {accessFee !== null && (
+                <>
+                  {' '}
+                  (<strong>{accessFee.toFixed(2)} CHF</strong>)
+                </>
+              )}{' '}
+              per TWINT an <strong>{TWINT_NUMBER}</strong> (Andrin) überweisen.
+            </div>
+            <div style={{ fontSize: 12.5, opacity: 0.65 }}>
+              Fragen? Über die Chat-Blase unten links oder direkt bei Andrin melden.
+            </div>
+          </>
+        ) : (
+          <div style={{ fontSize: 12.5, opacity: 0.65 }}>Bei Fragen jederzeit über die Chat-Blase unten links melden.</div>
+        )}
         <button type="button" className="btn btn-primary" onClick={onDismiss} style={{ marginTop: 4 }}>
           Verstanden, weiter zur App
         </button>

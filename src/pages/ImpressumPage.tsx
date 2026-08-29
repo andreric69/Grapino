@@ -45,7 +45,7 @@ export function ImpressumPage() {
                   (<strong>{accessFee.toFixed(2)} CHF</strong>)
                 </>
               )}
-              .{' '}
+              , per TWINT an <strong>077 456 31 23</strong> (Andrin).{' '}
             </>
           )}
           Aktualisierungs-Aufträge (Recherche einzelner Angaben) werden nach Aufwand berechnet - die aktuellen

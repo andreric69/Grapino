@@ -2,13 +2,27 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../supabaseClient';
 
+interface SignUpResult {
+  error: string | null;
+  // true, wenn Supabase eine Bestaetigungs-Mail verlangt (kein Session sofort
+  // zurueckgegeben) - dann noch nicht eingeloggt, muss erst den Mail-Link
+  // anklicken.
+  needsEmailConfirmation: boolean;
+}
+
 interface AuthContextValue {
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string) => Promise<SignUpResult>;
   signOut: () => Promise<void>;
   updateDisplayName: (name: string) => Promise<{ error: string | null }>;
 }
+
+// Neu selbst registrierte Nutzer bekommen automatisch eine Testphase (siehe
+// TrialStatusScreen) - bei einem admin-angelegten Konto entscheidet weiterhin
+// Andrin von Hand, ob/wie lange eine Testphase gilt.
+const SELF_SIGNUP_TRIAL_DAYS = 7;
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
@@ -40,6 +54,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: null };
   }
 
+  async function signUp(email: string, password: string): Promise<SignUpResult> {
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) {
+      if (error.message.toLowerCase().includes('already registered')) {
+        return { error: 'Für diese E-Mail-Adresse besteht bereits ein Konto.', needsEmailConfirmation: false };
+      }
+      if (error.message.toLowerCase().includes('password')) {
+        return { error: 'Passwort zu kurz - mindestens 8 Zeichen.', needsEmailConfirmation: false };
+      }
+      return { error: 'Registrierung fehlgeschlagen. Bitte Internetverbindung prüfen und erneut versuchen.', needsEmailConfirmation: false };
+    }
+    if (!data.session) {
+      // Supabase verlangt eine Bestaetigungs-Mail, bevor ein Login moeglich
+      // ist - noch keine Sitzung, Testphase kann erst nach der Bestaetigung
+      // (beim ersten echten Login) angelegt werden, siehe unten.
+      return { error: null, needsEmailConfirmation: true };
+    }
+    const trialEndsAt = new Date();
+    trialEndsAt.setDate(trialEndsAt.getDate() + SELF_SIGNUP_TRIAL_DAYS);
+    // Nebeneffekt, kein kritischer Schritt - schlaegt das Anlegen der
+    // Testphase-Zeile fehl, bleibt der Nutzer trotzdem eingeloggt (gilt dann
+    // einfach als "kein Testphase-Datum gesetzt", kein Zugangsproblem).
+    await supabase
+      .from('user_access')
+      .insert({ user_id: data.session.user.id, trial_ends_at: trialEndsAt.toISOString().slice(0, 10) })
+      .then(({ error: accessError }) => {
+        if (accessError) console.error('Testphase konnte nicht angelegt werden:', accessError);
+      });
+    return { error: null, needsEmailConfirmation: false };
+  }
+
   async function signOut() {
     await supabase.auth.signOut();
   }
@@ -51,7 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ session, loading, signIn, signOut, updateDisplayName }}>
+    <AuthContext.Provider value={{ session, loading, signIn, signUp, signOut, updateDisplayName }}>
       {children}
     </AuthContext.Provider>
   );
