@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { LoadingSpinner } from './LoadingSpinner';
 import { BlockScreen } from './BlockScreen';
 import { PaymentDueScreen } from './PaymentDueScreen';
+import { TrialStatusScreen } from './TrialStatusScreen';
 import { getAccessStatus, type AccessStatus } from '../lib/accessControl';
 import { listMyPaymentRequests } from '../lib/paymentRequestRepository';
 import type { PaymentRequest } from '../types';
@@ -11,21 +12,35 @@ import type { PaymentRequest } from '../types';
 // Nur fuer diese Sitzung gemerkt (nicht dauerhaft) - taucht bei einem neuen
 // Login oder einer neuen offenen Zahlungsanfrage automatisch wieder auf.
 const PAYMENT_DUE_DISMISS_KEY = 'grapino-payment-due-dismissed-ids';
+// Gemerkt pro genauem Testphase-Enddatum (nicht nur "schon mal gesehen") -
+// aendert Andrin das Datum in der Admin-App (z. B. eine neue Testphase
+// gestartet), taucht der Hinweis automatisch wieder auf, statt dauerhaft
+// unterdrueckt zu bleiben.
+const TRIAL_DISMISS_KEY = 'grapino-trial-dismissed-date';
 
 export function ProtectedRoute({ children }: { children: ReactNode }) {
   const { session, loading } = useAuth();
   // undefined = wird noch geprueft, null = geprueft und nicht blockiert.
   const [access, setAccess] = useState<AccessStatus | null | undefined>(undefined);
+  // Testphase-Datum getrennt gemerkt (nicht nur wenn blockiert, im
+  // Unterschied zu "access" oben) - der Hinweis soll ja gerade bei NICHT
+  // blockierten Nutzern erscheinen.
+  const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
   const [openPayments, setOpenPayments] = useState<PaymentRequest[] | null>(null);
   const [dismissedKey, setDismissedKey] = useState<string>(
     () => sessionStorage.getItem(PAYMENT_DUE_DISMISS_KEY) ?? '',
+  );
+  const [dismissedTrialDate, setDismissedTrialDate] = useState<string>(
+    () => sessionStorage.getItem(TRIAL_DISMISS_KEY) ?? '',
   );
 
   useEffect(() => {
     if (!session) return;
     let cancelled = false;
     getAccessStatus().then((status) => {
-      if (!cancelled) setAccess(status.isBlocked ? status : null);
+      if (cancelled) return;
+      setAccess(status.isBlocked ? status : null);
+      setTrialEndsAt(status.trialEndsAt);
     });
     return () => {
       cancelled = true;
@@ -49,8 +64,15 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
     setDismissedKey(key);
   }
 
+  function handleDismissTrial() {
+    if (!trialEndsAt) return;
+    sessionStorage.setItem(TRIAL_DISMISS_KEY, trialEndsAt);
+    setDismissedTrialDate(trialEndsAt);
+  }
+
   const openKey = (openPayments ?? []).map((p) => p.id).sort().join(',');
   const showPaymentDue = !!openPayments && openPayments.length > 0 && openKey !== dismissedKey;
+  const showTrialStatus = !!trialEndsAt && trialEndsAt !== dismissedTrialDate;
 
   if (loading) {
     return (
@@ -78,6 +100,10 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
 
   if (showPaymentDue && openPayments) {
     return <PaymentDueScreen requests={openPayments} onDismiss={handleDismissPayments} />;
+  }
+
+  if (showTrialStatus && trialEndsAt) {
+    return <TrialStatusScreen trialEndsAt={trialEndsAt} onDismiss={handleDismissTrial} />;
   }
 
   return <>{children}</>;
