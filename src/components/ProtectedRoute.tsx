@@ -27,6 +27,11 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   // blockierten Nutzern erscheinen.
   const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
   const [openPayments, setOpenPayments] = useState<PaymentRequest[] | null>(null);
+  // Sobald irgendeine Zahlung je bezahlt wurde, ist der Nutzer erkennbar kein
+  // reiner Testphase-Interessent mehr - der Testphase-Hinweis soll dann nicht
+  // mehr weiter erscheinen, auch wenn Andrin das Testabo-Datum nicht extra
+  // von Hand entfernt.
+  const [hasPaidBefore, setHasPaidBefore] = useState(false);
   const [dismissedKey, setDismissedKey] = useState<string>(
     () => sessionStorage.getItem(PAYMENT_DUE_DISMISS_KEY) ?? '',
   );
@@ -51,7 +56,9 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
     if (!session || access === undefined || access) return; // erst nach bestandener Blockade-Prüfung
     let cancelled = false;
     listMyPaymentRequests().then((list) => {
-      if (!cancelled) setOpenPayments(list.filter((p) => p.status === 'open'));
+      if (cancelled) return;
+      setOpenPayments(list.filter((p) => p.status === 'open'));
+      setHasPaidBefore(list.some((p) => p.status === 'paid'));
     });
     return () => {
       cancelled = true;
@@ -72,7 +79,11 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
 
   const openKey = (openPayments ?? []).map((p) => p.id).sort().join(',');
   const showPaymentDue = !!openPayments && openPayments.length > 0 && openKey !== dismissedKey;
-  const showTrialStatus = !!trialEndsAt && trialEndsAt !== dismissedTrialDate;
+  // Wartet auf die Zahlungs-Abfrage (openPayments !== null), bevor der
+  // Testphase-Hinweis ueberhaupt in Erwaegung gezogen wird - sonst wuerde er
+  // bei einem bereits zahlenden Nutzer kurz aufblitzen, bevor "hasPaidBefore"
+  // eintrifft und ihn wieder verschwinden laesst.
+  const showTrialStatus = openPayments !== null && !!trialEndsAt && trialEndsAt !== dismissedTrialDate && !hasPaidBefore;
 
   if (loading) {
     return (
