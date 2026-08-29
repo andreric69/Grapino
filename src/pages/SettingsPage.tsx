@@ -148,6 +148,7 @@ export function SettingsPage() {
     'weine-anlegen': 2,
     app: 2,
     nachrichten: 1,
+    auftraege: 2,
   };
   const [openPdf, setOpenPdf] = useState<{ key: string; title: string } | null>(null);
 
@@ -636,6 +637,14 @@ export function SettingsPage() {
               onClick={() => setOpenPdf({ key: 'nachrichten', title: 'Kontakt und Nachrichten' })}
             >
               Kontakt und Nachrichten (PDF)
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{ alignSelf: 'flex-start' }}
+              onClick={() => setOpenPdf({ key: 'auftraege', title: 'Aktualisierungs-Aufträge geben' })}
+            >
+              Aktualisierungs-Aufträge geben (PDF)
             </button>
           </div>
         </section>
