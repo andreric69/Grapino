@@ -1,24 +1,11 @@
 import { useEffect, useState } from 'react';
 import { getPricingConfig } from '../lib/pricingConfig';
+import { daysUntil } from '../lib/trialDays';
 
 // Kein Zahlungsanbieter (Stripe o. ae.) - bewusst einfach gehalten wie der
 // Rest der Zahlungsabwicklung in der App: TWINT/Ueberweisung von Hand an
 // Andrin, der die Zahlung danach in der Admin-App als "bezahlt" vermerkt.
 const TWINT_NUMBER = '077 456 31 23';
-
-/**
- * Reine Berechnung, getrennt von der Komponente - separat testbar ohne
- * React-Testing-Setup. Rechnet in ganzen KALENDERTAGEN (beide Daten auf
- * Mitternacht normalisiert), nicht in exakten Millisekunden - sonst zeigt
- * "Letzter Tag" (0) praktisch nie an, weil eine Uhrzeit-genaue Differenz nur
- * in der seltenen Millisekunde exakt 0 waere, fast immer aber noch einen
- * Bruchteil des Tages uebrig laesst und dadurch aufgerundet wird.
- */
-export function daysUntil(isoDate: string, now: Date): number {
-  const end = new Date(`${isoDate}T00:00:00`);
-  const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  return Math.round((end.getTime() - todayMidnight.getTime()) / (24 * 60 * 60 * 1000));
-}
 
 /**
  * Vollflaechiger Hinweis zur Testphase direkt nach dem Login - im Unterschied

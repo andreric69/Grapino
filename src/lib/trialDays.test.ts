@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { daysUntil } from './TrialStatusScreen';
+import { daysUntil } from './trialDays';
 
 describe('daysUntil', () => {
   it('liefert eine positive Zahl, wenn das Enddatum noch bevorsteht', () => {
