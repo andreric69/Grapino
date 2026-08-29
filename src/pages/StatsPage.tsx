@@ -164,7 +164,19 @@ export function StatsPage() {
         {loading && <LoadingSpinner label="Statistik wird geladen ..." />}
         {error && <ErrorBanner message={error} onRetry={load} />}
 
-        {!loading && !error && (
+        {!loading && !error && wines.length === 0 && (
+          <div style={{ padding: '48px 20px', textAlign: 'center' }}>
+            <div style={{ fontSize: 34, marginBottom: 10, opacity: 0.7 }}>📊</div>
+            <div style={{ opacity: 0.6, fontSize: 14, marginBottom: 18 }}>
+              Noch keine Statistik - die füllt sich, sobald du deine ersten Weine erfasst hast.
+            </div>
+            <button type="button" className="btn btn-primary" onClick={() => navigate('/wine/new')}>
+              Ersten Wein hinzufügen
+            </button>
+          </div>
+        )}
+
+        {!loading && !error && wines.length > 0 && (
           <>
             {topWine && topWine.quantity > 1 && (
               <div

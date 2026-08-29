@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../supabaseClient';
 import {
@@ -46,7 +46,8 @@ type CsvImportState =
 
 export function SettingsPage() {
   const navigate = useNavigate();
-  const { session, signOut, updateDisplayName } = useAuth();
+  const location = useLocation();
+  const { session, signOut, updateDisplayName, needsPasswordReset, clearPasswordResetFlag } = useAuth();
 
   const [nameInput, setNameInput] = useState('');
   const [savingName, setSavingName] = useState(false);
@@ -100,6 +101,7 @@ export function SettingsPage() {
     else {
       setPasswordSaved(true);
       setNewPassword('');
+      clearPasswordResetFlag();
     }
     setSavingPassword(false);
   }
@@ -151,6 +153,14 @@ export function SettingsPage() {
     auftraege: 2,
   };
   const [openPdf, setOpenPdf] = useState<{ key: string; title: string } | null>(null);
+
+  // Erlaubt anderen Seiten (z. B. dem Testphase-Willkommensbildschirm), eine
+  // Anleitung direkt beim Navigieren hierher zu oeffnen, statt den Nutzer nur
+  // stumm in den Einstellungen abzusetzen.
+  useEffect(() => {
+    const requested = (location.state as { openPdf?: { key: string; title: string } } | null)?.openPdf;
+    if (requested) setOpenPdf(requested);
+  }, [location.state]);
 
   async function handleDeleteFeedback() {
     if (!feedbackToDelete) return;
@@ -383,6 +393,23 @@ export function SettingsPage() {
 
       <div className="form-page" style={{ paddingTop: 0 }}>
         <h1 style={{ fontSize: 25, marginBottom: 20 }}>Einstellungen</h1>
+
+        {needsPasswordReset && (
+          <div
+            className="card"
+            style={{
+              marginBottom: 20,
+              border: '1px solid var(--color-bordeaux)',
+              background: 'color-mix(in srgb, var(--color-bordeaux) 8%, transparent)',
+            }}
+          >
+            <strong style={{ fontSize: 14 }}>Bitte neues Passwort setzen</strong>
+            <div style={{ fontSize: 12.5, opacity: 0.75, marginTop: 4 }}>
+              Du bist über den "Passwort vergessen"-Link hier gelandet - setz unten unter "Konto" ein neues Passwort,
+              danach geht's normal weiter zur App.
+            </div>
+          </div>
+        )}
 
         <section style={{ marginBottom: 28 }}>
           <div className="card-kicker" style={{ marginBottom: 8 }}>
@@ -903,7 +930,7 @@ export function SettingsPage() {
           </div>
           <div className="card" style={{ gap: 10, border: '1px solid var(--color-bordeaux)' }}>
             <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 15 }}>
-              Ganze Sammlung löschen
+              Konto vollständig löschen
             </div>
             {!loadingDeletionRequest && pendingDeletionRequest ? (
               <>
@@ -925,18 +952,18 @@ export function SettingsPage() {
             ) : (
               <>
                 <div style={{ fontSize: 12.5, opacity: 0.65, lineHeight: 1.5 }}>
-                  Sendet eine Anfrage zum Löschen der gesamten Sammlung (Vorrat, Wunschliste, Getrunken)
-                  inklusive aller Fotos. Die Löschung wird erst nach Bestätigung ausgeführt. Vorher am besten
-                  eine Sicherung herunterladen.
+                  Sendet eine Anfrage zum vollständigen Löschen deines Kontos: die ganze Sammlung (Vorrat,
+                  Wunschliste, Getrunken) inklusive aller Fotos, sowie der Zugang selbst - danach kann man sich
+                  nicht mehr mit dieser E-Mail anmelden. Die Löschung wird erst nach Bestätigung ausgeführt.
+                  Vorher am besten eine Sicherung herunterladen.
                 </div>
                 <button
                   type="button"
                   className="btn btn-danger"
                   style={{ alignSelf: 'flex-start' }}
-                  disabled={wines.length === 0}
                   onClick={() => setConfirmDeleteAll(true)}
                 >
-                  Sammlung löschen ({wines.length})
+                  Konto löschen{wines.length > 0 ? ` (${wines.length} Weine)` : ''}
                 </button>
               </>
             )}
@@ -957,8 +984,10 @@ export function SettingsPage() {
           <div className="dialog" onClick={(e) => e.stopPropagation()}>
             <div className="dialog-title">Löschanfrage senden?</div>
             <div className="dialog-body">
-              Alle {wines.length} {wines.length === 1 ? 'Wein wird' : 'Weine werden'} zur Löschung angefragt,
-              inklusive aller Fotos. Die Sammlung wird erst gelöscht, nachdem die Anfrage bestätigt wurde.
+              {wines.length > 0 &&
+                `Alle ${wines.length} ${wines.length === 1 ? 'Wein wird' : 'Weine werden'} inklusive aller Fotos mitgelöscht. `}
+              Dein Konto wird zur vollständigen Löschung angefragt. Erst nach Bestätigung wird tatsächlich alles
+              gelöscht - danach ist auch kein Login mit dieser E-Mail mehr möglich.
               <div style={{ marginTop: 12 }}>
                 Zum Bestätigen <strong>{DELETE_ALL_KEYWORD}</strong> eintippen:
               </div>

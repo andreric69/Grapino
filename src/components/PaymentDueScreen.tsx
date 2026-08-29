@@ -40,8 +40,13 @@ export function PaymentDueScreen({ requests, onDismiss }: { requests: PaymentReq
           ))}
         </div>
         <div style={{ fontSize: 12.5, opacity: 0.65 }}>
-          Bitte per TWINT an <strong>077 456 31 23</strong> (Andrin) begleichen. Der Betrag steht auch jederzeit
-          unter Einstellungen.
+          Bitte per TWINT an <strong>077 456 31 23</strong> (Andrin, Betreiber von Grapino) begleichen - kein Beleg
+          nötig, verschwindet automatisch sobald vermerkt. Der Betrag steht auch jederzeit unter Einstellungen, mehr
+          zum Betrieb dieser App im{' '}
+          <a href="/impressum" style={{ color: 'inherit' }}>
+            Impressum
+          </a>
+          .
         </div>
         <button type="button" className="btn btn-primary" onClick={onDismiss} style={{ marginTop: 4 }}>
           Verstanden, weiter zur App

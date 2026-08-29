@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getPricingConfig } from '../lib/pricingConfig';
 import { daysUntil } from '../lib/trialDays';
 
@@ -16,6 +17,7 @@ const TWINT_NUMBER = '077 456 31 23';
  * Testphase noch aktiv (Restzeit) oder bereits abgelaufen (Kontaktaufruf).
  */
 export function TrialStatusScreen({ trialEndsAt, onDismiss }: { trialEndsAt: string; onDismiss: () => void }) {
+  const navigate = useNavigate();
   const daysLeft = daysUntil(trialEndsAt, new Date());
   const isExpired = daysLeft < 0;
   const formattedDate = new Date(`${trialEndsAt}T23:59:59`).toLocaleDateString('de-CH', {
@@ -65,14 +67,32 @@ export function TrialStatusScreen({ trialEndsAt, onDismiss }: { trialEndsAt: str
                   (<strong>{accessFee.toFixed(2)} CHF</strong>)
                 </>
               )}{' '}
-              per TWINT an <strong>{TWINT_NUMBER}</strong> (Andrin) überweisen.
+              per TWINT an <strong>{TWINT_NUMBER}</strong> (Andrin, Betreiber von Grapino) überweisen. Kein Beleg
+              nötig - sobald die Zahlung bei Andrin eingeht, wird sie hier vermerkt und dieser Hinweis verschwindet
+              von selbst.
             </div>
             <div style={{ fontSize: 12.5, opacity: 0.65 }}>
-              Fragen? Über die Chat-Blase unten links oder direkt bei Andrin melden.
+              Fragen oder unsicher, ob das seine Richtigkeit hat? Im{' '}
+              <a href="/impressum" style={{ color: 'inherit' }}>
+                Impressum
+              </a>{' '}
+              steht mehr zum Betrieb dieser App, oder direkt über die Chat-Blase unten links melden.
             </div>
           </>
         ) : (
           <div style={{ fontSize: 12.5, opacity: 0.65 }}>Bei Fragen jederzeit über die Chat-Blase unten links melden.</div>
+        )}
+        {!isExpired && (
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => {
+              onDismiss();
+              navigate('/settings', { state: { openPdf: { key: 'onboarding', title: 'Erste Schritte' } } });
+            }}
+          >
+            📖 Erste Schritte ansehen
+          </button>
         )}
         <button type="button" className="btn btn-primary" onClick={onDismiss} style={{ marginTop: 4 }}>
           Verstanden, weiter zur App
