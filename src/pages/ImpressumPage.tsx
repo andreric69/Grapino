@@ -2,17 +2,26 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getPricingConfig } from '../lib/pricingConfig';
 import { listMyPaymentRequests } from '../lib/paymentRequestRepository';
+import { getAccessStatus } from '../lib/accessControl';
+import { daysUntil } from '../lib/trialDays';
 
 export function ImpressumPage() {
   const navigate = useNavigate();
   const [accessFee, setAccessFee] = useState<number | null>(null);
   const [accessFeePaid, setAccessFeePaid] = useState(false);
+  const [inActiveTrial, setInActiveTrial] = useState(false);
 
   useEffect(() => {
     getPricingConfig().then((p) => setAccessFee(p.accessFee));
     listMyPaymentRequests().then((requests) => {
       const paid = requests.some((r) => r.status === 'paid' && r.reason.toLowerCase().includes('zugangsgeb'));
       setAccessFeePaid(paid);
+    });
+    // Waehrend einer laufenden Testphase ist die Formulierung "wird
+    // verrechnet" irrefuehrend (klingt nach sofort faellig, obwohl der
+    // Zugang gerade gratis ist) - deshalb hier gesondert geprueft.
+    getAccessStatus().then((status) => {
+      if (status.trialEndsAt) setInActiveTrial(daysUntil(status.trialEndsAt, new Date()) >= 0);
     });
   }, []);
 
@@ -38,7 +47,7 @@ export function ImpressumPage() {
         <p style={{ marginTop: 0, marginBottom: 20 }}>
           {!accessFeePaid && (
             <>
-              Der Zugang zur App wird einmalig verrechnet
+              {inActiveTrial ? 'Nach der Testphase wird der Zugang einmalig verrechnet' : 'Der Zugang zur App wird einmalig verrechnet'}
               {accessFee !== null && (
                 <>
                   {' '}

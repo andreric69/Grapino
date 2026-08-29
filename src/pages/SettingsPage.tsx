@@ -24,6 +24,8 @@ import { listMyFeedback, deleteFeedback } from '../lib/feedbackRepository';
 import { listMyPaymentRequests } from '../lib/paymentRequestRepository';
 import { listMyOrders, ORDER_CATEGORY_INFO } from '../lib/orderRepository';
 import { getPricingConfig, computeOrderPrice, type PricingConfig } from '../lib/pricingConfig';
+import { getAccessStatus } from '../lib/accessControl';
+import { daysUntil } from '../lib/trialDays';
 import type { DeletionRequest, EnrichmentOrder, MyFeedback, PaymentRequest, Wine, WineInput } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorBanner } from '../components/ErrorBanner';
@@ -50,10 +52,25 @@ export function SettingsPage() {
   const [savingName, setSavingName] = useState(false);
   const [nameError, setNameError] = useState<string | null>(null);
   const [nameSaved, setNameSaved] = useState(false);
+  const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
 
   useEffect(() => {
     setNameInput((session?.user.user_metadata?.display_name as string | undefined) ?? '');
   }, [session?.user.user_metadata?.display_name]);
+
+  // Dauerhaft sichtbarer Testphase-Status hier in den Einstellungen - der
+  // volle TrialStatusScreen nach dem Login ist nur ein einmaliger Hinweis
+  // (pro Session wegdrueckbar), hier soll man jederzeit nachschauen koennen,
+  // ohne auf den naechsten Login-Popup zu warten.
+  useEffect(() => {
+    let cancelled = false;
+    getAccessStatus().then((status) => {
+      if (!cancelled) setTrialEndsAt(status.trialEndsAt);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function handleSaveName() {
     setSavingName(true);
@@ -372,6 +389,30 @@ export function SettingsPage() {
           </div>
           <div className="card" style={{ gap: 12 }}>
             <div style={{ fontSize: 14 }}>{session?.user.email}</div>
+            {trialEndsAt &&
+              (() => {
+                const daysLeft = daysUntil(trialEndsAt, new Date());
+                const isExpired = daysLeft < 0;
+                return (
+                  <div
+                    style={{
+                      fontSize: 12.5,
+                      padding: '6px 10px',
+                      borderRadius: 'var(--radius-sm)',
+                      background: isExpired
+                        ? 'color-mix(in srgb, var(--color-bordeaux) 10%, transparent)'
+                        : 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
+                      color: isExpired ? 'var(--color-bordeaux)' : 'inherit',
+                    }}
+                  >
+                    {isExpired
+                      ? 'Testphase abgelaufen'
+                      : daysLeft === 0
+                        ? 'Testphase: letzter Tag'
+                        : `Testphase: noch ${daysLeft} Tag${daysLeft === 1 ? '' : 'e'}`}
+                  </div>
+                );
+              })()}
             <div>
               <label style={{ fontSize: 12.5, opacity: 0.65, display: 'block', marginBottom: 4 }}>
                 Name (so wirst du in der App angesprochen)
@@ -385,7 +426,7 @@ export function SettingsPage() {
                     setNameInput(e.target.value);
                     setNameSaved(false);
                   }}
-                  placeholder="z.B. Gregor"
+                  placeholder="z.B. Vorname"
                 />
                 <button
                   type="button"
@@ -516,7 +557,7 @@ export function SettingsPage() {
                 <div key={key} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
                   <span>{ORDER_CATEGORY_INFO[key].label}</span>
                   <span style={{ opacity: 0.7 }}>
-                    {ownActiveWineCount > 0 ? computeOrderPrice(pricing, key, ownActiveWineCount).toFixed(2) : pricing[key].toFixed(2)} CHF
+                    {computeOrderPrice(pricing, key, ownActiveWineCount > 0 ? ownActiveWineCount : 1).toFixed(2)} CHF
                   </span>
                 </div>
               ))}
