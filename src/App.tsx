@@ -18,6 +18,11 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          {/* Bewusst OHNE ProtectedRoute erreichbar - ein Interessent soll das
+              Impressum/die Kosten-Info schon vor der Registrierung lesen
+              koennen, nicht erst nach dem Einloggen. ImpressumPage faengt
+              fehlende Login-Daten bereits ueberall ab (Fallback-Werte). */}
+          <Route path="/impressum" element={<ImpressumPage />} />
           <Route
             path="/"
             element={
@@ -87,14 +92,6 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <PrintPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/impressum"
-            element={
-              <ProtectedRoute>
-                <ImpressumPage />
               </ProtectedRoute>
             }
           />

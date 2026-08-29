@@ -13,8 +13,15 @@ interface SignUpResult {
 interface AuthContextValue {
   session: Session | null;
   loading: boolean;
+  // true, wenn die Sitzung gerade ueber einen "Passwort vergessen"-Link
+  // entstanden ist - die App leitet dann direkt zu den Einstellungen um,
+  // statt die eigentliche Sammlung zu zeigen, bis ein neues Passwort gesetzt
+  // wurde (siehe ProtectedRoute).
+  needsPasswordReset: boolean;
+  clearPasswordResetFlag: () => void;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signUp: (email: string, password: string) => Promise<SignUpResult>;
+  requestPasswordReset: (email: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   updateDisplayName: (name: string) => Promise<{ error: string | null }>;
 }
@@ -50,6 +57,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [needsPasswordReset, setNeedsPasswordReset] = useState(false);
 
   useEffect(() => {
     // Nach dem Anklicken des Bestaetigungslinks landet man mit
@@ -57,10 +65,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Signal, dass gerade eine frische Registrierung bestaetigt wurde (nicht
     // nur ein normaler Login). Genau dann die Testphase anlegen, die bei
     // signUp() selbst noch nicht angelegt werden konnte (keine Sitzung vor
-    // der Bestaetigung, siehe signUp() unten). Einmalig ausserhalb des
-    // Callbacks gelesen, weil Supabase den Hash nach dem Verarbeiten
-    // entfernt - ein erneutes Auslesen im Callback koennte dann leer sein.
+    // der Bestaetigung, siehe signUp() unten). Ein "Passwort vergessen"-Link
+    // liefert stattdessen "type=recovery" - dann direkt zu den Einstellungen
+    // umleiten, statt die Sammlung zu zeigen (siehe ProtectedRoute). Beides
+    // einmalig ausserhalb des Callbacks gelesen, weil Supabase den Hash nach
+    // dem Verarbeiten entfernt - ein erneutes Auslesen im Callback koennte
+    // dann leer sein.
     const isSignupConfirmation = window.location.hash.includes('type=signup');
+    const isPasswordRecovery = window.location.hash.includes('type=recovery');
     let trialHandled = false;
 
     supabase.auth.getSession().then(({ data }) => {
@@ -73,6 +85,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (isSignupConfirmation && newSession && !trialHandled) {
         trialHandled = true;
         insertTrialRow(newSession.user.id);
+      }
+      if (isPasswordRecovery && newSession) {
+        setNeedsPasswordReset(true);
       }
     });
 
@@ -127,7 +142,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: null, needsEmailConfirmation: false };
   }
 
+  async function requestPasswordReset(email: string) {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin,
+    });
+    // Bewusst NIE verraten, ob die E-Mail-Adresse tatsaechlich existiert -
+    // Supabase antwortet dafuer selbst schon absichtlich immer gleich
+    // (kein Fehler bei unbekannter Adresse), das hier spiegelt das nur.
+    if (error) return { error: 'Anfrage fehlgeschlagen. Bitte Internetverbindung prüfen und erneut versuchen.' };
+    return { error: null };
+  }
+
   async function signOut() {
+    setNeedsPasswordReset(false);
     await supabase.auth.signOut();
   }
 
@@ -138,7 +165,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ session, loading, signIn, signUp, signOut, updateDisplayName }}>
+    <AuthContext.Provider
+      value={{
+        session,
+        loading,
+        needsPasswordReset,
+        clearPasswordResetFlag: () => setNeedsPasswordReset(false),
+        signIn,
+        signUp,
+        requestPasswordReset,
+        signOut,
+        updateDisplayName,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

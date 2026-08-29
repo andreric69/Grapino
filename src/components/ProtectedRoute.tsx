@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { LoadingSpinner } from './LoadingSpinner';
 import { BlockScreen } from './BlockScreen';
@@ -19,7 +19,8 @@ const PAYMENT_DUE_DISMISS_KEY = 'grapino-payment-due-dismissed-ids';
 const TRIAL_DISMISS_KEY = 'grapino-trial-dismissed-date';
 
 export function ProtectedRoute({ children }: { children: ReactNode }) {
-  const { session, loading } = useAuth();
+  const { session, loading, needsPasswordReset } = useAuth();
+  const location = useLocation();
   // undefined = wird noch geprueft, null = geprueft und nicht blockiert.
   const [access, setAccess] = useState<AccessStatus | null | undefined>(undefined);
   // Testphase-Datum getrennt gemerkt (nicht nur wenn blockiert, im
@@ -95,6 +96,14 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
 
   if (!session) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Nach einem "Passwort vergessen"-Link direkt zu den Einstellungen leiten,
+  // bis ein neues Passwort gesetzt wurde - unabhaengig von Blockade/
+  // Zahlungs-/Testphase-Status (das Passwort setzen soll immer moeglich
+  // sein). Ausnahme: auf /settings selbst nicht umleiten, sonst Endlosschleife.
+  if (needsPasswordReset && location.pathname !== '/settings') {
+    return <Navigate to="/settings" replace />;
   }
 
   if (access === undefined) {
