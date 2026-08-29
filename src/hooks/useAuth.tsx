@@ -24,6 +24,27 @@ interface AuthContextValue {
 // Andrin von Hand, ob/wie lange eine Testphase gilt.
 const SELF_SIGNUP_TRIAL_DAYS = 7;
 
+/**
+ * Legt die Testphase-Zeile fuer einen frisch selbst registrierten Nutzer an.
+ * Nebeneffekt, kein kritischer Schritt - schlaegt es fehl, bleibt der Nutzer
+ * trotzdem eingeloggt (gilt dann einfach als "kein Testphase-Datum gesetzt",
+ * kein Zugangsproblem). Wird von zwei Stellen aufgerufen: direkt bei
+ * signUp(), falls Supabase sofort eine Sitzung liefert (E-Mail-Bestaetigung
+ * nicht erforderlich), oder beim ersten Login NACH einer Bestaetigungs-Mail
+ * (siehe Effect oben) - je nachdem, wie das Supabase-Projekt konfiguriert
+ * ist.
+ */
+function insertTrialRow(userId: string) {
+  const trialEndsAt = new Date();
+  trialEndsAt.setDate(trialEndsAt.getDate() + SELF_SIGNUP_TRIAL_DAYS);
+  supabase
+    .from('user_access')
+    .insert({ user_id: userId, trial_ends_at: trialEndsAt.toISOString().slice(0, 10) })
+    .then(({ error }) => {
+      if (error) console.error('Testphase konnte nicht angelegt werden:', error);
+    });
+}
+
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -31,6 +52,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Nach dem Anklicken des Bestaetigungslinks landet man mit
+    // "#access_token=...&type=signup" in der URL - das einzige verlaessliche
+    // Signal, dass gerade eine frische Registrierung bestaetigt wurde (nicht
+    // nur ein normaler Login). Genau dann die Testphase anlegen, die bei
+    // signUp() selbst noch nicht angelegt werden konnte (keine Sitzung vor
+    // der Bestaetigung, siehe signUp() unten). Einmalig ausserhalb des
+    // Callbacks gelesen, weil Supabase den Hash nach dem Verarbeiten
+    // entfernt - ein erneutes Auslesen im Callback koennte dann leer sein.
+    const isSignupConfirmation = window.location.hash.includes('type=signup');
+    let trialHandled = false;
+
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setLoading(false);
@@ -38,6 +70,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { data: subscription } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession);
+      if (isSignupConfirmation && newSession && !trialHandled) {
+        trialHandled = true;
+        insertTrialRow(newSession.user.id);
+      }
     });
 
     return () => subscription.subscription.unsubscribe();
@@ -48,6 +84,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) {
       if (error.message.toLowerCase().includes('invalid login credentials')) {
         return { error: 'E-Mail oder Passwort ist falsch.' };
+      }
+      // Nach einer Registrierung, die noch nicht per Mail bestaetigt wurde -
+      // ohne diesen Fall zeigte "Anmelden" faelschlich "Internetverbindung
+      // pruefen" statt des eigentlichen Grunds.
+      if (error.message.toLowerCase().includes('email not confirmed')) {
+        return { error: 'Bitte zuerst die Bestätigungs-Mail anklicken, die du bei der Registrierung erhalten hast.' };
       }
       return { error: 'Anmeldung fehlgeschlagen. Bitte Internetverbindung pruefen und erneut versuchen.' };
     }
@@ -77,21 +119,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     if (!data.session) {
       // Supabase verlangt eine Bestaetigungs-Mail, bevor ein Login moeglich
-      // ist - noch keine Sitzung, Testphase kann erst nach der Bestaetigung
-      // (beim ersten echten Login) angelegt werden, siehe unten.
+      // ist - noch keine Sitzung, Testphase wird beim ersten echten Login
+      // nachgeholt (siehe Effect oben, erkennt "type=signup" im URL-Hash).
       return { error: null, needsEmailConfirmation: true };
     }
-    const trialEndsAt = new Date();
-    trialEndsAt.setDate(trialEndsAt.getDate() + SELF_SIGNUP_TRIAL_DAYS);
-    // Nebeneffekt, kein kritischer Schritt - schlaegt das Anlegen der
-    // Testphase-Zeile fehl, bleibt der Nutzer trotzdem eingeloggt (gilt dann
-    // einfach als "kein Testphase-Datum gesetzt", kein Zugangsproblem).
-    await supabase
-      .from('user_access')
-      .insert({ user_id: data.session.user.id, trial_ends_at: trialEndsAt.toISOString().slice(0, 10) })
-      .then(({ error: accessError }) => {
-        if (accessError) console.error('Testphase konnte nicht angelegt werden:', accessError);
-      });
+    insertTrialRow(data.session.user.id);
     return { error: null, needsEmailConfirmation: false };
   }
 
