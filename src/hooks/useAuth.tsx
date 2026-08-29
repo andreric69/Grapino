@@ -55,7 +55,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function signUp(email: string, password: string): Promise<SignUpResult> {
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    // Ohne explizites emailRedirectTo baut Supabase den Bestaetigungs-Link
+    // aus der im Dashboard hinterlegten "Site URL" - stand dort noch auf
+    // einem alten localhost-Wert, landeten frisch registrierte Nutzer beim
+    // Anklicken der Mail auf einer toten lokalen Adresse statt der echten
+    // App. Explizit setzen, damit das unabhaengig von dieser
+    // Dashboard-Einstellung immer stimmt.
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: window.location.origin },
+    });
     if (error) {
       if (error.message.toLowerCase().includes('already registered')) {
         return { error: 'Für diese E-Mail-Adresse besteht bereits ein Konto.', needsEmailConfirmation: false };
