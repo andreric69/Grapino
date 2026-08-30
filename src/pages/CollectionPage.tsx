@@ -51,6 +51,7 @@ interface PersistedFilterState {
   sort: SortOption;
   sortDirection: SortDirection;
   filters: Record<FilterKey, string[]>;
+  favoritesOnly: boolean;
   noPriceOnly: boolean;
   noPhotoOnly: boolean;
   drinkNowOnly: boolean;
@@ -107,6 +108,7 @@ export function CollectionPage() {
   );
   const [filters, setFilters] = useState<Record<FilterKey, string[]>>(persistedFilterState.filters ?? DEFAULT_FILTERS);
   const [openFilter, setOpenFilter] = useState<FilterKey | null>(null);
+  const [favoritesOnly, setFavoritesOnly] = useState(persistedFilterState.favoritesOnly ?? false);
   const [noPriceOnly, setNoPriceOnly] = useState(persistedFilterState.noPriceOnly ?? false);
   const [noPhotoOnly, setNoPhotoOnly] = useState(persistedFilterState.noPhotoOnly ?? false);
   const [drinkNowOnly, setDrinkNowOnly] = useState(persistedFilterState.drinkNowOnly ?? false);
@@ -134,13 +136,14 @@ export function CollectionPage() {
       sort,
       sortDirection,
       filters,
+      favoritesOnly,
       noPriceOnly,
       noPhotoOnly,
       drinkNowOnly,
       tab,
     };
     sessionStorage.setItem(FILTER_STATE_KEY, JSON.stringify(state));
-  }, [search, sort, sortDirection, filters, noPriceOnly, noPhotoOnly, drinkNowOnly, tab]);
+  }, [search, sort, sortDirection, filters, favoritesOnly, noPriceOnly, noPhotoOnly, drinkNowOnly, tab]);
 
   // Scroll-Position merken, solange die Seite offen ist - und nach dem
   // Laden (z. B. beim Zurueckkommen von der Detailseite, siehe
@@ -241,6 +244,8 @@ export function CollectionPage() {
   const visibleWines = useMemo(() => {
     let result = tabWines;
 
+    if (favoritesOnly) result = result.filter((w) => w.is_favorite);
+
     if (noPriceOnly) result = result.filter((w) => w.price === null);
     if (noPhotoOnly) result = result.filter((w) => !w.photo_url && w.photo_urls.length === 0);
     // Der Chip dafuer existiert nur im Vorrat-Tab (siehe chips-Liste unten) -
@@ -310,7 +315,7 @@ export function CollectionPage() {
     });
 
     return result;
-  }, [tabWines, filters, search, sort, sortDirection, noPriceOnly, noPhotoOnly, drinkNowOnly]);
+  }, [tabWines, filters, search, sort, sortDirection, favoritesOnly, noPriceOnly, noPhotoOnly, drinkNowOnly]);
 
   const regionCount = useMemo(
     () => new Set(tabWines.map((w) => w.region).filter(Boolean)).size,
@@ -323,6 +328,7 @@ export function CollectionPage() {
   // Filter (nichts zum Filtern vorhanden) einheitlich ausgeblendet werden
   // koennen - aus Kundensicht soll nie ein Filter angetippt werden koennen,
   // der eh nichts liefert.
+  const hasFavorites = useMemo(() => tabWines.some((w) => w.is_favorite), [tabWines]);
   const hasNoPrice = useMemo(() => tabWines.some((w) => w.price === null), [tabWines]);
   const hasNoPhoto = useMemo(() => tabWines.some((w) => !w.photo_url && w.photo_urls.length === 0), [tabWines]);
   const hasDrinkWindow = useMemo(() => tabWines.some((w) => w.drink_from !== null), [tabWines]);
@@ -338,6 +344,15 @@ export function CollectionPage() {
         active: count > 0,
         onOpen: () => setOpenFilter(key),
         onRemove: () => setFilters((f) => ({ ...f, [key]: [] })),
+      });
+    }
+    if (hasFavorites) {
+      items.push({
+        id: 'favorites',
+        label: 'Favoriten',
+        active: favoritesOnly,
+        onOpen: () => setFavoritesOnly((v) => !v),
+        onRemove: () => setFavoritesOnly(false),
       });
     }
     if (tab === 'active' && hasDrinkWindow) {
@@ -371,12 +386,13 @@ export function CollectionPage() {
     // was gerade gefiltert wird, statt sie in der festen Reihenfolge suchen
     // zu muessen. Innerhalb "aktiv"/"inaktiv" bleibt die obige Reihenfolge erhalten.
     return [...items].sort((a, b) => Number(b.active) - Number(a.active));
-  }, [filterOptions, filters, tab, hasDrinkWindow, drinkNowOnly, hasNoPrice, noPriceOnly, hasNoPhoto, noPhotoOnly]);
+  }, [filterOptions, filters, tab, hasFavorites, favoritesOnly, hasDrinkWindow, drinkNowOnly, hasNoPrice, noPriceOnly, hasNoPhoto, noPhotoOnly]);
 
   const anyFilterActive = chips.some((c) => c.active);
 
   function clearAllFilters() {
     setFilters(DEFAULT_FILTERS);
+    setFavoritesOnly(false);
     setDrinkNowOnly(false);
     setNoPriceOnly(false);
     setNoPhotoOnly(false);
@@ -563,7 +579,9 @@ export function CollectionPage() {
             ? 'Noch keine Weine erfasst. Tippe auf + um den ersten Wein hinzuzufügen.'
             : tab === 'consumed'
               ? 'Noch keine Weine als getrunken markiert.'
-              : 'Keine Weine gefunden.'}
+              : favoritesOnly
+                ? 'Noch keine Favoriten markiert.'
+                : 'Keine Weine gefunden.'}
         </div>
       )}
 

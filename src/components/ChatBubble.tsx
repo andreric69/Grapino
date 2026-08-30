@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { OrderCategory, Wine } from '../types';
 import { sendMessage } from '../lib/messageRepository';
 import { submitOrder, ORDER_CATEGORY_INFO } from '../lib/orderRepository';
-import { buildPriceTable, computeOrderPrice, getPricingConfig, type PricingConfig } from '../lib/pricingConfig';
+import { computeOrderPrice, getPricingConfig, type PricingConfig } from '../lib/pricingConfig';
 import { FeedbackModal } from './FeedbackModal';
 
 type Tab = 'allgemein' | 'vorschlag' | 'auftrag';
@@ -222,9 +222,6 @@ export function ChatBubble({ wines }: { wines: Wine[] }) {
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                         {(Object.entries(ORDER_CATEGORY_INFO) as [OrderCategory, (typeof ORDER_CATEGORY_INFO)[OrderCategory]][]).map(
                           ([key, info]) => {
-                            const isUltra = key === 'ultra';
-                            const min = pricing ? (isUltra ? pricing.ultraMin : pricing.standardMin) : null;
-                            const max = pricing ? (isUltra ? pricing.ultraMax : pricing.standardMax) : null;
                             const selected = orderCategory === key;
                             return (
                               <button
@@ -240,41 +237,13 @@ export function ChatBubble({ wines }: { wines: Wine[] }) {
                                   cursor: 'pointer',
                                 }}
                               >
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
-                                  <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 14.5 }}>{info.label}</span>
-                                  {min !== null && max !== null && (
-                                    <span style={{ fontSize: 11.5, color: 'var(--color-accent)', fontWeight: 600, flexShrink: 0 }}>
-                                      {min.toFixed(2)}-{max.toFixed(2)} CHF
-                                    </span>
-                                  )}
-                                </div>
+                                <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 14.5 }}>{info.label}</span>
                                 <div style={{ fontSize: 11.5, opacity: 0.6, marginTop: 3, lineHeight: 1.4 }}>{info.description}</div>
                               </button>
                             );
                           },
                         )}
                       </div>
-
-                      {pricing && (
-                        <div
-                          style={{
-                            display: 'flex',
-                            gap: 4,
-                            overflowX: 'auto',
-                            marginTop: 8,
-                            padding: '8px 10px',
-                            borderRadius: 'var(--radius-sm)',
-                            background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)',
-                          }}
-                        >
-                          {buildPriceTable(pricing, orderCategory).map((row) => (
-                            <div key={row.count} style={{ textAlign: 'center', flexShrink: 0, minWidth: 52 }}>
-                              <div style={{ fontSize: 10.5, opacity: 0.6 }}>{row.count} Weine</div>
-                              <div style={{ fontSize: 12.5, fontWeight: 600 }}>{row.price.toFixed(2)}</div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
                     </div>
 
                     <div>
