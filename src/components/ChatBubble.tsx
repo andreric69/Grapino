@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { OrderCategory, Wine } from '../types';
 import { sendMessage } from '../lib/messageRepository';
-import { submitOrder, ORDER_CATEGORY_INFO } from '../lib/orderRepository';
+import { submitOrder, ORDER_CATEGORY_INFO, SELECTABLE_ORDER_CATEGORIES } from '../lib/orderRepository';
 import { computeOrderPrice, getPricingConfig, type PricingConfig } from '../lib/pricingConfig';
 import { FeedbackModal } from './FeedbackModal';
 
@@ -220,8 +220,8 @@ export function ChatBubble({ wines }: { wines: Wine[] }) {
                         Was soll gemacht werden?
                       </label>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        {(Object.entries(ORDER_CATEGORY_INFO) as [OrderCategory, (typeof ORDER_CATEGORY_INFO)[OrderCategory]][]).map(
-                          ([key, info]) => {
+                        {SELECTABLE_ORDER_CATEGORIES.map((key) => {
+                            const info = ORDER_CATEGORY_INFO[key];
                             const selected = orderCategory === key;
                             return (
                               <button
@@ -241,8 +241,7 @@ export function ChatBubble({ wines }: { wines: Wine[] }) {
                                 <div style={{ fontSize: 11.5, opacity: 0.6, marginTop: 3, lineHeight: 1.4 }}>{info.description}</div>
                               </button>
                             );
-                          },
-                        )}
+                          })}
                       </div>
                     </div>
 

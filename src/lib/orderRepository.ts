@@ -2,21 +2,31 @@ import { supabase } from '../supabaseClient';
 import { computeOrderPrice, getPricingConfig } from './pricingConfig';
 import type { EnrichmentOrder, OrderCategory } from '../types';
 
-/** Nur Beschriftung/Beschreibung - die eigentlichen Preise kommen aus pricing_config (siehe pricingConfig.ts), vom Betreiber jederzeit in der Admin-App aenderbar. */
+/**
+ * Nur Beschriftung/Beschreibung - die eigentlichen Preise kommen aus
+ * pricing_config (siehe pricingConfig.ts), vom Betreiber jederzeit in der
+ * Admin-App aenderbar. "neue_weine" ist absichtlich nicht mehr in
+ * SELECTABLE_ORDER_CATEGORIES (ChatBubble) - bleibt hier nur erhalten, damit
+ * alte, bereits erledigte Auftraege mit dieser Kategorie noch korrekt
+ * angezeigt werden.
+ */
 export const ORDER_CATEGORY_INFO: Record<OrderCategory, { label: string; description: string }> = {
   refresh: {
-    label: 'Aktualisierung aller Weine',
-    description: 'Aktualisiert alle recherchierbaren Angaben (Region, Rebsorte, Trinkfenster, Kritiker-Punkte etc.).',
+    label: 'Weine aktualisieren',
+    description: 'Aktualisiert alle recherchierbaren Angaben (Region, Rebsorte, Trinkfenster, Kritiker-Punkte etc.) fuer die ausgewaehlten Weine.',
   },
   neue_weine: {
     label: 'Neue Weine (ohne Foto)',
     description: 'Fuer Weine, die du per Foto hinzugefuegt hast - Etikett ist schon da, ergaenzt nur Trinkfenster, Region, Rebsorte etc.',
   },
   ultra: {
-    label: 'Import-Aktualisierung (inkl. Foto)',
-    description: 'Rundum-sorglos fuer importierte Weine ohne Foto: Etikett-Foto, Region, Rebsorte, Trinkfenster, Kritiker-Punkte - alles.',
+    label: 'Import',
+    description: 'Fuer importierte Weine ohne bisherige Angaben: alles wird neu recherchiert (Region, Rebsorte, Trinkfenster, Kritiker-Punkte) - deshalb aufwendiger. Ohne Foto: Fotos fuegen wir nur noch hinzu, wenn du selbst eins von der Flasche machst.',
   },
 };
+
+/** Einzige waehlbaren Kategorien beim NEUEN Auftrag - "neue_weine" bewusst ausgeblendet (siehe oben). */
+export const SELECTABLE_ORDER_CATEGORIES: OrderCategory[] = ['refresh', 'ultra'];
 
 export async function estimateOrderPrice(category: OrderCategory, wineCount: number): Promise<number> {
   const pricing = await getPricingConfig();
