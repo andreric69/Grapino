@@ -36,8 +36,10 @@ Auf diesem Rechner ist aktuell **kein Node.js installiert** - zum lokalen Ausfue
 2. **SQL Editor** oeffnen und den kompletten Inhalt von [`supabase/schema.sql`](supabase/schema.sql) ausfuehren. Das legt an:
    - Tabelle `wines` inkl. Row-Level-Security (jeder Login sieht nur eigene Eintraege)
    - privaten Storage-Bucket `wine-photos` inkl. Zugriffsregeln (nur eingeloggt, nur eigener Ordner, kein oeffentlicher Zugriff)
-3. **Authentication -> Providers -> Email**: "Allow new users to sign up" **ausschalten** (kein Self-Signup - es soll nur genau einen Account geben).
-4. **Authentication -> Users -> Add user**: Account fuer deinen Vater manuell anlegen (E-Mail + Passwort, "Auto Confirm User" aktivieren, damit kein Bestaetigungs-Mail-Versand noetig ist).
+3. Danach der Reihe nach die weiteren, datierten `.sql`-Dateien im `supabase/`-Ordner ausfuehren - jede baut auf den vorherigen auf, darum in dieser Reihenfolge (nach Datum im Dateinamen, bei gleichem Datum wie unten gelistet):
+   `fix-region-subregion-2026-08-19` -> `fix-wine-names-2026-08-19` -> `fix-wine-names-2026-08-19-b` -> `wine-recognition-refs-2026-08-21` -> `pricing-access-costs-2026-08-21` -> `access-fee-2026-08-22` -> `label-recognition-log-2026-08-22` -> `wine-knowledge-cache-2026-08-22` -> `wine-knowledge-cache-producer-2026-08-22` -> `admin-income-2026-08-23` -> `user-access-ai-limit-2026-08-23` -> `alcohol-content-2026-08-26` -> `self-registration-trial-2026-08-28` -> `self-registration-trial-lockdown-2026-08-30`.
+   (Es gibt keinen Migrations-Runner - jede Datei einzeln im SQL Editor einfuegen und ausfuehren.)
+4. **Authentication -> Providers -> Email**: "Allow new users to sign up" **einschalten**, seit die App eine offene Selbst-Registrierung hat (siehe `self-registration-trial-2026-08-28.sql`).
 5. **Project Settings -> API**: `Project URL` und `anon public` Key kopieren (den **`service_role`-Key niemals verwenden** - der gehoert nirgends in dieses Projekt).
 
 ## 3. Umgebungsvariablen

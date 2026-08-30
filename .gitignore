@@ -23,7 +23,6 @@ dist-ssr
 *.sw?
 
 .vercel
-.env*
 
 # Lokale, maschinenspezifische Session-/Launch-Konfiguration (Claude Code) -
 # enthaelt absolute Pfade und Laufzeit-Status, nicht fuer Versionskontrolle.
