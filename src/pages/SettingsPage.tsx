@@ -133,7 +133,7 @@ export function SettingsPage() {
   const [myPaymentRequests, setMyPaymentRequests] = useState<PaymentRequest[]>([]);
   const [myOrders, setMyOrders] = useState<EnrichmentOrder[]>([]);
   const [pricing, setPricing] = useState<PricingConfig | null>(null);
-  const ownActiveWineCount = wines.filter((w) => !w.is_consumed && !w.is_wishlist).length;
+  const ownActiveWineCount = wines.filter((w) => !w.is_consumed).length;
 
   // In der als Home-Bildschirm-App installierten PWA gibt es keine
   // Browser-Chrome (keine Adresszeile, kein Zurueck) - ein Link, der die
@@ -726,8 +726,7 @@ export function SettingsPage() {
                 Als PDF drucken
               </div>
               <div style={{ fontSize: 12.5, opacity: 0.65, marginBottom: 10, lineHeight: 1.5 }}>
-                Druckoptimierte Liste des aktuellen Bestands (ohne Wunschliste/Getrunken) - im Druckdialog als PDF
-                speicherbar.
+                Druckoptimierte Liste des aktuellen Bestands (ohne Getrunken) - im Druckdialog als PDF speicherbar.
               </div>
               <button type="button" className="btn btn-secondary" onClick={() => navigate('/drucken')}>
                 Druckansicht öffnen
@@ -953,9 +952,9 @@ export function SettingsPage() {
               <>
                 <div style={{ fontSize: 12.5, opacity: 0.65, lineHeight: 1.5 }}>
                   Sendet eine Anfrage zum vollständigen Löschen deines Kontos: die ganze Sammlung (Vorrat,
-                  Wunschliste, Getrunken) inklusive aller Fotos, sowie der Zugang selbst - danach kann man sich
-                  nicht mehr mit dieser E-Mail anmelden. Die Löschung wird erst nach Bestätigung ausgeführt.
-                  Vorher am besten eine Sicherung herunterladen.
+                  Getrunken) inklusive aller Fotos, sowie der Zugang selbst - danach kann man sich nicht mehr mit
+                  dieser E-Mail anmelden. Die Löschung wird erst nach Bestätigung ausgeführt. Vorher am besten
+                  eine Sicherung herunterladen.
                 </div>
                 <button
                   type="button"

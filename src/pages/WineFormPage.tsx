@@ -55,7 +55,6 @@ export interface FormState {
   foodPairing: string;
   drinkFrom: string;
   drinkTo: string;
-  isWishlist: boolean;
   storageLocation: string;
   tastingTannin: number | null;
   tastingAcidity: number | null;
@@ -84,7 +83,6 @@ const EMPTY_FORM: FormState = {
   foodPairing: '',
   drinkFrom: '',
   drinkTo: '',
-  isWishlist: false,
   storageLocation: '',
   tastingTannin: null,
   tastingAcidity: null,
@@ -135,7 +133,6 @@ async function recognizeLabel(
 function wineHasAdvancedData(wine: Wine): boolean {
   return (
     wine.wine_type !== null ||
-    wine.is_wishlist ||
     wine.price !== null ||
     wine.bottle_size !== null ||
     wine.alcohol_content !== null ||
@@ -162,7 +159,6 @@ function wineHasAdvancedData(wine: Wine): boolean {
 function formHasAdvancedData(form: FormState): boolean {
   return (
     form.wineType !== '' ||
-    form.isWishlist ||
     form.price.trim() !== '' ||
     form.bottleSize.trim() !== '' ||
     form.alcoholContent.trim() !== '' ||
@@ -342,7 +338,6 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
           foodPairing: wine.food_pairing ?? '',
           drinkFrom: wine.drink_from ? String(wine.drink_from) : '',
           drinkTo: wine.drink_to ? String(wine.drink_to) : '',
-          isWishlist: wine.is_wishlist,
           storageLocation: wine.storage_location ?? '',
           tastingTannin: wine.tasting_tannin,
           tastingAcidity: wine.tasting_acidity,
@@ -811,7 +806,6 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
         food_pairing: form.foodPairing.trim() || null,
         drink_from: form.drinkFrom ? Number(form.drinkFrom) : null,
         drink_to: form.drinkTo ? Number(form.drinkTo) : null,
-        is_wishlist: form.isWishlist,
         storage_location: form.storageLocation.trim() || null,
         tasting_tannin: form.tastingTannin,
         tasting_acidity: form.tastingAcidity,
@@ -1197,7 +1191,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
               is_consumed-Invariante) - hier bearbeitbar zu machen würde sie
               brechen, ohne dass "Zurück in den Vorrat" (die eigentlich
               richtige Aktion) beteiligt ist. */}
-          {!form.isWishlist && !existingWine?.is_consumed && (
+          {!existingWine?.is_consumed && (
             <div style={{ flex: 1 }}>
               <FormField label="Anzahl Flaschen">
                 <input
@@ -1257,17 +1251,6 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
                   </button>
                 ))}
               </div>
-            </div>
-
-            <div className="field" style={{ marginBottom: 13 }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={form.isWishlist}
-                  onChange={(e) => updateField('isWishlist', e.target.checked)}
-                />
-                Auf die Wunschliste (noch nicht im Bestand)
-              </label>
             </div>
 
             <div className="hr" />

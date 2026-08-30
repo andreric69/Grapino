@@ -89,7 +89,6 @@ export async function parseWinesBackupFile(file: File): Promise<WineInput[]> {
       food_pairing: typeof e.food_pairing === 'string' ? e.food_pairing : null,
       drink_from: typeof e.drink_from === 'number' ? e.drink_from : null,
       drink_to: typeof e.drink_to === 'number' ? e.drink_to : null,
-      is_wishlist: typeof e.is_wishlist === 'boolean' ? e.is_wishlist : false,
       storage_location: typeof e.storage_location === 'string' ? e.storage_location : null,
       tasting_tannin: typeof e.tasting_tannin === 'number' ? e.tasting_tannin : null,
       tasting_acidity: typeof e.tasting_acidity === 'number' ? e.tasting_acidity : null,

@@ -21,7 +21,7 @@ export function PrintPage() {
     setError(null);
     try {
       const data = await listWines();
-      setWines(data.filter((w) => !w.is_consumed && !w.is_wishlist));
+      setWines(data.filter((w) => !w.is_consumed));
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Unbekannter Fehler.');
     } finally {

@@ -89,11 +89,8 @@ export function StatsPage() {
     load();
   }, []);
 
-  // Wunschlisten-Eintraege zaehlen nicht als Bestand - weder bei Flaschen noch
-  // beim Gesamtwert noch in den Aufschluesselungen.
-  const activeWines = useMemo(() => wines.filter((w) => !w.is_consumed && !w.is_wishlist), [wines]);
-  const consumedCount = useMemo(() => wines.filter((w) => w.is_consumed && !w.is_wishlist).length, [wines]);
-  const wishlistCount = useMemo(() => wines.filter((w) => w.is_wishlist).length, [wines]);
+  const activeWines = useMemo(() => wines.filter((w) => !w.is_consumed), [wines]);
+  const consumedCount = useMemo(() => wines.filter((w) => w.is_consumed).length, [wines]);
   const totalBottles = useMemo(() => activeWines.reduce((sum, w) => sum + w.quantity, 0), [activeWines]);
   const favoriteCount = useMemo(() => activeWines.filter((w) => w.is_favorite).length, [activeWines]);
 
@@ -224,7 +221,6 @@ export function StatsPage() {
               <StatTile icon={<BottleIcon />} value={totalBottles} label={totalBottles === 1 ? 'Flasche' : 'Flaschen'} />
               <StatTile icon={<HeartIcon />} value={favoriteCount} label="Favoriten" />
               <StatTile icon={<CheckIcon />} value={consumedCount} label="Getrunken" />
-              <StatTile icon={<BookmarkIcon />} value={wishlistCount} label="Wunschliste" />
               <StatTile icon={<BuildingIcon />} value={producerCount} label={producerCount === 1 ? 'Produzent' : 'Produzenten'} />
               <StatTile icon={<TagIcon />} value={totalValue.toFixed(2)} label="Gesamtwert" small />
               <StatTile icon={<TagIcon />} value={avgPricePerBottle !== null ? avgPricePerBottle.toFixed(2) : '–'} label="Ø Preis / Flasche" small />
@@ -429,13 +425,6 @@ function CheckIcon({ size = 18 }: { size?: number }) {
     <svg {...iconProps(size)}>
       <circle cx="12" cy="12" r="9" />
       <path d="M8 12.3l2.6 2.6L16 9.5" />
-    </svg>
-  );
-}
-function BookmarkIcon({ size = 18 }: { size?: number }) {
-  return (
-    <svg {...iconProps(size)}>
-      <path d="M6.5 3h11a1 1 0 011 1v17l-6.5-4.2L5.5 21V4a1 1 0 011-1z" />
     </svg>
   );
 }

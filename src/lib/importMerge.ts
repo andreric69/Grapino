@@ -29,13 +29,12 @@ export function mergeDuplicatesWithinBatch(wines: WineInput[]): WineInput[] {
 export function buildExistingActiveIndex(wines: Wine[]): Map<string, Wine> {
   const index = new Map<string, Wine>();
   for (const w of wines) {
-    if (w.is_consumed || w.is_wishlist) continue;
+    if (w.is_consumed) continue;
     index.set(identityKey(w), w);
   }
   return index;
 }
 
 export function findExistingMatch(wine: WineInput, index: Map<string, Wine>): Wine | undefined {
-  if (wine.is_wishlist) return undefined; // Wunschlisten-Importe nie mit Bestand vermischen
   return index.get(identityKey(wine));
 }

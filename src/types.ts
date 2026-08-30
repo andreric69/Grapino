@@ -49,8 +49,6 @@ export interface Wine {
   drink_from: number | null;
   /** .. bis Jahr. */
   drink_to: number | null;
-  /** Wunschliste statt eigener Bestand - zaehlt nicht in Statistik/Bestand. */
-  is_wishlist: boolean;
   /** Lagerort, z. B. "Keller Regal 3". */
   storage_location: string | null;
   tasting_tannin: number | null;

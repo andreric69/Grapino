@@ -26,7 +26,6 @@ function makeInput(overrides: Partial<WineInput> = {}): WineInput {
     food_pairing: null,
     drink_from: null,
     drink_to: null,
-    is_wishlist: false,
     storage_location: null,
     tasting_tannin: null,
     tasting_acidity: null,
@@ -89,21 +88,6 @@ describe('buildExistingActiveIndex + findExistingMatch', () => {
     const consumed = makeWine({ id: 'w1', is_consumed: true });
     const index = buildExistingActiveIndex([consumed]);
     const match = findExistingMatch(makeInput(), index);
-    expect(match).toBeUndefined();
-  });
-
-  it('ignoriert Wunschlisten-Eintraege beim Abgleich gegen den Bestand', () => {
-    const wishlist = makeWine({ id: 'w1', is_wishlist: true });
-    const index = buildExistingActiveIndex([wishlist]);
-    const match = findExistingMatch(makeInput(), index);
-    expect(match).toBeUndefined();
-  });
-
-  it('mischt Wunschlisten-Importe nie mit dem Bestand, selbst bei exaktem Namenstreffer', () => {
-    const activeWine = makeWine({ id: 'w1' });
-    const index = buildExistingActiveIndex([activeWine]);
-    const wishlistImport = makeInput({ is_wishlist: true });
-    const match = findExistingMatch(wishlistImport, index);
     expect(match).toBeUndefined();
   });
 

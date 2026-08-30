@@ -157,7 +157,13 @@ export async function drinkBottles(wine: Wine, count: number): Promise<Wine> {
 
 /** Gegenstueck zu drinkOneBottle: eine Flasche wieder in den Bestand aufnehmen. */
 export async function addOneBottle(wine: Wine): Promise<Wine> {
-  return updateWine(wine.id, { quantity: wine.quantity + 1, is_consumed: false });
+  return addBottles(wine, 1);
+}
+
+/** Wie addOneBottle, aber fuer mehrere Flaschen auf einmal (z. B. eine ganze Kiste). */
+export async function addBottles(wine: Wine, count: number): Promise<Wine> {
+  const clampedCount = Math.max(1, count);
+  return updateWine(wine.id, { quantity: wine.quantity + clampedCount, is_consumed: false });
 }
 
 /** Einen als "getrunken" markierten Wein wieder in den Vorrat zurueckholen. */

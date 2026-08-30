@@ -21,11 +21,12 @@ import { hasWineDraft, clearWineDraft } from '../lib/wineDraft';
 import { FeedbackModal } from '../components/FeedbackModal';
 import { ChatBubble } from '../components/ChatBubble';
 import { ConsumeDialog } from '../components/ConsumeDialog';
+import { AddBottleDialog } from '../components/AddBottleDialog';
 import { Toast } from '../components/Toast';
 import { useToast } from '../hooks/useToast';
 
 type FilterKey = 'vintage' | 'region' | 'country' | 'grape_variety' | 'wine_type' | 'bottle_size' | 'community_rating';
-type Tab = 'active' | 'consumed' | 'wishlist';
+type Tab = 'active' | 'consumed';
 type ViewMode = 'grid' | 'list';
 const VIEW_MODE_KEY = 'weinsammlung-view-mode';
 
@@ -50,7 +51,6 @@ interface PersistedFilterState {
   sort: SortOption;
   sortDirection: SortDirection;
   filters: Record<FilterKey, string[]>;
-  favoritesOnly: boolean;
   noPriceOnly: boolean;
   noPhotoOnly: boolean;
   drinkNowOnly: boolean;
@@ -107,7 +107,6 @@ export function CollectionPage() {
   );
   const [filters, setFilters] = useState<Record<FilterKey, string[]>>(persistedFilterState.filters ?? DEFAULT_FILTERS);
   const [openFilter, setOpenFilter] = useState<FilterKey | null>(null);
-  const [favoritesOnly, setFavoritesOnly] = useState(persistedFilterState.favoritesOnly ?? false);
   const [noPriceOnly, setNoPriceOnly] = useState(persistedFilterState.noPriceOnly ?? false);
   const [noPhotoOnly, setNoPhotoOnly] = useState(persistedFilterState.noPhotoOnly ?? false);
   const [drinkNowOnly, setDrinkNowOnly] = useState(persistedFilterState.drinkNowOnly ?? false);
@@ -117,6 +116,7 @@ export function CollectionPage() {
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackRequestId, setFeedbackRequestId] = useState<string | null>(null);
   const [pendingConsume, setPendingConsume] = useState<Wine | null>(null);
+  const [pendingAdd, setPendingAdd] = useState<Wine | null>(null);
   const [tab, setTab] = useState<Tab>(persistedFilterState.tab ?? 'active');
   const [viewMode, setViewMode] = useState<ViewMode>(
     () => (localStorage.getItem(VIEW_MODE_KEY) as ViewMode | null) ?? 'grid',
@@ -134,14 +134,13 @@ export function CollectionPage() {
       sort,
       sortDirection,
       filters,
-      favoritesOnly,
       noPriceOnly,
       noPhotoOnly,
       drinkNowOnly,
       tab,
     };
     sessionStorage.setItem(FILTER_STATE_KEY, JSON.stringify(state));
-  }, [search, sort, sortDirection, filters, favoritesOnly, noPriceOnly, noPhotoOnly, drinkNowOnly, tab]);
+  }, [search, sort, sortDirection, filters, noPriceOnly, noPhotoOnly, drinkNowOnly, tab]);
 
   // Scroll-Position merken, solange die Seite offen ist - und nach dem
   // Laden (z. B. beim Zurueckkommen von der Detailseite, siehe
@@ -215,13 +214,10 @@ export function CollectionPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // "Getrunken" und "Wunschliste" sind eigene Bereiche, kein Filter - ein
-  // Wunschlisten-Eintrag zaehlt nicht zum Bestand/zur Statistik und taucht
-  // nie im normalen Vorrat auf.
+  // "Getrunken" ist ein eigener Bereich, kein Filter.
   const tabWines = useMemo(() => {
-    if (tab === 'wishlist') return wines.filter((w) => w.is_wishlist);
-    if (tab === 'consumed') return wines.filter((w) => w.is_consumed && !w.is_wishlist);
-    return wines.filter((w) => !w.is_consumed && !w.is_wishlist);
+    if (tab === 'consumed') return wines.filter((w) => w.is_consumed);
+    return wines.filter((w) => !w.is_consumed);
   }, [wines, tab]);
 
   const filterOptions = useMemo(() => {
@@ -245,12 +241,11 @@ export function CollectionPage() {
   const visibleWines = useMemo(() => {
     let result = tabWines;
 
-    if (favoritesOnly) result = result.filter((w) => w.is_favorite);
     if (noPriceOnly) result = result.filter((w) => w.price === null);
     if (noPhotoOnly) result = result.filter((w) => !w.photo_url && w.photo_urls.length === 0);
     // Der Chip dafuer existiert nur im Vorrat-Tab (siehe chips-Liste unten) -
-    // ohne diese Bedingung bliebe der Filter beim Wechsel zu Wunschliste/
-    // Getrunken unsichtbar aktiv, ohne Moeglichkeit, ihn dort auszuschalten.
+    // ohne diese Bedingung bliebe der Filter beim Wechsel zu Getrunken
+    // unsichtbar aktiv, ohne Moeglichkeit, ihn dort auszuschalten.
     if (drinkNowOnly && tab === 'active') {
       const year = new Date().getFullYear();
       result = result.filter(
@@ -315,7 +310,7 @@ export function CollectionPage() {
     });
 
     return result;
-  }, [tabWines, filters, search, sort, sortDirection, favoritesOnly, noPriceOnly, noPhotoOnly, drinkNowOnly]);
+  }, [tabWines, filters, search, sort, sortDirection, noPriceOnly, noPhotoOnly, drinkNowOnly]);
 
   const regionCount = useMemo(
     () => new Set(tabWines.map((w) => w.region).filter(Boolean)).size,
@@ -387,7 +382,7 @@ export function CollectionPage() {
     setNoPhotoOnly(false);
   }
 
-  const { toggleFavorite: handleToggleFavorite, toggleConsumed: handleToggleConsumed } = useWineActions({
+  const { toggleConsumed: handleToggleConsumed, addToStock: handleAddToStock } = useWineActions({
     applyUpdate: (wineId, updater) =>
       setWines((ws) => ws.map((w) => (w.id === wineId ? updater(w) : w))),
     rollback: (wineId, previous) => setWines((ws) => ws.map((w) => (w.id === wineId ? previous : w))),
@@ -397,26 +392,7 @@ export function CollectionPage() {
   return (
     <div className="app-screen">
       <ChatBubble wines={wines} />
-      <div className="top-bar">
-        <button
-          type="button"
-          className="icon-btn"
-          aria-label={favoritesOnly ? 'Alle Weine anzeigen' : 'Nur Favoriten anzeigen'}
-          aria-pressed={favoritesOnly}
-          style={favoritesOnly ? { borderColor: 'var(--color-bordeaux)' } : undefined}
-          onClick={() => setFavoritesOnly((v) => !v)}
-        >
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill={favoritesOnly ? 'var(--color-bordeaux-fill)' : 'none'}
-            stroke={favoritesOnly ? 'var(--color-bordeaux-fill)' : 'var(--color-text)'}
-            strokeWidth="1.8"
-          >
-            <path d="M12 20.5s-7.5-4.6-10-9.3C0.3 7.9 2 4.5 5.4 4c2-.3 3.9.6 5 2.2C11.6 4.6 13.5 3.7 15.5 4c3.4.5 5.1 3.9 3.5 7.2-2.5 4.7-10 9.3-10 9.3z" />
-          </svg>
-        </button>
+      <div className="top-bar" style={{ justifyContent: 'flex-end' }}>
         <div style={{ display: 'flex', gap: 8 }}>
           <button type="button" className="icon-btn" aria-label="Einstellungen" title="Einstellungen" onClick={() => navigate('/settings')}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-text)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -442,7 +418,6 @@ export function CollectionPage() {
               &middot; {regionCount} {regionCount === 1 ? 'Region' : 'Regionen'}
             </>
           )}
-          {favoritesOnly && <> &middot; nur Favoriten</>}
         </div>
       </div>
 
@@ -483,15 +458,6 @@ export function CollectionPage() {
         >
           <BottleIcon size={14} />
           Vorrat
-        </button>
-        <button
-          type="button"
-          className={tab === 'wishlist' ? 'btn btn-primary' : 'btn btn-secondary'}
-          style={{ flex: 1 }}
-          onClick={() => setTab('wishlist')}
-        >
-          <BookmarkIcon size={14} />
-          Wunschliste
         </button>
         <button
           type="button"
@@ -597,11 +563,7 @@ export function CollectionPage() {
             ? 'Noch keine Weine erfasst. Tippe auf + um den ersten Wein hinzuzufügen.'
             : tab === 'consumed'
               ? 'Noch keine Weine als getrunken markiert.'
-              : tab === 'wishlist'
-                ? 'Noch nichts auf der Wunschliste.'
-                : favoritesOnly
-                  ? 'Noch keine Favoriten markiert.'
-                  : 'Keine Weine gefunden.'}
+              : 'Keine Weine gefunden.'}
         </div>
       )}
 
@@ -612,8 +574,9 @@ export function CollectionPage() {
               key={wine.id}
               wine={wine}
               photoUrl={wine.photo_url ? photoUrls[wine.photo_url] : undefined}
-              onToggleFavorite={handleToggleFavorite}
-              onToggleConsumed={(w) => (w.is_consumed ? handleToggleConsumed(w) : setPendingConsume(w))}
+              onRequestAdd={setPendingAdd}
+              onRequestRemove={setPendingConsume}
+              onRestore={(w) => handleToggleConsumed(w)}
               compact={viewMode === 'list'}
             />
           ))}
@@ -658,6 +621,18 @@ export function CollectionPage() {
         />
       )}
 
+      {pendingAdd && (
+        <AddBottleDialog
+          wine={pendingAdd}
+          onCancel={() => setPendingAdd(null)}
+          onConfirm={(count) => {
+            const wine = pendingAdd;
+            setPendingAdd(null);
+            handleAddToStock(wine, count);
+          }}
+        />
+      )}
+
       <Toast message={toastMessage} />
     </div>
   );
@@ -672,13 +647,6 @@ function BottleIcon({ size = 15 }: { size?: number }) {
     <svg {...iconProps(size)}>
       <path d="M10 2h4v3.2l1.7 2.6c.2.3.3.7.3 1.1V20a2 2 0 01-2 2h-4a2 2 0 01-2-2V8.9c0-.4.1-.8.3-1.1L10 5.2V2z" />
       <path d="M9 12h6" />
-    </svg>
-  );
-}
-function BookmarkIcon({ size = 15 }: { size?: number }) {
-  return (
-    <svg {...iconProps(size)}>
-      <path d="M6.5 3h11a1 1 0 011 1v17l-6.5-4.2L5.5 21V4a1 1 0 011-1z" />
     </svg>
   );
 }

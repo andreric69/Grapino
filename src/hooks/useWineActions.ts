@@ -1,4 +1,4 @@
-import { drinkBottles, restoreToStock, setFavorite } from '../lib/wineRepository';
+import { addBottles, drinkBottles, restoreToStock, setFavorite } from '../lib/wineRepository';
 import type { Wine } from '../types';
 
 interface UseWineActionsOptions {
@@ -80,5 +80,24 @@ export function useWineActions({ applyUpdate, rollback, showToast, onError }: Us
     }
   }
 
-  return { toggleFavorite, toggleConsumed };
+  // Gegenstueck zu toggleConsumed: eine oder mehrere Flaschen hinzufuegen,
+  // ebenfalls optimistisch mit Rollback bei Fehler - geteilt zwischen
+  // CollectionPage (Stepper auf der Karte) und WineDetailPage.
+  async function addToStock(wine: Wine, count = 1) {
+    const previous = wine;
+    const clampedCount = Math.max(1, count);
+    const nextQuantity = wine.quantity + clampedCount;
+    applyUpdate(wine.id, (w) => ({ ...w, quantity: nextQuantity, is_consumed: false }));
+    showToast?.(
+      `${clampedCount === 1 ? '1 Flasche' : `${clampedCount} Flaschen`} "${wine.name}" hinzugefügt.`,
+    );
+    try {
+      await addBottles(wine, clampedCount);
+    } catch (e) {
+      rollback(wine.id, previous);
+      onError?.(e instanceof Error ? e.message : 'Konnte nicht gespeichert werden.');
+    }
+  }
+
+  return { toggleFavorite, toggleConsumed, addToStock };
 }

@@ -30,8 +30,7 @@ export function useDuplicateCheck({ navigate, setSaveError }: UseDuplicateCheckO
         (w) =>
           w.name.trim().toLowerCase() === normName &&
           (w.producer ?? '').trim().toLowerCase() === normProducer &&
-          w.vintage === vintageNum &&
-          !w.is_wishlist,
+          w.vintage === vintageNum,
       ) ?? null
     );
   }

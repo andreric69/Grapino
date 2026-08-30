@@ -247,7 +247,6 @@ export function rowsToWineInputs(mapping: MappableField[], dataRows: string[][])
       price,
       drink_from: null,
       drink_to: null,
-      is_wishlist: false,
       storage_location: null,
       tasting_tannin: null,
       tasting_acidity: null,

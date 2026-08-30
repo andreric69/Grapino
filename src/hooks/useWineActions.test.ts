@@ -40,7 +40,6 @@ function makeWine(overrides: Partial<Wine> = {}): Wine {
     food_pairing: null,
     drink_from: null,
     drink_to: null,
-    is_wishlist: false,
     storage_location: null,
     tasting_tannin: null,
     tasting_acidity: null,

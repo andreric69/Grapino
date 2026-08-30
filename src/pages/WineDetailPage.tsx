@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { addOneBottle, deleteWine, drinkOneBottle, getSignedPhotoUrls, getWine } from '../lib/wineRepository';
+import { deleteWine, getSignedPhotoUrls, getWine } from '../lib/wineRepository';
 import { useWineActions } from '../hooks/useWineActions';
 import { WINE_TYPE_LABELS, splitCommaList, type Wine } from '../types';
 import { StarRating } from '../components/StarRating';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorBanner } from '../components/ErrorBanner';
-import { FavoriteButton } from '../components/FavoriteButton';
-import { ConsumedButton } from '../components/ConsumedButton';
 import { ConsumeDialog } from '../components/ConsumeDialog';
+import { AddBottleDialog } from '../components/AddBottleDialog';
 import { WineBottlePlaceholder } from '../components/WineBottlePlaceholder';
 import { Toast } from '../components/Toast';
 import { useToast } from '../hooks/useToast';
@@ -25,6 +24,7 @@ export function WineDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [confirmConsume, setConfirmConsume] = useState(false);
+  const [confirmAdd, setConfirmAdd] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [quantityError, setQuantityError] = useState<string | null>(null);
@@ -57,7 +57,7 @@ export function WineDetailPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const { toggleFavorite: toggleFavoriteAction, toggleConsumed: toggleConsumedAction } = useWineActions({
+  const { toggleFavorite: toggleFavoriteAction, toggleConsumed: toggleConsumedAction, addToStock: addToStockAction } = useWineActions({
     applyUpdate: (wineId, updater) => setWine((w) => (w && w.id === wineId ? updater(w) : w)),
     rollback: (_wineId, previous) => setWine(previous),
     showToast,
@@ -69,34 +69,20 @@ export function WineDetailPage() {
     await toggleFavoriteAction(wine);
   }
 
-  // Getrunken-Icon: bei mehreren Flaschen geht nur eine weg (Bestand -1),
-  // erst bei der letzten wandert der Wein in den "Getrunken"-Bereich. Vom
-  // Getrunken-Bereich aus antippen holt ihn wieder in den Vorrat zurueck.
+  // Bei mehreren Flaschen geht nur "count" weg (Bestand -count), erst bei
+  // der letzten wandert der Wein in den "Getrunken"-Bereich. Von dort holt
+  // "Zurück in den Vorrat" ihn wieder zurueck (kein erneutes Bestaetigen -
+  // das ist eine reine Wiederherstellung, kein neuer Trink-Vorgang).
   async function handleToggleConsumed(count?: number) {
     if (!wine) return;
     setQuantityError(null);
     await toggleConsumedAction(wine, count);
   }
 
-  async function handleQuantityChange(delta: number) {
+  async function handleAddBottles(count: number) {
     if (!wine) return;
-    if (delta === 0) return;
-    const previous = wine;
     setQuantityError(null);
-    try {
-      if (delta > 0) {
-        setWine({ ...wine, quantity: wine.quantity + 1, is_consumed: false });
-        await addOneBottle(wine);
-      } else {
-        const nextQuantity = Math.max(0, wine.quantity - 1);
-        if (nextQuantity === wine.quantity) return;
-        setWine({ ...wine, quantity: nextQuantity, is_consumed: nextQuantity === 0 });
-        await drinkOneBottle(wine);
-      }
-    } catch (e) {
-      setWine(previous);
-      setQuantityError(e instanceof Error ? e.message : 'Anzahl konnte nicht gespeichert werden.');
-    }
+    await addToStockAction(wine, count);
   }
 
   async function handleDelete() {
@@ -236,12 +222,6 @@ export function WineDetailPage() {
             </div>
           </>
         )}
-        <ConsumedButton
-          active={wine.is_consumed}
-          onToggle={() => (wine.is_consumed ? handleToggleConsumed() : setConfirmConsume(true))}
-          style={{ position: 'absolute', top: 10, left: 10 }}
-        />
-        <FavoriteButton active={wine.is_favorite} onToggle={handleToggleFavorite} style={{ position: 'absolute', top: 10, right: 10 }} />
       </div>
 
       {fullscreenPhoto && photoUrls.length > 0 && (
@@ -279,11 +259,6 @@ export function WineDetailPage() {
         )}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 5 }}>
           <h1 style={{ fontSize: 29, margin: '0 0 2px' }}>{wine.name}</h1>
-          {wine.is_wishlist && (
-            <span className="tag tag-accent" style={{ fontSize: 10 }}>
-              Wunschliste
-            </span>
-          )}
         </div>
         <div style={{ fontSize: 13.5, opacity: 0.65 }}>{[wine.producer, wine.vintage].filter(Boolean).join(' · ')}</div>
 
@@ -318,6 +293,74 @@ export function WineDetailPage() {
             <span className="tag tag-outline">⌀ {wine.community_rating.toFixed(1)}/5</span>
           )}
         </div>
+
+        <button
+          type="button"
+          className="card"
+          onClick={handleToggleFavorite}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 12,
+            marginTop: 14,
+            padding: '11px 14px',
+            width: '100%',
+            textAlign: 'left',
+            cursor: 'pointer',
+            border: wine.is_favorite ? '1px solid var(--color-bordeaux)' : '1px solid var(--color-divider)',
+          }}
+        >
+          <span
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: '50%',
+              flexShrink: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: wine.is_favorite ? 'color-mix(in srgb, var(--color-bordeaux) 16%, transparent)' : 'var(--color-divider)',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill={wine.is_favorite ? 'var(--color-bordeaux)' : 'none'} stroke={wine.is_favorite ? 'var(--color-bordeaux)' : 'var(--color-text)'} strokeWidth="1.8">
+              <path d="M12 20.5s-7.5-4.6-10-9.3C0.3 7.9 2 4.5 5.4 4c2-.3 3.9.6 5 2.2C11.6 4.6 13.5 3.7 15.5 4c3.4.5 5.1 3.9 3.5 7.2-2.5 4.7-10 9.3-10 9.3z" />
+            </svg>
+          </span>
+          <span style={{ flex: 1 }}>
+            <span className="card-kicker" style={{ display: 'block' }}>
+              Favoriten
+            </span>
+            <span className="card-title" style={{ fontSize: 15 }}>
+              {wine.is_favorite ? 'Ist Favorit' : 'Kein Favorit'}
+            </span>
+          </span>
+          <span
+            aria-hidden="true"
+            style={{
+              width: 42,
+              height: 24,
+              borderRadius: 999,
+              flexShrink: 0,
+              position: 'relative',
+              background: wine.is_favorite ? 'var(--color-bordeaux)' : 'var(--color-divider)',
+              transition: 'background-color 0.15s ease',
+            }}
+          >
+            <span
+              style={{
+                position: 'absolute',
+                top: 3,
+                left: wine.is_favorite ? 21 : 3,
+                width: 18,
+                height: 18,
+                borderRadius: '50%',
+                background: '#fff',
+                boxShadow: 'var(--shadow-sm)',
+                transition: 'left 0.15s ease',
+              }}
+            />
+          </span>
+        </button>
 
         {wine.critic_scores && (
           <div style={{ marginTop: 10, fontSize: 12.5, opacity: 0.7 }}>{wine.critic_scores}</div>
@@ -373,29 +416,45 @@ export function WineDetailPage() {
           <span className="card-kicker" style={{ margin: 0 }}>
             Bestand
           </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <button
-              type="button"
-              className="btn btn-icon btn-secondary"
-              aria-label="Eine Flasche weniger (getrunken)"
-              onClick={() => handleQuantityChange(-1)}
-              disabled={wine.quantity <= 0}
-            >
-              &minus;
-            </button>
-            <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 18, minWidth: 20, textAlign: 'center' }}>
-              {wine.quantity}
-            </span>
-            <button
-              type="button"
-              className="btn btn-icon btn-secondary"
-              aria-label="Eine Flasche mehr"
-              onClick={() => handleQuantityChange(1)}
-            >
-              +
-            </button>
-          </div>
-          <span style={{ fontSize: 12.5, opacity: 0.6 }}>{wine.quantity === 1 ? 'Flasche' : 'Flaschen'}</span>
+          {wine.is_consumed ? (
+            <>
+              <span className="tag tag-warn">Getrunken</span>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                style={{ marginLeft: 'auto' }}
+                onClick={() => handleToggleConsumed()}
+              >
+                Zurück in Vorrat
+              </button>
+            </>
+          ) : (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <button
+                  type="button"
+                  className="btn btn-icon btn-secondary"
+                  aria-label="Flasche entfernen (getrunken)"
+                  onClick={() => setConfirmConsume(true)}
+                  disabled={wine.quantity <= 0}
+                >
+                  &minus;
+                </button>
+                <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 18, minWidth: 20, textAlign: 'center' }}>
+                  {wine.quantity}
+                </span>
+                <button
+                  type="button"
+                  className="btn btn-icon btn-secondary"
+                  aria-label="Flasche hinzufügen"
+                  onClick={() => setConfirmAdd(true)}
+                >
+                  +
+                </button>
+              </div>
+              <span style={{ fontSize: 12.5, opacity: 0.6 }}>{wine.quantity === 1 ? 'Flasche' : 'Flaschen'}</span>
+            </>
+          )}
         </div>
         {quantityError && <ErrorBanner message={quantityError} />}
 
@@ -455,6 +514,17 @@ export function WineDetailPage() {
           onConfirm={(count) => {
             setConfirmConsume(false);
             handleToggleConsumed(count);
+          }}
+        />
+      )}
+
+      {confirmAdd && (
+        <AddBottleDialog
+          wine={wine}
+          onCancel={() => setConfirmAdd(false)}
+          onConfirm={(count) => {
+            setConfirmAdd(false);
+            handleAddBottles(count);
           }}
         />
       )}
