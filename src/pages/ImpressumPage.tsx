@@ -39,8 +39,8 @@ export function ImpressumPage() {
 
         <div className="card-kicker" style={{ marginBottom: 6 }}>Betrieb</div>
         <p style={{ marginTop: 0, marginBottom: 20 }}>
-          Diese App wird privat von Andrin betrieben und weiterentwickelt. Fragen, Feedback oder Aufträge bitte über
-          die Kontakt-Chatblase.
+          Diese App wird privat von Andrin betrieben und weiterentwickelt und richtet sich an erwachsene Nutzerinnen
+          und Nutzer. Fragen, Feedback oder Aufträge bitte über die Kontakt-Chatblase.
         </p>
 
         <div className="card-kicker" style={{ marginBottom: 6 }}>Kosten</div>
@@ -68,10 +68,31 @@ export function ImpressumPage() {
           Zahlungsanfragen in den Einstellungen).
         </p>
 
-        <div className="card-kicker" style={{ marginBottom: 6 }}>Daten</div>
-        <p style={{ marginTop: 0, marginBottom: 0 }}>
+        <div className="card-kicker" style={{ marginBottom: 6 }}>Datenschutz</div>
+        <p style={{ marginTop: 0, marginBottom: 14 }}>
           Alle Angaben zur eigenen Sammlung sind nur für den jeweiligen Account sichtbar (technisch abgesichert über
           Datenbank-Zugriffsregeln). Fotos werden nicht öffentlich geteilt.
+        </p>
+        <p style={{ marginTop: 0, marginBottom: 14 }}>
+          <strong>Was gespeichert wird:</strong> deine E-Mail-Adresse (für den Login), die Angaben zu deinen Weinen
+          (inkl. Fotos), offene und bezahlte Zahlungsanfragen, Aktualisierungs-Aufträge, Nachrichten/Feedback über die
+          Kontakt-Chatblase, sowie welche Weine du wann als getrunken markiert hast.
+        </p>
+        <p style={{ marginTop: 0, marginBottom: 14 }}>
+          <strong>Wofür:</strong> ausschliesslich für den Betrieb der App selbst - deine Sammlung zu verwalten, den
+          Zugang/die Zahlungen abzuwickeln und Anfragen zu bearbeiten. Keine Werbung, kein Verkauf oder Weitergabe
+          deiner Daten an Dritte.
+        </p>
+        <p style={{ marginTop: 0, marginBottom: 14 }}>
+          <strong>Wer die Daten technisch verarbeitet:</strong> Supabase (Datenbank, Fotospeicher, Login) und Vercel
+          (Hosting) - beide ausschliesslich in unserem Auftrag, mit eigenen Zugriffsregeln pro Konto. Lädst du ein
+          Etikett-Foto zur automatischen Texterkennung hoch, wird dieses Foto kurz an Anthropic (Claude) geschickt,
+          um Angaben auszulesen - nicht dauerhaft dort gespeichert. Keine Analyse- oder Werbe-Cookies.
+        </p>
+        <p style={{ marginTop: 0, marginBottom: 0 }}>
+          <strong>Deine Rechte:</strong> unter Einstellungen kannst du jederzeit deine ganze Sammlung als Datei
+          herunterladen, oder die vollständige Löschung deines Kontos beantragen - nach Bestätigung werden alle
+          Angaben und Fotos unwiderruflich entfernt. Fragen dazu gerne über die Kontakt-Chatblase.
         </p>
       </div>
     </div>
