@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { listWines, getSignedPhotoUrls } from '../lib/wineRepository';
+import { listWines, getSignedPhotoUrls, listConsumptionLog } from '../lib/wineRepository';
 import { isBackupOverdue } from '../lib/backupReminder';
 import { getUnfulfilledFeedbackRequest, markFeedbackRequestFulfilled } from '../lib/feedbackRepository';
 import { getDueAnnouncements, dismissAnnouncement } from '../lib/announcementRepository';
 import { useWineActions } from '../hooks/useWineActions';
-import { WINE_TYPE_LABELS, splitCommaList, type Announcement, type SortDirection, type SortOption, type Wine } from '../types';
+import { WINE_TYPE_LABELS, splitCommaList, type Announcement, type ConsumptionLogEntry, type SortDirection, type SortOption, type Wine } from '../types';
 import { WineCard } from '../components/WineCard';
 import { SearchBar } from '../components/SearchBar';
 import { FilterSheet } from '../components/FilterSheet';
@@ -96,6 +96,7 @@ export function CollectionPage() {
   const { session } = useAuth();
   const displayName = (session?.user.user_metadata?.display_name as string | undefined)?.trim();
   const [wines, setWines] = useState<Wine[]>([]);
+  const [consumptionLog, setConsumptionLog] = useState<ConsumptionLogEntry[]>([]);
   const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -182,6 +183,12 @@ export function CollectionPage() {
     try {
       const data = await listWines();
       setWines(data);
+      // Fuer den "einzelne getrunkene Flaschen"-Abschnitt im Getrunken-Tab -
+      // eigenes try/catch noetig hier waere Ueberbau, ein Fehlschlag blaest
+      // einfach den ganzen load() nicht auf, weil er vor den kritischeren
+      // Aufrufen unten steht; bewusst still bei Fehler (Abschnitt bleibt
+      // dann einfach leer statt die ganze Seite zu blockieren).
+      listConsumptionLog().then(setConsumptionLog).catch(() => {});
       if (data.length > 0 && isBackupOverdue()) setShowBackupReminder(true);
       if (hasWineDraft()) setShowDraftReminder(true);
       // Das Feedback-Popup erscheint nur noch, wenn der Betreiber es ueber
@@ -222,6 +229,26 @@ export function CollectionPage() {
     if (tab === 'consumed') return wines.filter((w) => w.is_consumed);
     return wines.filter((w) => !w.is_consumed);
   }, [wines, tab]);
+
+  // Einzelne getrunkene Flaschen von Weinen, die noch im Vorrat sind (z. B.
+  // 1 von 6 Flaschen getrunken) - komplett aufgebrauchte Weine erscheinen
+  // schon als eigene Karte oben in tabWines, hier bewusst ausgeschlossen,
+  // damit derselbe Wein nicht doppelt auftaucht.
+  const partialConsumption = useMemo(() => {
+    const activeIds = new Set(wines.filter((w) => !w.is_consumed).map((w) => w.id));
+    const groups = new Map<string, { wineId: string; wineName: string; count: number; lastConsumedAt: string }>();
+    for (const entry of consumptionLog) {
+      if (!entry.wine_id || !activeIds.has(entry.wine_id)) continue;
+      const existing = groups.get(entry.wine_id);
+      if (existing) {
+        existing.count += 1;
+        if (entry.consumed_at > existing.lastConsumedAt) existing.lastConsumedAt = entry.consumed_at;
+      } else {
+        groups.set(entry.wine_id, { wineId: entry.wine_id, wineName: entry.wine_name, count: 1, lastConsumedAt: entry.consumed_at });
+      }
+    }
+    return Array.from(groups.values()).sort((a, b) => b.lastConsumedAt.localeCompare(a.lastConsumedAt));
+  }, [wines, consumptionLog]);
 
   const filterOptions = useMemo(() => {
     const uniq = (values: (string | number | null)[]) =>
@@ -573,7 +600,42 @@ export function CollectionPage() {
       {loading && <LoadingSpinner label="Sammlung wird geladen ..." />}
       {error && <ErrorBanner message={error} onRetry={load} />}
 
-      {!loading && !error && visibleWines.length === 0 && (
+      {!loading && !error && tab === 'consumed' && partialConsumption.length > 0 && (
+        <div style={{ padding: '0 20px 20px' }}>
+          <div className="card-kicker" style={{ marginBottom: 8 }}>
+            Einzelne getrunkene Flaschen (noch im Vorrat)
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {partialConsumption.map((entry) => (
+              <button
+                key={entry.wineId}
+                type="button"
+                className="card"
+                onClick={() => navigate(`/wine/${entry.wineId}`)}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '10px 12px',
+                  width: '100%',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                }}
+              >
+                <span style={{ fontSize: 13.5 }}>{entry.wineName}</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                  <span style={{ fontSize: 11, opacity: 0.55 }}>
+                    {new Date(entry.lastConsumedAt).toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                  </span>
+                  <span className="tag tag-warn">×{entry.count}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!loading && !error && visibleWines.length === 0 && (partialConsumption.length === 0 || tab !== 'consumed') && (
         <div style={{ padding: '40px 20px', textAlign: 'center', opacity: 0.6, fontSize: 14 }}>
           {wines.length === 0
             ? 'Noch keine Weine erfasst. Tippe auf + um den ersten Wein hinzuzufügen.'
@@ -594,7 +656,12 @@ export function CollectionPage() {
               photoUrl={wine.photo_url ? photoUrls[wine.photo_url] : undefined}
               onRequestAdd={setPendingAdd}
               onRequestRemove={setPendingConsume}
-              onRestore={(w) => handleToggleConsumed(w)}
+              onRestore={async (w) => {
+                await handleToggleConsumed(w);
+                // "Zurueck in Vorrat" loescht die zuletzt geloggten Eintraege
+                // (siehe restoreToStock) - Abschnitt unten muss das mitkriegen.
+                listConsumptionLog().then(setConsumptionLog).catch(() => {});
+              }}
               compact={viewMode === 'list'}
             />
           ))}
@@ -631,10 +698,14 @@ export function CollectionPage() {
         <ConsumeDialog
           wine={pendingConsume}
           onCancel={() => setPendingConsume(null)}
-          onConfirm={(count) => {
+          onConfirm={async (count) => {
             const wine = pendingConsume;
             setPendingConsume(null);
-            handleToggleConsumed(wine, count);
+            await handleToggleConsumed(wine, count);
+            // Neuer Trinkverlauf-Eintrag fuer den "einzelne getrunkene
+            // Flaschen"-Abschnitt - der optimistische Update oben aendert
+            // nur "wines", nicht den serverseitig neu angelegten Log-Eintrag.
+            listConsumptionLog().then(setConsumptionLog).catch(() => {});
           }}
         />
       )}
