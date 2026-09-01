@@ -22,7 +22,7 @@ import {
 } from '../lib/csvImport';
 import { listMyFeedback, deleteFeedback } from '../lib/feedbackRepository';
 import { listMyPaymentRequests } from '../lib/paymentRequestRepository';
-import { listMyOrders, ORDER_CATEGORY_INFO } from '../lib/orderRepository';
+import { listMyOrders, ORDER_CATEGORY_INFO, SELECTABLE_ORDER_CATEGORIES } from '../lib/orderRepository';
 import { getPricingConfig, computeOrderPrice, type PricingConfig } from '../lib/pricingConfig';
 import { getAccessStatus } from '../lib/accessControl';
 import { daysUntil } from '../lib/trialDays';
@@ -581,7 +581,7 @@ export function SettingsPage() {
               <div style={{ fontSize: 12.5, opacity: 0.65, marginBottom: 2 }}>
                 Preise für Aktualisierungs-Aufträge ({ownActiveWineCount} {ownActiveWineCount === 1 ? 'Wein' : 'Weine'} in deiner Sammlung)
               </div>
-              {(Object.keys(ORDER_CATEGORY_INFO) as (keyof typeof ORDER_CATEGORY_INFO)[]).map((key) => (
+              {SELECTABLE_ORDER_CATEGORIES.map((key) => (
                 <div key={key} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
                   <span>{ORDER_CATEGORY_INFO[key].label}</span>
                   <span style={{ opacity: 0.7 }}>
@@ -596,8 +596,9 @@ export function SettingsPage() {
               </div>
               <div style={{ fontSize: 11.5, opacity: 0.55, marginTop: 4 }}>
                 Aktualisierungs-Aufträge kosten, weil dahinter echte Recherche steckt - pro Wein wird online nach
-                Region, Rebsorte, Trinkfenster und Kritiker-Punkten gesucht, bei importierten Weinen zusätzlich ein
-                passendes Etikett-Foto. Das braucht Zeit, auch wenn ein Grossteil automatisiert abläuft.
+                Region, Rebsorte, Trinkfenster und Kritiker-Punkten gesucht. "Import" ist aufwendiger, weil bei
+                diesen Weinen noch gar keine Angaben vorhanden sind und alles neu recherchiert werden muss. Fotos
+                fügen wir nicht mehr von fremden Seiten hinzu - nur, wenn du selbst eins von der Flasche machst.
               </div>
               <button
                 type="button"
