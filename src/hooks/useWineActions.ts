@@ -70,7 +70,7 @@ export function useWineActions({ applyUpdate, rollback, showToast, onError }: Us
     showToast?.(
       nextQuantity === 0
         ? `"${wine.name}" komplett getrunken - jetzt im Bereich "Getrunken".`
-        : `${clampedCount === 1 ? 'Eine Flasche' : `${clampedCount} Flaschen`} "${wine.name}" gebucht - noch ${nextQuantity} im Vorrat.`,
+        : `${clampedCount === 1 ? 'Eine Flasche' : `${clampedCount} Flaschen`} "${wine.name}" im Rückblick vermerkt - noch ${nextQuantity} im Vorrat.`,
     );
     try {
       await drinkBottles(wine, clampedCount);

@@ -29,7 +29,7 @@ export function ConsumeDialog({
             <>
               {count === max
                 ? `Der komplette Bestand von "${wine.name}" (${max} Flaschen) wird als getrunken vermerkt.`
-                : `${count} von ${max} Flaschen "${wine.name}" werden vom Vorrat abgebucht.`}
+                : `${count} von ${max} Flaschen "${wine.name}" werden vom Vorrat abgebucht und im Rückblick vermerkt.`}
             </>
           ) : (
             `"${wine.name}" wandert in den Bereich "Getrunken" und wird im Rückblick vermerkt.`

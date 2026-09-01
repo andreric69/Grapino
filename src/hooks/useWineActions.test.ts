@@ -107,7 +107,7 @@ describe('useWineActions.toggleConsumed', () => {
     await h.actions.toggleConsumed(h.current);
     expect(h.current.quantity).toBe(2);
     expect(h.current.is_consumed).toBe(false);
-    expect(h.toasts[0]).toContain('Eine Flasche "Testwein" gebucht');
+    expect(h.toasts[0]).toContain('Eine Flasche "Testwein" im Rückblick vermerkt');
   });
 
   it('verringert um die angegebene Anzahl Flaschen (count-Parameter)', async () => {
@@ -117,7 +117,7 @@ describe('useWineActions.toggleConsumed', () => {
     expect(h.current.quantity).toBe(2);
     expect(h.current.is_consumed).toBe(false);
     expect(drinkBottlesMock).toHaveBeenCalledWith(expect.objectContaining({ id: 'w1' }), 3);
-    expect(h.toasts[0]).toContain('3 Flaschen "Testwein" gebucht');
+    expect(h.toasts[0]).toContain('3 Flaschen "Testwein" im Rückblick vermerkt');
   });
 
   it('kappt count auf den vorhandenen Bestand', async () => {
