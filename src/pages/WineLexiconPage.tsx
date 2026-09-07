@@ -99,6 +99,17 @@ export function WineLexiconPage() {
           Echte Rebsorten und Weinregionen mit kurzer Beschreibung, aus Wikipedia. Zum Nachschlagen, wenn du auf dem
           Etikett einen Begriff siehst, den du nicht kennst.
         </div>
+        <div style={{ fontSize: 10.5, opacity: 0.45, marginBottom: 16, lineHeight: 1.4 }}>
+          Quelle: Wikipedia &amp; Wikidata, Inhalte unter{' '}
+          <a
+            href="https://creativecommons.org/licenses/by-sa/4.0/deed.de"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            CC BY-SA
+          </a>
+          .
+        </div>
 
         <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
           <button

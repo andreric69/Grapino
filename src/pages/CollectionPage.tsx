@@ -516,6 +516,7 @@ export function CollectionPage() {
       <SearchBar value={search} onChange={setSearch} />
 
       {chips.length > 0 && (
+        <div className="filter-row-wrap">
         <div className="filter-row" style={{ padding: '0 20px 8px' }}>
           {anyFilterActive && (
             <button type="button" className="clear-all-btn" onClick={clearAllFilters}>
@@ -554,6 +555,7 @@ export function CollectionPage() {
               )}
             </button>
           ))}
+        </div>
         </div>
       )}
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, alignItems: 'center', padding: '0 20px 14px' }}>

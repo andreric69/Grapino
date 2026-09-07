@@ -141,7 +141,8 @@ export function WineDetailPage() {
       </div>
 
       <div className="detail-page">
-      <div className="plate" style={{ margin: '0 20px', height: 380, position: 'relative' }}>
+      <div className="detail-hero">
+      <div className="plate detail-hero-photo">
         {photoUrls.length > 0 ? (
           <img
             src={photoUrls[activePhoto]}
@@ -224,34 +225,12 @@ export function WineDetailPage() {
         )}
       </div>
 
-      {fullscreenPhoto && photoUrls.length > 0 && (
-        <div
-          onClick={() => setFullscreenPhoto(false)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 300,
-            background: 'rgba(0,0,0,0.92)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            overflow: 'auto',
-          }}
-        >
-          <img
-            src={photoUrls[activePhoto]}
-            alt=""
-            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
-          />
-        </div>
-      )}
-      {wine.is_consumed && (
-        <div style={{ margin: '10px 20px 0', fontSize: 12.5, color: 'var(--color-accent)', fontWeight: 600 }}>
-          Als getrunken markiert
-        </div>
-      )}
-
-      <div style={{ padding: 20 }}>
+      <div className="detail-hero-info">
+        {wine.is_consumed && (
+          <div style={{ fontSize: 12.5, color: 'var(--color-accent)', fontWeight: 600, marginBottom: 6 }}>
+            Als getrunken markiert
+          </div>
+        )}
         {(wine.subregion || wine.region || wine.country) && (
           <div className="card-kicker">
             {[wine.subregion, wine.region, wine.country].filter(Boolean).join(' · ')}
@@ -293,7 +272,32 @@ export function WineDetailPage() {
             <span className="tag tag-outline">⌀ {wine.community_rating.toFixed(1)}/5</span>
           )}
         </div>
+      </div>
+      </div>
 
+      {fullscreenPhoto && photoUrls.length > 0 && (
+        <div
+          onClick={() => setFullscreenPhoto(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 300,
+            background: 'rgba(0,0,0,0.92)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'auto',
+          }}
+        >
+          <img
+            src={photoUrls[activePhoto]}
+            alt=""
+            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+          />
+        </div>
+      )}
+
+      <div style={{ padding: '0 20px 20px' }}>
         <button
           type="button"
           className="card"

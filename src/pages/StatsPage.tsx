@@ -220,7 +220,7 @@ export function StatsPage() {
               <StatTile icon={<GlassIcon />} value={activeWines.length} label={activeWines.length === 1 ? 'Wein im Vorrat' : 'Weine im Vorrat'} />
               <StatTile icon={<BottleIcon />} value={totalBottles} label={totalBottles === 1 ? 'Flasche' : 'Flaschen'} />
               <StatTile icon={<HeartIcon />} value={favoriteCount} label="Favoriten" />
-              <StatTile icon={<CheckIcon />} value={consumedCount} label="Getrunken" />
+              <StatTile icon={<CheckIcon />} value={consumedCount} label="Ganz geleert" />
               <StatTile icon={<BuildingIcon />} value={producerCount} label={producerCount === 1 ? 'Produzent' : 'Produzenten'} />
               <StatTile icon={<TagIcon />} value={totalValue.toFixed(2)} label="Gesamtwert" small />
               <StatTile icon={<TagIcon />} value={avgPricePerBottle !== null ? avgPricePerBottle.toFixed(2) : '–'} label="Ø Preis / Flasche" small />
