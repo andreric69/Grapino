@@ -29,6 +29,7 @@ import { daysUntil } from '../lib/trialDays';
 import type { DeletionRequest, EnrichmentOrder, MyFeedback, PaymentRequest, Wine, WineInput } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorBanner } from '../components/ErrorBanner';
+import { TextScaleToggle } from '../components/TextScaleToggle';
 
 type ImportState =
   | { phase: 'idle' }
@@ -505,6 +506,18 @@ export function SettingsPage() {
 
         <section style={{ marginBottom: 28 }}>
           <div className="card-kicker" style={{ marginBottom: 8 }}>
+            Darstellung
+          </div>
+          <div className="card" style={{ gap: 12 }}>
+            <div style={{ fontSize: 12.5, opacity: 0.65, lineHeight: 1.5 }}>
+              Textgrösse der ganzen App - falls die Schrift zu klein ist.
+            </div>
+            <TextScaleToggle />
+          </div>
+        </section>
+
+        <section style={{ marginBottom: 28 }}>
+          <div className="card-kicker" style={{ marginBottom: 8 }}>
             Kosten &amp; Zahlungen
           </div>
 
@@ -687,6 +700,20 @@ export function SettingsPage() {
             </div>
             <button type="button" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }} onClick={() => navigate('/statistik')}>
               Statistik anzeigen
+            </button>
+          </div>
+        </section>
+
+        <section style={{ marginBottom: 28 }}>
+          <div className="card-kicker" style={{ marginBottom: 8 }}>
+            Lagerplan
+          </div>
+          <div className="card" style={{ gap: 12 }}>
+            <div style={{ fontSize: 12.5, opacity: 0.65, lineHeight: 1.5 }}>
+              Deine Weine nach Lagerort gruppiert - z. B. um schnell zu sehen, was im Keller Regal 3 steht.
+            </div>
+            <button type="button" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }} onClick={() => navigate('/lagerplan')}>
+              Lagerplan anzeigen
             </button>
           </div>
         </section>

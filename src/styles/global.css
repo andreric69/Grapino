@@ -646,3 +646,16 @@ textarea.input {
     padding: 4px 0 0;
   }
 }
+
+/* Barrierefreiheit: "Grosse Schrift"-Modus (siehe useTextScale.ts). Fast der
+   gesamte Code setzt Schriftgroessen als feste px-Inline-Styles statt als
+   rem, ein Umbau auf rem waere ein riesiger, riskanter Eingriff - stattdessen
+   skaliert CSS `zoom` das gesamte Layout (Text UND Abstaende gemeinsam)
+   gleichmaessig, genau wie ein Browser-Zoom, ganz ohne Aenderungen an
+   bestehenden Komponenten. */
+html[data-text-scale='gross'] {
+  zoom: 1.18;
+}
+html[data-text-scale='sehr-gross'] {
+  zoom: 1.38;
+}

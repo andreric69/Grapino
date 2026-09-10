@@ -11,6 +11,7 @@ import { AddBottleDialog } from '../components/AddBottleDialog';
 import { WineBottlePlaceholder } from '../components/WineBottlePlaceholder';
 import { Toast } from '../components/Toast';
 import { useToast } from '../hooks/useToast';
+import { shareOrDownloadWineCard } from '../lib/shareCard';
 
 export function WineDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -28,6 +29,8 @@ export function WineDetailPage() {
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [quantityError, setQuantityError] = useState<string | null>(null);
+  const [sharing, setSharing] = useState(false);
+  const [shareError, setShareError] = useState<string | null>(null);
   const { toastMessage, showToast } = useToast();
 
   async function load() {
@@ -85,6 +88,19 @@ export function WineDetailPage() {
     await addToStockAction(wine, count);
   }
 
+  async function handleShare() {
+    if (!wine) return;
+    setSharing(true);
+    setShareError(null);
+    try {
+      await shareOrDownloadWineCard(wine, photoUrls[activePhoto] ?? null);
+    } catch (e) {
+      setShareError(e instanceof Error ? e.message : 'Teilen fehlgeschlagen.');
+    } finally {
+      setSharing(false);
+    }
+  }
+
   async function handleDelete() {
     if (!wine) return;
     setDeleting(true);
@@ -127,18 +143,37 @@ export function WineDetailPage() {
             <path d="M10 1L2 9l8 8" />
           </svg>
         </button>
-        <button
-          type="button"
-          className="btn"
-          style={{ border: '1px solid var(--color-accent)', color: 'var(--color-accent)' }}
-          onClick={() => navigate(`/wine/${wine.id}/edit`)}
-        >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 4l4 4L8 19H4v-4L15 4z" />
-          </svg>
-          Bearbeiten
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            type="button"
+            className="icon-btn"
+            aria-label="Wein teilen"
+            title="Als Bild teilen"
+            onClick={handleShare}
+            disabled={sharing}
+            style={{ opacity: sharing ? 0.5 : 1 }}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--color-text)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="18" cy="5" r="3" />
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="19" r="3" />
+              <path d="M8.6 10.5l6.8-3.9M8.6 13.5l6.8 3.9" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            className="btn"
+            style={{ border: '1px solid var(--color-accent)', color: 'var(--color-accent)' }}
+            onClick={() => navigate(`/wine/${wine.id}/edit`)}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 4l4 4L8 19H4v-4L15 4z" />
+            </svg>
+            Bearbeiten
+          </button>
+        </div>
       </div>
+      {shareError && <ErrorBanner message={shareError} />}
 
       <div className="detail-page">
       <div className="detail-hero">
