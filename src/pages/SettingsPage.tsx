@@ -9,6 +9,9 @@ import {
   requestCollectionDeletion,
   getPendingDeletionRequest,
   cancelDeletionRequest,
+  listDeletedWines,
+  restoreDeletedWine,
+  permanentlyDeleteWine,
 } from '../lib/wineRepository';
 import { downloadWinesBackup, parseWinesBackupFile } from '../lib/backup';
 import { mergeDuplicatesWithinBatch, buildExistingActiveIndex, findExistingMatch } from '../lib/importMerge';
@@ -136,6 +139,17 @@ export function SettingsPage() {
   const [pricing, setPricing] = useState<PricingConfig | null>(null);
   const ownActiveWineCount = wines.filter((w) => !w.is_consumed).length;
 
+  // Papierkorb: geloeschte Weine bleiben 30 Tage wiederherstellbar (siehe
+  // deleteWine in wineRepository.ts) - der eigentliche Aufraeum-Job nach 30
+  // Tagen laeuft separat, hier nur Anzeige, Wiederherstellen und die
+  // Moeglichkeit, sofort endgueltig zu loeschen.
+  const [deletedWines, setDeletedWines] = useState<Wine[]>([]);
+  const [restoringId, setRestoringId] = useState<string | null>(null);
+  const [restoreError, setRestoreError] = useState<string | null>(null);
+  const [wineToPurge, setWineToPurge] = useState<Wine | null>(null);
+  const [purging, setPurging] = useState(false);
+  const [purgeError, setPurgeError] = useState<string | null>(null);
+
   // In der als Home-Bildschirm-App installierten PWA gibt es keine
   // Browser-Chrome (keine Adresszeile, kein Zurueck) - ein Link, der die
   // Anleitung als eigene Seite oeffnete, liess sich dort nur durch komplettes
@@ -202,6 +216,15 @@ export function SettingsPage() {
     }
   }
 
+  async function loadDeletedWines() {
+    try {
+      setDeletedWines(await listDeletedWines());
+    } catch {
+      // Stiller Fehlschlag: der Papierkorb-Abschnitt bleibt einfach leer,
+      // nicht kritisch fuer die restliche Seite.
+    }
+  }
+
   useEffect(() => {
     loadWines();
     loadDeletionRequest();
@@ -209,7 +232,43 @@ export function SettingsPage() {
     listMyPaymentRequests().then(setMyPaymentRequests);
     listMyOrders().then(setMyOrders);
     getPricingConfig().then(setPricing);
+    listDeletedWines().then(setDeletedWines).catch(() => {});
   }, []);
+
+  /** Ganze Tage seit dem Loeschen - fuer die Restlaufzeit bis zum Auto-Purge (30 Tage). */
+  function daysSinceDeleted(deletedAt: string): number {
+    const diffMs = Date.now() - new Date(deletedAt).getTime();
+    return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  }
+
+  async function handleRestoreWine(wine: Wine) {
+    setRestoringId(wine.id);
+    setRestoreError(null);
+    try {
+      await restoreDeletedWine(wine);
+      await loadWines();
+      await loadDeletedWines();
+    } catch (e) {
+      setRestoreError(e instanceof Error ? e.message : 'Wiederherstellen fehlgeschlagen.');
+    } finally {
+      setRestoringId(null);
+    }
+  }
+
+  async function handlePermanentlyDeleteWine() {
+    if (!wineToPurge) return;
+    setPurging(true);
+    setPurgeError(null);
+    try {
+      await permanentlyDeleteWine(wineToPurge);
+      setDeletedWines((list) => list.filter((w) => w.id !== wineToPurge.id));
+      setWineToPurge(null);
+    } catch (e) {
+      setPurgeError(e instanceof Error ? e.message : 'Löschen fehlgeschlagen.');
+    } finally {
+      setPurging(false);
+    }
+  }
 
   async function handleSignOut() {
     await signOut();
@@ -908,6 +967,54 @@ export function SettingsPage() {
           </div>
         </section>
 
+        {deletedWines.length > 0 && (
+          <section style={{ marginBottom: 28 }}>
+            <div className="card-kicker" style={{ marginBottom: 8 }}>
+              Papierkorb
+            </div>
+            <div style={{ fontSize: 12.5, opacity: 0.65, marginBottom: 10, lineHeight: 1.5 }}>
+              Gelöschte Weine bleiben 30 Tage hier und lassen sich wiederherstellen, bevor sie endgültig entfernt
+              werden.
+            </div>
+            {restoreError && <ErrorBanner message={restoreError} />}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {deletedWines.map((w) => {
+                const daysLeft = Math.max(0, 30 - daysSinceDeleted(w.deleted_at as string));
+                return (
+                  <div key={w.id} className="card" style={{ gap: 6 }}>
+                    <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 15 }}>{w.name}</div>
+                    <div style={{ fontSize: 12.5, opacity: 0.65 }}>
+                      {[w.producer, w.vintage].filter(Boolean).join(' · ') || 'Ohne weitere Angaben'}
+                    </div>
+                    <div style={{ fontSize: 12, opacity: 0.55 }}>
+                      Gelöscht am {new Date(w.deleted_at as string).toLocaleDateString('de-CH')} · noch {daysLeft}{' '}
+                      {daysLeft === 1 ? 'Tag' : 'Tage'}
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        disabled={restoringId === w.id}
+                        onClick={() => handleRestoreWine(w)}
+                      >
+                        {restoringId === w.id ? 'Wird wiederhergestellt ...' : 'Wiederherstellen'}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-ghost"
+                        style={{ color: 'var(--color-bordeaux)' }}
+                        onClick={() => setWineToPurge(w)}
+                      >
+                        Endgültig löschen
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
         {myFeedback.length > 0 && (
           <section style={{ marginBottom: 28 }}>
             <div className="card-kicker" style={{ marginBottom: 8 }}>
@@ -1068,6 +1175,27 @@ export function SettingsPage() {
               </button>
               <button type="button" className="btn btn-danger" onClick={handleDeleteFeedback} disabled={deletingFeedback}>
                 {deletingFeedback ? 'Wird gelöscht ...' : 'Löschen'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {wineToPurge && (
+        <div className="dialog-backdrop" onClick={() => !purging && setWineToPurge(null)}>
+          <div className="dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="dialog-title">Endgültig löschen?</div>
+            <div className="dialog-body">
+              "{wineToPurge.name}" wird inklusive Foto unwiderruflich gelöscht. Das kann nicht rückgängig gemacht
+              werden.
+              {purgeError && <ErrorBanner message={purgeError} />}
+            </div>
+            <div className="dialog-actions">
+              <button type="button" className="btn btn-secondary" onClick={() => setWineToPurge(null)} disabled={purging}>
+                Abbrechen
+              </button>
+              <button type="button" className="btn btn-danger" onClick={handlePermanentlyDeleteWine} disabled={purging}>
+                {purging ? 'Wird gelöscht ...' : 'Endgültig löschen'}
               </button>
             </div>
           </div>

@@ -12,7 +12,22 @@ function toFriendlyError(error: unknown): Error {
 }
 
 export async function listWines(): Promise<Wine[]> {
-  const { data, error } = await supabase.from('wines').select('*').order('created_at', { ascending: false });
+  const { data, error } = await supabase
+    .from('wines')
+    .select('*')
+    .is('deleted_at', null)
+    .order('created_at', { ascending: false });
+  if (error) throw toFriendlyError(error);
+  return data as Wine[];
+}
+
+/** Weine im Papierkorb (geloescht, aber noch nicht endgueltig entfernt) - zuletzt geloeschte zuerst. */
+export async function listDeletedWines(): Promise<Wine[]> {
+  const { data, error } = await supabase
+    .from('wines')
+    .select('*')
+    .not('deleted_at', 'is', null)
+    .order('deleted_at', { ascending: false });
   if (error) throw toFriendlyError(error);
   return data as Wine[];
 }
@@ -181,7 +196,34 @@ export async function restoreToStock(wine: Wine): Promise<Wine> {
   return updated;
 }
 
+/**
+ * Verschiebt einen Wein in den Papierkorb (Soft-Delete) statt ihn sofort
+ * unwiderruflich zu loeschen - Fotos bleiben erhalten, damit eine spaetere
+ * Wiederherstellung (restoreDeletedWine) sie ebenfalls zurueckbringt. Die
+ * eigentliche Entfernung von Zeile und Fotos passiert erst bei
+ * permanentlyDeleteWine (manuell oder durch den 30-Tage-Aufraeum-Job).
+ */
 export async function deleteWine(wine: Wine): Promise<void> {
+  const { error } = await supabase
+    .from('wines')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', wine.id);
+  if (error) throw toFriendlyError(error);
+}
+
+/** Holt einen Wein aus dem Papierkorb zurueck. */
+export async function restoreDeletedWine(wine: Wine): Promise<Wine> {
+  return updateWine(wine.id, { deleted_at: null });
+}
+
+/**
+ * Endgueltiges, unwiderrufliches Loeschen aus dem Papierkorb - entfernt die
+ * Fotos aus dem Storage und die Zeile aus der Datenbank. Das ist das
+ * fruehere Verhalten von deleteWine(), jetzt nur noch ueber den Papierkorb
+ * erreichbar (Button "Endgueltig loeschen" in den Einstellungen) oder durch
+ * den separaten 30-Tage-Aufraeum-Job.
+ */
+export async function permanentlyDeleteWine(wine: Wine): Promise<void> {
   const paths = [wine.photo_url, ...(wine.photo_urls ?? [])].filter((p): p is string => !!p);
   if (paths.length > 0) {
     await supabase.storage.from(WINE_PHOTOS_BUCKET).remove(paths);

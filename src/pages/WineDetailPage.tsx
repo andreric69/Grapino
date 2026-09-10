@@ -530,16 +530,17 @@ export function WineDetailPage() {
       {confirmDelete && (
         <div className="dialog-backdrop" onClick={() => !deleting && setConfirmDelete(false)}>
           <div className="dialog" onClick={(e) => e.stopPropagation()}>
-            <div className="dialog-title">Wein löschen?</div>
+            <div className="dialog-title">Wein in den Papierkorb verschieben?</div>
             <div className="dialog-body">
-              "{wine.name}" wird unwiderruflich gelöscht, inklusive Foto. Das kann nicht rückgängig gemacht werden.
+              "{wine.name}" kommt in den Papierkorb (Einstellungen → Papierkorb) und wird dort in 30 Tagen endgültig
+              gelöscht - bis dahin kannst du ihn wiederherstellen.
             </div>
             <div className="dialog-actions">
               <button type="button" className="btn btn-secondary" onClick={() => setConfirmDelete(false)} disabled={deleting}>
                 Abbrechen
               </button>
               <button type="button" className="btn btn-danger" onClick={handleDelete} disabled={deleting}>
-                {deleting ? 'Wird gelöscht ...' : 'Löschen'}
+                {deleting ? 'Wird verschoben ...' : 'In Papierkorb verschieben'}
               </button>
             </div>
           </div>

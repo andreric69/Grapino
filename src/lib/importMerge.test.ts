@@ -34,6 +34,7 @@ function makeInput(overrides: Partial<WineInput> = {}): WineInput {
     ean_code: null,
     photo_urls: [],
     quantity_before_consumed: null,
+    deleted_at: null,
     ...overrides,
   };
 }

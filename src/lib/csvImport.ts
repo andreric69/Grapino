@@ -253,6 +253,7 @@ export function rowsToWineInputs(mapping: MappableField[], dataRows: string[][])
       tasting_sweetness: null,
       tasting_body: null,
       ean_code: null,
+      deleted_at: null,
     });
   }
   return wines;

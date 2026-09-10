@@ -794,6 +794,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
         is_favorite: existingWine?.is_favorite ?? false,
         is_consumed: existingWine?.is_consumed ?? false,
         quantity_before_consumed: existingWine?.quantity_before_consumed ?? null,
+        deleted_at: existingWine?.deleted_at ?? null,
         wine_type: form.wineType || null,
         country: form.country.trim() || null,
         subregion: form.subregion.trim() || null,

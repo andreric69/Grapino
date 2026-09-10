@@ -66,6 +66,8 @@ export interface Wine {
    * Flaschen) wiederherstellen kann statt immer nur 1 Flasche.
    */
   quantity_before_consumed: number | null;
+  /** Zeitpunkt des Loeschens (Papierkorb) - null = aktiv. Nach 30 Tagen automatisch endgueltig geloescht. */
+  deleted_at: string | null;
 }
 
 export type WineInput = Omit<Wine, 'id' | 'created_at' | 'user_id'>;

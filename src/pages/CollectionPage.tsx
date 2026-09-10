@@ -18,6 +18,7 @@ import { BackupReminderBanner } from '../components/BackupReminderBanner';
 import { AnnouncementBanner } from '../components/AnnouncementBanner';
 import { DraftReminderBanner } from '../components/DraftReminderBanner';
 import { hasWineDraft, clearWineDraft } from '../lib/wineDraft';
+import { saveWinesToCache, loadWinesFromCache } from '../lib/offlineCache';
 import { FeedbackModal } from '../components/FeedbackModal';
 import { ChatBubble } from '../components/ChatBubble';
 import { ConsumeDialog } from '../components/ConsumeDialog';
@@ -100,6 +101,9 @@ export function CollectionPage() {
   const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Nicht null, waehrend eine gecachte (nicht mehr live geladene) Sammlung
+  // angezeigt wird - haelt den Zeitstempel des Caches fuer den Hinweis-Banner.
+  const [offlineSince, setOfflineSince] = useState<string | null>(null);
 
   const persistedFilterState = useMemo(loadPersistedFilterState, []);
   const [search, setSearch] = useState(persistedFilterState.search ?? '');
@@ -181,7 +185,27 @@ export function CollectionPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await listWines();
+      let data: Wine[];
+      try {
+        data = await listWines();
+        // Fuer den naechsten Start ohne Verbindung zwischenspeichern - siehe
+        // offlineCache.ts.
+        saveWinesToCache(data);
+        setOfflineSince(null);
+      } catch (fetchError) {
+        // Kein Netz (oder Server nicht erreichbar): auf den letzten
+        // erfolgreich geladenen Stand zurueckfallen, statt die Sammlung
+        // komplett zu verstecken. Alle folgenden Aufrufe unten (Konsum-Log,
+        // Feedback-Anfrage, Foto-URLs, Ankuendigungen) haengen ebenfalls am
+        // Netz und wuerden hier nur denselben Fehler nochmal werfen bzw.
+        // (teils ohne eigenes try/catch) den Fallback wieder zunichtemachen
+        // - darum bei erfolgreichem Cache-Treffer direkt raus aus load().
+        const cached = loadWinesFromCache();
+        if (!cached) throw fetchError;
+        setWines(cached.wines);
+        setOfflineSince(cached.savedAt);
+        return;
+      }
       setWines(data);
       // Fuer den "einzelne getrunkene Flaschen"-Abschnitt im Getrunken-Tab -
       // eigenes try/catch noetig hier waere Ueberbau, ein Fehlschlag blaest
@@ -601,6 +625,30 @@ export function CollectionPage() {
 
       {loading && <LoadingSpinner label="Sammlung wird geladen ..." />}
       {error && <ErrorBanner message={error} onRetry={load} />}
+
+      {!loading && !error && offlineSince && (
+        <div
+          style={{
+            margin: '0 20px 14px',
+            padding: '14px 16px',
+            border: '1px solid var(--color-divider)',
+            borderRadius: 'var(--radius-md)',
+            background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 10,
+          }}
+        >
+          <div style={{ fontSize: 13.5, lineHeight: 1.5 }}>
+            Offline - zeigt den Stand vom {new Date(offlineSince).toLocaleString('de-CH')}.
+          </div>
+          <div>
+            <button type="button" className="btn btn-secondary" onClick={() => load()}>
+              Erneut versuchen
+            </button>
+          </div>
+        </div>
+      )}
 
       {!loading && !error && tab === 'consumed' && partialConsumption.length > 0 && (
         <div style={{ padding: '0 20px 20px' }}>
