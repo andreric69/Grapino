@@ -27,6 +27,7 @@ const LABEL_FIELDS = [
   'subregion',
   'country',
   'wineType',
+  'alcoholContent',
 ] as const;
 
 const LabelRecognitionSchema = z.object({
@@ -38,6 +39,7 @@ const LabelRecognitionSchema = z.object({
   subregion: z.string().nullable(),
   country: z.string().nullable(),
   wineType: z.enum(['rot', 'weiss', 'rose', 'dessert', 'schaumwein']).nullable(),
+  alcoholContent: z.number().min(0).max(100).nullable(),
   // Felder, bei denen sich die Erkennung selbst unsicher ist (z. B. verschwommen,
   // teilweise verdeckt) - werden dem Nutzer im Formular als "bitte pruefen" markiert.
   uncertainFields: z.array(z.enum(LABEL_FIELDS)),
@@ -54,6 +56,7 @@ Regeln:
 - "vintage" ist der Jahrgang (vierstellige Zahl), nur falls auf dem Etikett gedruckt.
 - "region"/"subregion"/"country": geografische Herkunft, nur falls auf dem Etikett erkennbar.
 - "wineType": rot/weiss/rose/dessert/schaumwein, nur wenn aus dem Etikett klar hervorgeht (Farbe im Foto, Bezeichnung wie "Rosso"/"Blanc de Blancs", bekannte Appellation) - sonst null.
+- "alcoholContent": Alkoholgehalt in % vol als Zahl (z. B. 13.5), nur falls auf dem Etikett lesbar gedruckt - sonst null.
 - "uncertainFields": Namen der obigen Felder, bei denen du unsicher bist.
 - "fullText": eine moeglichst vollstaendige Abschrift des gesamten lesbaren Texts auf dem Etikett.
 - "chips": weitere kurze Textfragmente vom Etikett, die noch keinem Feld zugeordnet sind (z. B. Alkoholgehalt, Klassifikation, Lagename) - jeweils nur wenige Woerter.`;

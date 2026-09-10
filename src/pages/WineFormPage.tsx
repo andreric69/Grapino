@@ -14,6 +14,7 @@ import { compressImage, cropImage, preprocessForOcr } from '../lib/imageCompress
 import { preloadOcrWorker, recognizeWineLabel, type FieldConfidence, type OcrField, type OcrSuggestions } from '../lib/ocr';
 import { recognizeLabelWithAi } from '../lib/labelRecognitionApi';
 import { preloadWineReference, lookupCountryForRegion, lookupCountryForProducer, lookupTypeForGrape } from '../lib/wineReference';
+import { lookupFoodPairingForGrape } from '../lib/grapeFoodPairing';
 import { preloadLabelEmbeddingModel, computeLabelEmbedding } from '../lib/labelEmbedding';
 import { listRecognitionRefs, upsertRecognitionRef, bestEmbeddingMatch, bestTextMatch, type RecognitionRef } from '../lib/recognitionRefs';
 import { lookupWineKnowledge } from '../lib/wineKnowledgeCache';
@@ -438,6 +439,23 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.grapeVariety]);
 
+  // Klassische Rebsorte-Speise-Kombination vorschlagen (z. B. Cabernet
+  // Sauvignon -> "Rind, Lamm, gereifter Käse") - nur falls "Passt zu" noch
+  // leer ist, nie eine eigene Eingabe ueberschreiben. Rein synchron (siehe
+  // grapeFoodPairing.ts), trotzdem debounced wie die anderen Vorschlaege
+  // hier, damit nicht bei jedem Tastenanschlag nachgeschlagen wird.
+  useEffect(() => {
+    if (!form.grapeVariety.trim() || form.foodPairing.trim()) return;
+    const handle = setTimeout(() => {
+      const pairing = lookupFoodPairingForGrape(form.grapeVariety);
+      if (pairing) {
+        setForm((f) => (f.foodPairing.trim() ? f : { ...f, foodPairing: pairing }));
+      }
+    }, 500);
+    return () => clearTimeout(handle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.grapeVariety]);
+
   function handlePhotoSelect(file: File) {
     if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
     const objectUrl = URL.createObjectURL(file);
@@ -579,6 +597,10 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
         if (suggestions.wineType) {
           next.wineType = suggestions.wineType;
           nextSuggested.wineType = suggestions.confidence.wineType ?? 'low';
+        }
+        if (suggestions.alcoholContent) {
+          next.alcoholContent = String(suggestions.alcoholContent);
+          nextSuggested.alcoholContent = suggestions.confidence.alcoholContent ?? 'high';
         }
         return next;
       });
@@ -756,6 +778,13 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
       if (!match) return; // Jahrgang-Feld akzeptiert nur eine echte 4-stellige Jahreszahl.
       updateField('vintage', match[0]);
       clearSuggestion('vintage');
+      return;
+    }
+    if (field === 'alcoholContent') {
+      const match = text.match(/\b(\d{1,2}(?:[.,]\d)?)\s?(?:%|°)/);
+      if (!match) return; // Feld akzeptiert nur eine erkennbare Prozent-/Grad-Angabe.
+      updateField('alcoholContent', match[1].replace(',', '.'));
+      clearSuggestion('alcoholContent');
       return;
     }
     if (field === 'name' || field === 'producer' || field === 'grapeVariety' || field === 'region' || field === 'subregion') {
@@ -1287,7 +1316,12 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
 
             <div style={{ display: 'flex', gap: 12 }}>
               <div style={{ flex: 1 }}>
-                <FormField label="Alkoholgehalt (% vol)">
+                <FormField
+                  label="Alkoholgehalt (% vol)"
+                  confidence={suggested.alcoholContent}
+                  dropField="alcoholContent"
+                  hovered={hoveredDropField === 'alcoholContent'}
+                >
                   <input
                     className="input"
                     type="number"
@@ -1297,7 +1331,10 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
                     max={100}
                     placeholder="z. B. 14.5"
                     value={form.alcoholContent}
-                    onChange={(e) => updateField('alcoholContent', e.target.value)}
+                    onChange={(e) => {
+                      updateField('alcoholContent', e.target.value);
+                      clearSuggestion('alcoholContent');
+                    }}
                   />
                 </FormField>
               </div>

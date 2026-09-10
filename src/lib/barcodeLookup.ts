@@ -1,4 +1,5 @@
 import { matchWineReferences, lookupCountryForRegion } from './wineReference';
+import { lookupCountryFromEanPrefix } from './eanCountryPrefix';
 import type { WineType } from '../types';
 
 export interface BarcodeProductInfo {
@@ -76,6 +77,16 @@ export async function lookupBarcodeProduct(ean: string): Promise<BarcodeProductI
         const country = await lookupCountryForRegion(refMatches.region);
         if (country) result.country = country;
       }
+    }
+
+    // Unterster Rueckfall: Open Food Facts hat oft kein Land geliefert (siehe
+    // Kommentar oben - schwache Abdeckung bei Boutique-/Sammlerweinen), aber
+    // jeder gueltige Barcode kodiert trotzdem grob ein Herkunftsland ueber
+    // sein GS1-Praefix. Rein lokale Tabellen-Suche, kein Netzwerkzugriff, und
+    // ueberschreibt nie ein bereits gefundenes Land - niedrigste Prioritaet.
+    if (!result.country) {
+      const prefixCountry = lookupCountryFromEanPrefix(ean);
+      if (prefixCountry) result.country = prefixCountry;
     }
 
     return result;

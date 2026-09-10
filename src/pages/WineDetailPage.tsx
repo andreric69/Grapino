@@ -12,6 +12,7 @@ import { WineBottlePlaceholder } from '../components/WineBottlePlaceholder';
 import { Toast } from '../components/Toast';
 import { useToast } from '../hooks/useToast';
 import { shareOrDownloadWineCard } from '../lib/shareCard';
+import { lookupVintageInfo, VINTAGE_RATING_LABELS, type VintageRating } from '../lib/vintageChart';
 
 export function WineDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -134,6 +135,8 @@ export function WineDetailPage() {
       </div>
     );
   }
+
+  const vintageInfo = wine.region && wine.vintage ? lookupVintageInfo(wine.region, wine.vintage) : null;
 
   return (
     <div className="app-screen" style={{ paddingBottom: 40, position: 'relative' }}>
@@ -439,6 +442,23 @@ export function WineDetailPage() {
           </div>
         )}
 
+        {wine.region && wine.vintage && vintageInfo && (
+          <div className="card" style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginTop: 10, padding: '8px 12px' }}>
+            <span style={{ color: 'var(--color-accent)', opacity: 0.8, display: 'inline-flex', marginTop: 1 }}>
+              <VintageIcon />
+            </span>
+            <span style={{ fontSize: 12.5 }}>
+              <span className={`tag ${VINTAGE_RATING_TAG_CLASS[vintageInfo.rating]}`}>
+                {VINTAGE_RATING_LABELS[vintageInfo.rating]}
+              </span>
+              <span style={{ display: 'block', marginTop: 4, opacity: 0.6, fontSize: 12 }}>
+                {vintageInfo.note ? `${vintageInfo.note}. ` : ''}
+                Gilt allgemein als Einschätzung für {wine.region} {wine.vintage}, keine Garantie für diese Flasche.
+              </span>
+            </span>
+          </div>
+        )}
+
         {(wine.tasting_tannin || wine.tasting_acidity || wine.tasting_sweetness || wine.tasting_body) && (
           <div style={{ marginTop: 16 }}>
             <div className="card-kicker" style={{ marginBottom: 8 }}>
@@ -574,6 +594,15 @@ export function WineDetailPage() {
   );
 }
 
+/** Ordnet die Jahrgangs-Einschaetzung der passenden Tag-Optik zu (schwache Jahrgaenge wie "Getrunken" hervorgehoben, starke wie die Typ/Jahrgangs-Tags im Header). */
+const VINTAGE_RATING_TAG_CLASS: Record<VintageRating, string> = {
+  aussergewoehnlich: 'tag-accent',
+  sehr_gut: 'tag-accent',
+  gut: 'tag-outline',
+  durchschnittlich: 'tag-outline',
+  schwach: 'tag-warn',
+};
+
 const TASTING_ROWS: Array<{ key: 'tasting_tannin' | 'tasting_acidity' | 'tasting_sweetness' | 'tasting_body'; label: string }> = [
   { key: 'tasting_tannin', label: 'Tannin' },
   { key: 'tasting_acidity', label: 'Säure' },
@@ -606,6 +635,14 @@ function BottleIcon({ size = 17 }: { size?: number }) {
     <svg {...iconProps(size)}>
       <path d="M10 2h4v3.2l1.7 2.6c.2.3.3.7.3 1.1V20a2 2 0 01-2 2h-4a2 2 0 01-2-2V8.9c0-.4.1-.8.3-1.1L10 5.2V2z" />
       <path d="M9 12h6" />
+    </svg>
+  );
+}
+function VintageIcon({ size = 15 }: { size?: number }) {
+  return (
+    <svg {...iconProps(size)}>
+      <circle cx="12" cy="8.5" r="5.3" />
+      <path d="M9.3 13L8 21l4-2.2L16 21l-1.3-8" />
     </svg>
   );
 }

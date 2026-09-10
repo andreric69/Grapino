@@ -9,7 +9,16 @@ import {
 import type { WineType } from '../types';
 
 export type FieldConfidence = 'high' | 'low';
-export type OcrField = 'name' | 'producer' | 'vintage' | 'grapeVariety' | 'region' | 'subregion' | 'country' | 'wineType';
+export type OcrField =
+  | 'name'
+  | 'producer'
+  | 'vintage'
+  | 'grapeVariety'
+  | 'region'
+  | 'subregion'
+  | 'country'
+  | 'wineType'
+  | 'alcoholContent';
 
 // Weinetiketten sind ueberwiegend Deutsch/Englisch, Franzoesisch, Italienisch
 // oder Spanisch (Bordeaux, Barolo, Rioja ...) - vorher nur deu+eng erkannt,
@@ -65,6 +74,8 @@ export interface OcrSuggestions {
   country?: string;
   /** Aus der erkannten Rebsorte abgeleitet (z. B. Nebbiolo -> Rot) - nur ein Vorschlag. */
   wineType?: WineType;
+  /** Alkoholgehalt in % vol, direkt als Zahl vom Etikett abgelesen (z. B. "13,5% vol") - wortwoertlich, nicht erraten, deshalb immer "high", sobald gefunden. */
+  alcoholContent?: number;
   /** Alle brauchbar erkannten Textfragmente - fuers manuelle Zuordnen per Ziehen auf ein Feld. */
   chips: string[];
   /** Der komplette erkannte Rohtext - fuer den Abgleich gegen bereits bestaetigte eigene Weine (siehe recognitionRefs.ts). */
@@ -86,6 +97,12 @@ const MIN_VINTAGE = 1900;
 // Naechstes Jahr statt fest verdrahtet, damit das hier nicht jedes Jahr manuell
 // nachgezogen werden muss (Etiketten koennen bereits den kommenden Jahrgang zeigen).
 const MAX_VINTAGE = new Date().getFullYear() + 1;
+
+// Realistischer Alkoholgehalt-Bereich fuer Wein - alles ausserhalb ist so gut
+// wie sicher ein falsch positiver Treffer (z. B. eine zufaellige Prozentzahl
+// aus anderem Kleindruck), nicht der tatsaechliche Alkoholgehalt.
+const MIN_ABV = 5;
+const MAX_ABV = 20;
 
 // Woerter, die auf Etiketten haeufig vorkommen, aber Stilangaben und keine
 // Namen sind - sollen nie als Wein-/Produzentenname vorgeschlagen werden.
@@ -290,6 +307,9 @@ async function parseRecognitionResult(words: RecognizedWord[]): Promise<OcrSugge
   const vintage = extractVintage(fullText);
   if (vintage) confidence.vintage = 'high'; // eindeutiges 4-stelliges Jahr im erwarteten Bereich - keine Grauzone
 
+  const alcoholContent = extractAlcoholContent(fullText);
+  if (alcoholContent) confidence.alcoholContent = 'high'; // woertlich vom Etikett abgelesene Zahl, nicht erraten
+
   // Region direkt vom Etikett ablesen (siehe Kommentar oben), bevor der
   // Datenbank-Abgleich laeuft - hat Vorrang, weil vom Etikett selbst.
   const labeledRegion = extractLabeledRegion(fullText);
@@ -400,6 +420,7 @@ async function parseRecognitionResult(words: RecognizedWord[]): Promise<OcrSugge
   // zieht es im Formular selbst auf das passende Feld.
   const chipSet = new Set<string>();
   if (vintage) chipSet.add(String(vintage));
+  if (alcoholContent) chipSet.add(`${alcoholContent}% vol`);
   if (region) chipSet.add(region);
   if (subregion) chipSet.add(subregion);
   if (grapeVariety) chipSet.add(grapeVariety);
@@ -416,6 +437,7 @@ async function parseRecognitionResult(words: RecognizedWord[]): Promise<OcrSugge
     subregion,
     country: country ?? undefined,
     wineType,
+    alcoholContent,
     chips,
     confidence,
     fullText,
@@ -427,4 +449,22 @@ function extractVintage(text: string): number | undefined {
   if (!matches) return undefined;
   const inRange = matches.map(Number).filter((y) => y >= MIN_VINTAGE && y <= MAX_VINTAGE);
   return inRange[0];
+}
+
+// Deckt gaengige Etikett-Schreibweisen ab: "13.5% vol", "13,5% Vol.",
+// "Alc. 13.5% Vol", "13,5 % vol.", "13.5°" - ein- oder zweistellige Zahl,
+// optionales Komma/Punkt als Dezimaltrennzeichen, optionaler Leerraum vor
+// dem % bzw. Grad-Zeichen. "vol"/"°" wird bewusst NICHT verlangt, weil manche
+// Etiketten nur "13,5%" ohne weiteren Zusatz drucken.
+const ALCOHOL_PATTERN = /\b(\d{1,2}(?:[.,]\d)?)\s?(?:%|°)/g;
+
+function extractAlcoholContent(text: string): number | undefined {
+  const matches = text.matchAll(ALCOHOL_PATTERN);
+  for (const match of matches) {
+    const value = parseFloat(match[1].replace(',', '.'));
+    if (!Number.isNaN(value) && value >= MIN_ABV && value <= MAX_ABV) {
+      return value;
+    }
+  }
+  return undefined;
 }

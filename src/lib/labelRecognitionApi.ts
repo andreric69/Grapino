@@ -11,6 +11,7 @@ const LABEL_FIELDS: OcrField[] = [
   'subregion',
   'country',
   'wineType',
+  'alcoholContent',
 ];
 
 interface LabelRecognitionResult {
@@ -22,6 +23,7 @@ interface LabelRecognitionResult {
   subregion: string | null;
   country: string | null;
   wineType: WineType | null;
+  alcoholContent: number | null;
   uncertainFields: OcrField[];
   fullText: string;
   chips: string[];
@@ -91,6 +93,7 @@ export async function recognizeLabelWithAi(image: Blob, signal?: AbortSignal): P
     subregion: data.subregion ?? undefined,
     country: data.country ?? undefined,
     wineType: data.wineType ?? undefined,
+    alcoholContent: data.alcoholContent ?? undefined,
     chips: data.chips.slice(0, 20),
     fullText: data.fullText,
     confidence,
