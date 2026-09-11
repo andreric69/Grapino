@@ -757,9 +757,17 @@ export function SettingsPage() {
             <div style={{ fontSize: 12.5, opacity: 0.65, lineHeight: 1.5 }}>
               Übersicht: wie viele Weine, aus welcher Region, welche Rebsorten.
             </div>
-            <button type="button" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }} onClick={() => navigate('/statistik')}>
-              Statistik anzeigen
-            </button>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button type="button" className="btn btn-secondary" onClick={() => navigate('/statistik')}>
+                Statistik anzeigen
+              </button>
+              <button type="button" className="btn btn-secondary" onClick={() => navigate('/meilensteine')}>
+                Meilensteine
+              </button>
+              <button type="button" className="btn btn-secondary" onClick={() => navigate('/weinjahr')}>
+                Weinjahr
+              </button>
+            </div>
           </div>
         </section>
 

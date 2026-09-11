@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { listWines } from '../lib/wineRepository';
-import { WINE_TYPE_LABELS, splitCommaList, type Wine } from '../types';
+import { listWines, listConsumptionLog } from '../lib/wineRepository';
+import { WINE_TYPE_LABELS, splitCommaList, type ConsumptionLogEntry, type Wine } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorBanner } from '../components/ErrorBanner';
+import { computeConsumptionForecast } from '../lib/consumptionForecast';
+import { computeLifetimeDiversity } from '../lib/lifetimeDiversity';
 
 type CountMode = 'bottles' | 'wines';
 
@@ -66,9 +68,20 @@ function drinkBuckets(wines: Wine[], mode: CountMode, currentYear: number): Drin
   return buckets;
 }
 
+/** Formatiert die verbleibenden Monate lesbar - ab 24 Monaten in Jahren statt Monaten, wirkt sonst unnoetig praezise. */
+function formatMonthsRemaining(months: number): string {
+  if (months >= 24) {
+    const years = Math.round((months / 12) * 10) / 10;
+    return `noch ca. ${years.toString().replace('.', ',')} Jahre`;
+  }
+  const rounded = Math.max(1, Math.round(months));
+  return `noch ca. ${rounded} ${rounded === 1 ? 'Monat' : 'Monate'}`;
+}
+
 export function StatsPage() {
   const navigate = useNavigate();
   const [wines, setWines] = useState<Wine[]>([]);
+  const [consumptionLog, setConsumptionLog] = useState<ConsumptionLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<CountMode>('bottles');
@@ -77,7 +90,9 @@ export function StatsPage() {
     setLoading(true);
     setError(null);
     try {
-      setWines(await listWines());
+      const [wineData, logData] = await Promise.all([listWines(), listConsumptionLog()]);
+      setWines(wineData);
+      setConsumptionLog(logData);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Unbekannter Fehler.');
     } finally {
@@ -139,6 +154,12 @@ export function StatsPage() {
       return best;
     }, null);
   }, [activeWines]);
+
+  const forecast = useMemo(() => computeConsumptionForecast(activeWines, consumptionLog), [activeWines, consumptionLog]);
+  // Lebenslange Vielfalt zaehlt bewusst ueber ALLE jemals erfassten Weine
+  // (auch schon getrunkene), nicht nur den aktuellen Bestand wie die
+  // Aufschluesselung weiter unten - siehe lifetimeDiversity.ts.
+  const diversity = useMemo(() => computeLifetimeDiversity(wines), [wines]);
 
   return (
     <div className="app-screen">
@@ -216,6 +237,45 @@ export function StatsPage() {
               </div>
             )}
 
+            {forecast.monthsRemaining !== null && (
+              <div
+                className="card"
+                style={{
+                  marginBottom: 20,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 14,
+                  border: '1px solid var(--color-divider)',
+                }}
+              >
+                <div
+                  style={{
+                    width: 42,
+                    height: 42,
+                    flex: '0 0 auto',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'var(--color-surface)',
+                    color: 'var(--color-accent)',
+                  }}
+                >
+                  <ForecastIcon size={19} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="card-kicker">Vorrats-Prognose</div>
+                  <div className="card-title" style={{ fontSize: 18 }}>
+                    {formatMonthsRemaining(forecast.monthsRemaining)}
+                  </div>
+                  <div style={{ fontSize: 11.5, opacity: 0.6, marginTop: 2 }}>
+                    Grobe Schätzung, bei deinem Trinktempo der letzten 6 Monate ({forecast.bottlesPerMonth}{' '}
+                    {forecast.bottlesPerMonth === 1 ? 'Flasche' : 'Flaschen'}/Monat).
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div style={{ display: 'flex', gap: 10, marginBottom: 8, flexWrap: 'wrap' }}>
               <StatTile icon={<GlassIcon />} value={activeWines.length} label={activeWines.length === 1 ? 'Wein im Vorrat' : 'Weine im Vorrat'} />
               <StatTile icon={<BottleIcon />} value={totalBottles} label={totalBottles === 1 ? 'Flasche' : 'Flaschen'} />
@@ -267,6 +327,21 @@ export function StatsPage() {
             <StatList title="Nach Rebsorte" rows={byGrape} emptyText="Noch keine Rebsorten erfasst." limit={8} />
             <StatList title="Nach Produzent" rows={byProducer} emptyText="Noch keine Produzenten erfasst." limit={8} />
             <StatList title="Nach Jahrgang" rows={byVintage} emptyText="Noch keine Jahrgänge erfasst." />
+
+            <div className="hr" />
+            <div className="card-kicker" style={{ marginBottom: 4 }}>
+              Deine Weinreise
+            </div>
+            <div style={{ fontSize: 11.5, opacity: 0.55, marginBottom: 14, lineHeight: 1.4 }}>
+              Über deine gesamte Sammlung hinweg - auch schon getrunkene Weine, nicht nur der aktuelle Bestand.
+            </div>
+            <div style={{ display: 'flex', gap: 10, marginBottom: 8, flexWrap: 'wrap' }}>
+              <StatTile icon={<GlobeIcon />} value={diversity.countries} label={diversity.countries === 1 ? 'Land' : 'Länder'} />
+              <StatTile icon={<MapIcon />} value={diversity.regions} label={diversity.regions === 1 ? 'Region' : 'Regionen'} />
+              <StatTile icon={<GrapeIcon />} value={diversity.grapeVarieties} label={diversity.grapeVarieties === 1 ? 'Rebsorte' : 'Rebsorten'} />
+              <StatTile icon={<BuildingIcon />} value={diversity.producers} label={diversity.producers === 1 ? 'Produzent' : 'Produzenten'} />
+              <StatTile icon={<GlassIcon />} value={diversity.totalWinesEver} label="Weine insgesamt" />
+            </div>
           </>
         )}
       </div>
@@ -450,6 +525,44 @@ function CalendarIcon({ size = 18 }: { size?: number }) {
     <svg {...iconProps(size)}>
       <rect x="3.5" y="5" width="17" height="15.5" rx="2" />
       <path d="M3.5 10h17M8 3v4M16 3v4" />
+    </svg>
+  );
+}
+function ForecastIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg {...iconProps(size)}>
+      <path d="M3 20V10l5-3 6 3.5L20 6v14" />
+      <path d="M3 20h17" />
+    </svg>
+  );
+}
+function GlobeIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg {...iconProps(size)}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3c2.8 2.5 4.3 5.7 4.3 9s-1.5 6.5-4.3 9c-2.8-2.5-4.3-5.7-4.3-9s1.5-6.5 4.3-9z" />
+    </svg>
+  );
+}
+function MapIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg {...iconProps(size)}>
+      <path d="M9 4L3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5L9 4z" />
+      <path d="M9 4v14M15 6.5v14" />
+    </svg>
+  );
+}
+function GrapeIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg {...iconProps(size)}>
+      <circle cx="9" cy="8" r="2.3" />
+      <circle cx="14" cy="8" r="2.3" />
+      <circle cx="6.5" cy="12.5" r="2.3" />
+      <circle cx="11.5" cy="12.5" r="2.3" />
+      <circle cx="16.5" cy="12.5" r="2.3" />
+      <circle cx="9" cy="17" r="2.3" />
+      <circle cx="14" cy="17" r="2.3" />
+      <path d="M11.5 3.5V6" />
     </svg>
   );
 }

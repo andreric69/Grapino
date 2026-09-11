@@ -12,6 +12,8 @@ import { RueckblickPage } from './pages/RueckblickPage';
 import { PrintPage } from './pages/PrintPage';
 import { ImpressumPage } from './pages/ImpressumPage';
 import { CellarMapPage } from './pages/CellarMapPage';
+import { MilestonesPage } from './pages/MilestonesPage';
+import { YearRecapPage } from './pages/YearRecapPage';
 
 export default function App() {
   return (
@@ -101,6 +103,22 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <CellarMapPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/meilensteine"
+            element={
+              <ProtectedRoute>
+                <MilestonesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/weinjahr"
+            element={
+              <ProtectedRoute>
+                <YearRecapPage />
               </ProtectedRoute>
             }
           />
