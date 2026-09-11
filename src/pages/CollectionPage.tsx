@@ -25,6 +25,7 @@ import { ConsumeDialog } from '../components/ConsumeDialog';
 import { AddBottleDialog } from '../components/AddBottleDialog';
 import { Toast } from '../components/Toast';
 import { useToast } from '../hooks/useToast';
+import { QuickJumpSearch } from '../components/QuickJumpSearch';
 
 type FilterKey = 'vintage' | 'region' | 'country' | 'grape_variety' | 'wine_type' | 'bottle_size' | 'community_rating';
 type Tab = 'active' | 'consumed';
@@ -124,6 +125,7 @@ export function CollectionPage() {
   const [feedbackRequestId, setFeedbackRequestId] = useState<string | null>(null);
   const [pendingConsume, setPendingConsume] = useState<Wine | null>(null);
   const [pendingAdd, setPendingAdd] = useState<Wine | null>(null);
+  const [quickJumpOpen, setQuickJumpOpen] = useState(false);
   const [tab, setTab] = useState<Tab>(persistedFilterState.tab ?? 'active');
   const [viewMode, setViewMode] = useState<ViewMode>(
     () => (localStorage.getItem(VIEW_MODE_KEY) as ViewMode | null) ?? 'grid',
@@ -461,6 +463,18 @@ export function CollectionPage() {
       <ChatBubble wines={wines} />
       <div className="top-bar" style={{ justifyContent: 'flex-end' }}>
         <div style={{ display: 'flex', gap: 8 }}>
+          <button type="button" className="icon-btn" aria-label="Schnellzugriff" title="Schnellzugriff (Wein oder Seite suchen)" onClick={() => setQuickJumpOpen(true)}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-text)" strokeWidth="1.8">
+              <circle cx="11" cy="11" r="7" />
+              <path d="M21 21l-4.3-4.3" strokeLinecap="round" />
+            </svg>
+          </button>
+          <button type="button" className="icon-btn" aria-label="Entdecken" title="Entdecken - Statistik, Lagerplan und mehr" onClick={() => navigate('/entdecken')}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-text)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M15.5 8.5l-2 5-5 2 2-5 5-2z" />
+            </svg>
+          </button>
           <button type="button" className="icon-btn" aria-label="Einstellungen" title="Einstellungen" onClick={() => navigate('/settings')}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-text)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="3" />
@@ -773,6 +787,7 @@ export function CollectionPage() {
       )}
 
       <Toast message={toastMessage} />
+      <QuickJumpSearch open={quickJumpOpen} onClose={() => setQuickJumpOpen(false)} />
     </div>
   );
 }

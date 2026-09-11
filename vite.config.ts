@@ -21,6 +21,28 @@ export default defineConfig({
           { src: 'icons/pwa-512x512.png', sizes: '512x512', type: 'image/png' },
           { src: 'icons/maskable-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
+        // Schnellzugriffe beim langen Druecken/Rechtsklick auf das Home-
+        // Bildschirm-Icon (Android/Desktop-PWA - iOS ignoriert das bislang,
+        // schadet dort aber nicht). Bewusst nur die 3 haeufigsten Einstiege,
+        // nicht jede Seite - sonst verliert das Menue seinen Schnellzugriffs-
+        // Charakter.
+        shortcuts: [
+          {
+            name: 'Neuen Wein hinzufügen',
+            short_name: 'Neuer Wein',
+            url: '/wine/new',
+          },
+          {
+            name: 'Sammlung öffnen',
+            short_name: 'Sammlung',
+            url: '/',
+          },
+          {
+            name: 'Statistik anzeigen',
+            short_name: 'Statistik',
+            url: '/statistik',
+          },
+        ],
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2,json}'],

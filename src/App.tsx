@@ -14,6 +14,7 @@ import { ImpressumPage } from './pages/ImpressumPage';
 import { CellarMapPage } from './pages/CellarMapPage';
 import { MilestonesPage } from './pages/MilestonesPage';
 import { YearRecapPage } from './pages/YearRecapPage';
+import { DiscoverPage } from './pages/DiscoverPage';
 
 export default function App() {
   return (
@@ -119,6 +120,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <YearRecapPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/entdecken"
+            element={
+              <ProtectedRoute>
+                <DiscoverPage />
               </ProtectedRoute>
             }
           />

@@ -686,14 +686,14 @@ export function SettingsPage() {
 
         <section style={{ marginBottom: 28 }}>
           <div className="card-kicker" style={{ marginBottom: 8 }}>
-            Wissen
+            Entdecken
           </div>
           <div className="card" style={{ gap: 12 }}>
             <div style={{ fontSize: 12.5, opacity: 0.65, lineHeight: 1.5 }}>
-              Rebsorten und Weinregionen mit Beschreibung zum Nachschlagen.
+              Statistik, Rückblick, Weinjahr, Meilensteine, Lagerplan und Weinlexikon - alles an einem Ort.
             </div>
-            <button type="button" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }} onClick={() => navigate('/lexikon')}>
-              Weinlexikon öffnen
+            <button type="button" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }} onClick={() => navigate('/entdecken')}>
+              Entdecken öffnen
             </button>
           </div>
         </section>
@@ -745,42 +745,6 @@ export function SettingsPage() {
               onClick={() => setOpenPdf({ key: 'auftraege', title: 'Aktualisierungs-Aufträge geben' })}
             >
               Aktualisierungs-Aufträge geben (PDF)
-            </button>
-          </div>
-        </section>
-
-        <section style={{ marginBottom: 28 }}>
-          <div className="card-kicker" style={{ marginBottom: 8 }}>
-            Statistik
-          </div>
-          <div className="card" style={{ gap: 12 }}>
-            <div style={{ fontSize: 12.5, opacity: 0.65, lineHeight: 1.5 }}>
-              Übersicht: wie viele Weine, aus welcher Region, welche Rebsorten.
-            </div>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <button type="button" className="btn btn-secondary" onClick={() => navigate('/statistik')}>
-                Statistik anzeigen
-              </button>
-              <button type="button" className="btn btn-secondary" onClick={() => navigate('/meilensteine')}>
-                Meilensteine
-              </button>
-              <button type="button" className="btn btn-secondary" onClick={() => navigate('/weinjahr')}>
-                Weinjahr
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <section style={{ marginBottom: 28 }}>
-          <div className="card-kicker" style={{ marginBottom: 8 }}>
-            Lagerplan
-          </div>
-          <div className="card" style={{ gap: 12 }}>
-            <div style={{ fontSize: 12.5, opacity: 0.65, lineHeight: 1.5 }}>
-              Deine Weine nach Lagerort gruppiert - z. B. um schnell zu sehen, was im Keller Regal 3 steht.
-            </div>
-            <button type="button" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }} onClick={() => navigate('/lagerplan')}>
-              Lagerplan anzeigen
             </button>
           </div>
         </section>
