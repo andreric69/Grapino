@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { listWines, getSignedPhotoUrls, listConsumptionLog } from '../lib/wineRepository';
+import { listWines, getSignedPhotoUrls, listConsumptionLog, listDeletedWines } from '../lib/wineRepository';
 import { isBackupOverdue } from '../lib/backupReminder';
 import { getUnfulfilledFeedbackRequest, markFeedbackRequestFulfilled } from '../lib/feedbackRepository';
 import { getDueAnnouncements, dismissAnnouncement } from '../lib/announcementRepository';
@@ -17,6 +17,7 @@ import { ThemeToggle } from '../components/ThemeToggle';
 import { BackupReminderBanner } from '../components/BackupReminderBanner';
 import { AnnouncementBanner } from '../components/AnnouncementBanner';
 import { DraftReminderBanner } from '../components/DraftReminderBanner';
+import { TrashReminderBanner } from '../components/TrashReminderBanner';
 import { hasWineDraft, clearWineDraft } from '../lib/wineDraft';
 import { saveWinesToCache, loadWinesFromCache } from '../lib/offlineCache';
 import { FeedbackModal } from '../components/FeedbackModal';
@@ -25,7 +26,6 @@ import { ConsumeDialog } from '../components/ConsumeDialog';
 import { AddBottleDialog } from '../components/AddBottleDialog';
 import { Toast } from '../components/Toast';
 import { useToast } from '../hooks/useToast';
-import { QuickJumpSearch } from '../components/QuickJumpSearch';
 
 type FilterKey = 'vintage' | 'region' | 'country' | 'grape_variety' | 'wine_type' | 'bottle_size' | 'community_rating';
 type Tab = 'active' | 'consumed';
@@ -120,12 +120,13 @@ export function CollectionPage() {
   const [drinkNowOnly, setDrinkNowOnly] = useState(persistedFilterState.drinkNowOnly ?? false);
   const [showBackupReminder, setShowBackupReminder] = useState(false);
   const [showDraftReminder, setShowDraftReminder] = useState(false);
+  const [deletedWines, setDeletedWines] = useState<Wine[]>([]);
+  const [trashReminderDismissed, setTrashReminderDismissed] = useState(false);
   const [unseenAnnouncements, setUnseenAnnouncements] = useState<Announcement[]>([]);
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackRequestId, setFeedbackRequestId] = useState<string | null>(null);
   const [pendingConsume, setPendingConsume] = useState<Wine | null>(null);
   const [pendingAdd, setPendingAdd] = useState<Wine | null>(null);
-  const [quickJumpOpen, setQuickJumpOpen] = useState(false);
   const [tab, setTab] = useState<Tab>(persistedFilterState.tab ?? 'active');
   const [viewMode, setViewMode] = useState<ViewMode>(
     () => (localStorage.getItem(VIEW_MODE_KEY) as ViewMode | null) ?? 'grid',
@@ -215,6 +216,9 @@ export function CollectionPage() {
       // Aufrufen unten steht; bewusst still bei Fehler (Abschnitt bleibt
       // dann einfach leer statt die ganze Seite zu blockieren).
       listConsumptionLog().then(setConsumptionLog).catch(() => {});
+      // Fuer die Papierkorb-Erinnerung (TrashReminderBanner) - ebenfalls nicht
+      // kritisch, bleibt bei Fehler einfach leer statt die Seite zu blockieren.
+      listDeletedWines().then(setDeletedWines).catch(() => {});
       if (data.length > 0 && isBackupOverdue()) setShowBackupReminder(true);
       if (hasWineDraft()) setShowDraftReminder(true);
       // Das Feedback-Popup erscheint nur noch, wenn der Betreiber es ueber
@@ -463,12 +467,6 @@ export function CollectionPage() {
       <ChatBubble wines={wines} />
       <div className="top-bar" style={{ justifyContent: 'flex-end' }}>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" className="icon-btn" aria-label="Schnellzugriff" title="Schnellzugriff (Wein oder Seite suchen)" onClick={() => setQuickJumpOpen(true)}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-text)" strokeWidth="1.8">
-              <circle cx="11" cy="11" r="7" />
-              <path d="M21 21l-4.3-4.3" strokeLinecap="round" />
-            </svg>
-          </button>
           <button type="button" className="icon-btn" aria-label="Entdecken" title="Entdecken - Statistik, Lagerplan und mehr" onClick={() => navigate('/entdecken')}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-text)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="9" />
@@ -528,6 +526,10 @@ export function CollectionPage() {
             setShowDraftReminder(false);
           }}
         />
+      )}
+
+      {!trashReminderDismissed && (
+        <TrashReminderBanner deletedWines={deletedWines} onDismiss={() => setTrashReminderDismissed(true)} />
       )}
 
       <div style={{ display: 'flex', gap: 8, padding: '0 20px 14px' }}>
@@ -596,7 +598,7 @@ export function CollectionPage() {
         </div>
         </div>
       )}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, alignItems: 'center', padding: '0 20px 14px' }}>
+      <div className="view-controls-row" style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, alignItems: 'center', padding: '0 20px 14px' }}>
         <div style={{ display: 'flex', border: '1px solid var(--color-divider)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
           <button
             type="button"
@@ -787,7 +789,6 @@ export function CollectionPage() {
       )}
 
       <Toast message={toastMessage} />
-      <QuickJumpSearch open={quickJumpOpen} onClose={() => setQuickJumpOpen(false)} />
     </div>
   );
 }

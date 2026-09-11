@@ -89,6 +89,13 @@ export function ImpressumPage() {
           Etikett-Foto zur automatischen Texterkennung hoch, wird dieses Foto kurz an Anthropic (Claude) geschickt,
           um Angaben auszulesen - nicht dauerhaft dort gespeichert. Keine Analyse- oder Werbe-Cookies.
         </p>
+        <p style={{ marginTop: 0, marginBottom: 14 }}>
+          <strong>Sicherungen:</strong> zusätzlich zur täglichen Datenbank-Sicherung werden deine Weinfotos einmal
+          wöchentlich in einen zweiten, unabhängigen Speicherort gespiegelt - ein zusätzliches Sicherheitsnetz, falls
+          mit dem Hauptspeicher einmal etwas schiefgeht. Ausserdem merkt sich die App auf deinem eigenen Gerät (nicht
+          bei uns) den zuletzt geladenen Stand deiner Sammlung, damit sie auch ohne Internetverbindung noch etwas
+          anzeigen kann.
+        </p>
         <p style={{ marginTop: 0, marginBottom: 0 }}>
           <strong>Deine Rechte:</strong> unter Einstellungen kannst du jederzeit deine ganze Sammlung als Datei
           herunterladen, oder die vollständige Löschung deines Kontos beantragen - nach Bestätigung werden alle

@@ -367,10 +367,20 @@ export async function generateWineShareCard(wine: Wine, photoUrl: string | null)
 }
 
 /**
+ * Ergebnis von shareOrDownloadWineCard - "shared", wenn die native
+ * Share-Sheet uebernommen hat (die gibt selbst eine Betriebssystem-eigene
+ * Rueckmeldung), "downloaded", wenn stattdessen die Datei heruntergeladen
+ * wurde (dafuer zeigt der Aufrufer eine eigene Bestaetigung, siehe
+ * WineDetailPage.tsx - ohne diese Unterscheidung wirkt ein Download fuer
+ * technisch ungeuebte Nutzer wie "nichts ist passiert").
+ */
+export type ShareResult = 'shared' | 'downloaded';
+
+/**
  * Teilt die generierte Weinkarte ueber die native Share-Sheet (falls vom
  * Browser unterstuetzt), oder laedt sie andernfalls als PNG-Datei herunter.
  */
-export async function shareOrDownloadWineCard(wine: Wine, photoUrl: string | null): Promise<void> {
+export async function shareOrDownloadWineCard(wine: Wine, photoUrl: string | null): Promise<ShareResult> {
   const blob = await generateWineShareCard(wine, photoUrl);
   const filename = `${wine.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}-grapino.png`;
   const file = new File([blob], filename, { type: 'image/png' });
@@ -378,11 +388,11 @@ export async function shareOrDownloadWineCard(wine: Wine, photoUrl: string | nul
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     try {
       await navigator.share({ files: [file], title: wine.name, text: 'Aus meiner Weinsammlung' });
-      return;
+      return 'shared';
     } catch (error) {
       // Nutzer hat die native Share-Sheet einfach abgebrochen - kein Fehler,
       // sondern normales Verhalten, still ignorieren.
-      if (error instanceof DOMException && error.name === 'AbortError') return;
+      if (error instanceof DOMException && error.name === 'AbortError') return 'shared';
       // Jeder andere Fehler (z. B. echter Share-Fehler) wird weitergereicht,
       // statt ihn stillschweigend durch den Download-Fallback zu verdecken.
       throw error;
@@ -397,4 +407,5 @@ export async function shareOrDownloadWineCard(wine: Wine, photoUrl: string | nul
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
+  return 'downloaded';
 }

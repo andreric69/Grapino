@@ -981,7 +981,8 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
             />
             {recognitionEnabled && (
               <div style={{ fontSize: 11.5, fontStyle: 'italic', opacity: 0.55, marginBottom: 12, lineHeight: 1.4 }}>
-                Nach dem Foto trägt die App erkannte Werte direkt ein, wo sie sich sicher ist (z. B. den Jahrgang).
+                Das Etikett-Foto wird dafür kurz an einen KI-Dienst geschickt, nicht dauerhaft dort gespeichert. Nach
+                dem Foto trägt die App erkannte Werte direkt ein, wo sie sich sicher ist (z. B. den Jahrgang).
                 Unsichere Vorschläge sind als "Bitte prüfen" markiert. Bei allem anderen: unten erscheinen die
                 erkannten Wörter als Chips zum Ziehen - auf das passende Feld ziehen.
               </div>

@@ -476,7 +476,7 @@ export function SettingsPage() {
             Konto
           </div>
           <div className="card" style={{ gap: 12 }}>
-            <div style={{ fontSize: 14 }}>{session?.user.email}</div>
+            <div className="settings-account-email" style={{ fontSize: 14 }}>{session?.user.email}</div>
             {trialEndsAt &&
               (() => {
                 const daysLeft = daysUntil(trialEndsAt, new Date());
@@ -690,7 +690,7 @@ export function SettingsPage() {
           </div>
           <div className="card" style={{ gap: 12 }}>
             <div style={{ fontSize: 12.5, opacity: 0.65, lineHeight: 1.5 }}>
-              Statistik, Rückblick, Weinjahr, Meilensteine, Lagerplan und Weinlexikon - alles an einem Ort.
+              Statistik, Rückblick, Weinjahr, Lagerplan und Weinlexikon - alles an einem Ort.
             </div>
             <button type="button" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }} onClick={() => navigate('/entdecken')}>
               Entdecken öffnen

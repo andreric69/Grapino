@@ -117,7 +117,7 @@ export function ChatBubble({ wines }: { wines: Wine[] }) {
     <>
       <button
         type="button"
-        className="icon-btn"
+        className="icon-btn chat-bubble-btn"
         aria-label="Kontakt / Nachricht senden"
         title="Kontakt"
         onClick={() => setOpen(true)}

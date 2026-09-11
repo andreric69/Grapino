@@ -21,13 +21,17 @@ export async function listWines(): Promise<Wine[]> {
   return data as Wine[];
 }
 
-/** Weine im Papierkorb (geloescht, aber noch nicht endgueltig entfernt) - zuletzt geloeschte zuerst. */
+/**
+ * Weine im Papierkorb (geloescht, aber noch nicht endgueltig entfernt) -
+ * aeltestes Loeschdatum zuerst (= kuerzeste Restfrist zuerst), damit der
+ * dringendste Fall in der Liste ganz oben steht statt unten.
+ */
 export async function listDeletedWines(): Promise<Wine[]> {
   const { data, error } = await supabase
     .from('wines')
     .select('*')
     .not('deleted_at', 'is', null)
-    .order('deleted_at', { ascending: false });
+    .order('deleted_at', { ascending: true });
   if (error) throw toFriendlyError(error);
   return data as Wine[];
 }

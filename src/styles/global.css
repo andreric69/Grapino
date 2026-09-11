@@ -420,8 +420,15 @@ textarea.input {
   border: none;
   background: transparent;
   flex: 1;
+  min-width: 0;
   font-size: 14px;
   color: var(--color-text);
+  /* Ohne min-width:0 kann ein Flex-Kind nicht unter seine Inhaltsbreite
+     schrumpfen - bei wenig Platz (z. B. Textgroessen-Zoom, siehe unten)
+     wurde der Placeholder dadurch hart mitten im Wort abgeschnitten statt
+     mit Auslassungspunkten. Wirkt sich nur aus, wenn tatsaechlich zu wenig
+     Platz da ist - im Normalzustand unveraendert. */
+  text-overflow: ellipsis;
 }
 .search-box input::placeholder {
   opacity: 0.55;
@@ -658,4 +665,67 @@ html[data-text-scale='gross'] {
 }
 html[data-text-scale='sehr-gross'] {
   zoom: 1.38;
+}
+
+/* Der obige Zoom vergroessert den Inhalt, ohne dass der Bildschirm selbst
+   groesser wird - der effektiv nutzbare Platz schrumpft also. Auf schmalen
+   (Handy-)Breiten und in kurzen (Querformat-)Fensterhoehen liefen dadurch
+   an mehreren Stellen Inhalte ueber den Rand oder wurden ineinander
+   gequetscht. Die folgenden Regeln greifen deshalb bewusst nur in den
+   beiden Zoom-Stufen - im Normalzustand (kein data-text-scale bzw. "normal")
+   aendert sich optisch nichts. */
+
+/* Icon-Reihe oben rechts auf der Sammlungsseite (Entdecken/Einstellungen/
+   Theme) - statt seitlich abgeschnitten und nur per Wischen erreichbar zu
+   sein, darf sie bei Platzmangel in eine zweite Zeile umbrechen. Der
+   Selektor ".top-bar > div" trifft ausschliesslich diese Reihe (einzige
+   Seite mit einem verschachtelten div direkt im top-bar). */
+html[data-text-scale='gross'] .top-bar > div,
+html[data-text-scale='sehr-gross'] .top-bar > div {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  row-gap: 8px;
+}
+
+/* Grid/Listen-Umschalter-Pille + Sortierung auf der Sammlungsseite: beide
+   Gruppen sollen bei Platzmangel als Ganzes in eine neue Zeile umbrechen,
+   statt dass die Pille (ohne eigene Mindestbreite) auf Kosten der
+   Sortierung zusammengequetscht wird, bis der zweite Button darin praktisch
+   verschwindet. */
+html[data-text-scale='gross'] .view-controls-row,
+html[data-text-scale='sehr-gross'] .view-controls-row {
+  flex-wrap: wrap;
+  row-gap: 8px;
+}
+html[data-text-scale='gross'] .view-controls-row > div,
+html[data-text-scale='sehr-gross'] .view-controls-row > div {
+  flex-shrink: 0;
+}
+
+/* Ueberschriften und lange, nicht umbrechbare Texte ohne Leerzeichen (z. B.
+   eine E-Mail-Adresse) sollen bei Bedarf innerhalb des Worts umbrechen,
+   statt ueber den Bildschirmrand hinauszulaufen und abgeschnitten zu
+   werden. */
+html[data-text-scale='gross'] .form-page h1,
+html[data-text-scale='sehr-gross'] .form-page h1,
+html[data-text-scale='gross'] .settings-account-email,
+html[data-text-scale='sehr-gross'] .settings-account-email {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Schwimmende Chat-Sprechblase (unten links fixiert, siehe ChatBubble.tsx):
+   bei kurzen Fensterhoehen (z. B. Handy im Querformat oder ein kleines
+   Browserfenster) reicht der Abstand zwischen Kopfzeile und unterem
+   Bildschirmrand im Zoom nicht mehr aus, die Blase ueberlappt dann den
+   "X Flaschen"-Text. Bei wenig Hoehe rueckt sie deshalb kompakter an den
+   Rand. !important noetig, weil Position/Groesse der Blase bewusst als
+   Inline-Style in ChatBubble.tsx gesetzt bleiben (siehe Kommentar dort). */
+@media (max-height: 520px) {
+  html[data-text-scale='gross'] .chat-bubble-btn,
+  html[data-text-scale='sehr-gross'] .chat-bubble-btn {
+    bottom: calc(6px + env(safe-area-inset-bottom)) !important;
+    width: 40px !important;
+    height: 40px !important;
+  }
 }

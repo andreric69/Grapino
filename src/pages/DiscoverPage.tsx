@@ -24,7 +24,7 @@ export function DiscoverPage() {
 
   const groups: DiscoverGroup[] = [
     {
-      label: 'Auswertungen',
+      label: 'Meine Zahlen',
       tiles: [
         {
           path: '/statistik',
@@ -44,16 +44,10 @@ export function DiscoverPage() {
           description: 'Dein Jahr in Wein, als kleiner Rückblick.',
           icon: CalendarStarIcon,
         },
-        {
-          path: '/meilensteine',
-          title: 'Meilensteine',
-          description: 'Ein Rückblick auf das, was mit der Zeit zusammengekommen ist.',
-          icon: TrophyIcon,
-        },
       ],
     },
     {
-      label: 'Nachschlagen & Organisieren',
+      label: 'Nachschlagen',
       tiles: [
         {
           path: '/lagerplan',
@@ -70,7 +64,7 @@ export function DiscoverPage() {
       ],
     },
     {
-      label: 'Exportieren',
+      label: 'Drucken',
       tiles: [
         {
           path: '/drucken',
@@ -208,16 +202,6 @@ function CalendarStarIcon(size: number) {
       <rect x="3.5" y="4.5" width="17" height="16" rx="2" />
       <path d="M3.5 9.5h17M8 3v3M16 3v3" />
       <path d="M12 12.5l1 2 2.2.3-1.6 1.5.4 2.2-2-1.1-2 1.1.4-2.2-1.6-1.5 2.2-.3z" />
-    </svg>
-  );
-}
-
-function TrophyIcon(size: number) {
-  return (
-    <svg {...iconProps(size)}>
-      <path d="M7 4h10v5a5 5 0 01-10 0V4z" />
-      <path d="M7 5H4.5A2.5 2.5 0 007 9.5M17 5h2.5A2.5 2.5 0 0117 9.5" />
-      <path d="M12 14v3M9 20.5h6M9.5 17.5h5l.5 3h-6l.5-3z" />
     </svg>
   );
 }

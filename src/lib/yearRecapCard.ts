@@ -297,10 +297,18 @@ export async function generateYearRecapCard(stats: YearRecapStats): Promise<Blob
 }
 
 /**
+ * "shared", wenn die native Share-Sheet uebernommen hat (eigene
+ * Betriebssystem-Rueckmeldung), "downloaded", wenn stattdessen die Datei
+ * heruntergeladen wurde (dafuer zeigt der Aufrufer eine eigene Bestaetigung,
+ * siehe YearRecapPage.tsx).
+ */
+export type ShareResult = 'shared' | 'downloaded';
+
+/**
  * Teilt die generierte Weinjahr-Karte ueber die native Share-Sheet (falls vom
  * Browser unterstuetzt), oder laedt sie andernfalls als PNG-Datei herunter.
  */
-export async function shareOrDownloadYearRecap(stats: YearRecapStats): Promise<void> {
+export async function shareOrDownloadYearRecap(stats: YearRecapStats): Promise<ShareResult> {
   const blob = await generateYearRecapCard(stats);
   const filename = `weinjahr-${stats.year}-grapino.png`;
   const file = new File([blob], filename, { type: 'image/png' });
@@ -308,11 +316,11 @@ export async function shareOrDownloadYearRecap(stats: YearRecapStats): Promise<v
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     try {
       await navigator.share({ files: [file], title: `Weinjahr ${stats.year}`, text: 'Mein Weinjahr mit Grapino' });
-      return;
+      return 'shared';
     } catch (error) {
       // Nutzer hat die native Share-Sheet einfach abgebrochen - kein Fehler,
       // sondern normales Verhalten, still ignorieren.
-      if (error instanceof DOMException && error.name === 'AbortError') return;
+      if (error instanceof DOMException && error.name === 'AbortError') return 'shared';
       // Jeder andere Fehler (z. B. echter Share-Fehler) wird weitergereicht,
       // statt ihn stillschweigend durch den Download-Fallback zu verdecken.
       throw error;
@@ -327,4 +335,5 @@ export async function shareOrDownloadYearRecap(stats: YearRecapStats): Promise<v
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
+  return 'downloaded';
 }

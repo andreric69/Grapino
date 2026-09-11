@@ -94,7 +94,12 @@ export function WineDetailPage() {
     setSharing(true);
     setShareError(null);
     try {
-      await shareOrDownloadWineCard(wine, photoUrls[activePhoto] ?? null);
+      const result = await shareOrDownloadWineCard(wine, photoUrls[activePhoto] ?? null);
+      // Die native Share-Sheet gibt selbst eine Betriebssystem-Rueckmeldung -
+      // nur beim stillen Download-Fallback braucht es eine eigene
+      // Bestaetigung, sonst wirkt es fuer technisch ungeuebte Nutzer, als sei
+      // beim Antippen nichts passiert.
+      if (result === 'downloaded') showToast('Bild gespeichert.');
     } catch (e) {
       setShareError(e instanceof Error ? e.message : 'Teilen fehlgeschlagen.');
     } finally {
@@ -541,7 +546,7 @@ export function WineDetailPage() {
 
         <div className="hr" />
         <button type="button" className="btn btn-danger" onClick={() => setConfirmDelete(true)}>
-          Wein löschen
+          In Papierkorb verschieben
         </button>
         {deleteError && <ErrorBanner message={deleteError} onRetry={handleDelete} />}
       </div>

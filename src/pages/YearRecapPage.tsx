@@ -5,6 +5,8 @@ import type { ConsumptionLogEntry, Wine } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { shareOrDownloadYearRecap, type YearRecapStats } from '../lib/yearRecapCard';
+import { Toast } from '../components/Toast';
+import { useToast } from '../hooks/useToast';
 
 /** Gruppiert Eintraege nach einem Schluessel und zaehlt, absteigend sortiert - selbe Idee wie in RueckblickPage.tsx. */
 function groupCount(entries: ConsumptionLogEntry[], pick: (e: ConsumptionLogEntry) => string | null) {
@@ -68,6 +70,7 @@ export function YearRecapPage() {
   const [yearOverride, setYearOverride] = useState<number | null>(null);
   const [sharing, setSharing] = useState(false);
   const [shareError, setShareError] = useState<string | null>(null);
+  const { toastMessage, showToast } = useToast();
 
   async function load() {
     setLoading(true);
@@ -140,7 +143,8 @@ export function YearRecapPage() {
         wineOfTheYear,
         newWinesAdded,
       };
-      await shareOrDownloadYearRecap(stats);
+      const result = await shareOrDownloadYearRecap(stats);
+      if (result === 'downloaded') showToast('Bild gespeichert.');
     } catch (e) {
       setShareError(e instanceof Error ? e.message : 'Teilen fehlgeschlagen.');
     } finally {
@@ -297,6 +301,7 @@ export function YearRecapPage() {
           </>
         )}
       </div>
+      <Toast message={toastMessage} />
     </div>
   );
 }
