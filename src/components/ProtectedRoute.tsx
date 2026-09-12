@@ -116,7 +116,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
 
   if (loading) {
     return (
-      <div style={{ display: 'grid', placeItems: 'center', minHeight: '100vh' }}>
+      <div className="full-screen" style={{ display: 'grid', placeItems: 'center' }}>
         <LoadingSpinner label="Anmeldung wird geprüft ..." />
       </div>
     );
@@ -136,7 +136,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
 
   if (access === undefined) {
     return (
-      <div style={{ display: 'grid', placeItems: 'center', minHeight: '100vh' }}>
+      <div className="full-screen" style={{ display: 'grid', placeItems: 'center' }}>
         <LoadingSpinner label="Zugang wird geprüft ..." />
       </div>
     );

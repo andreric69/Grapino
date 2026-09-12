@@ -97,7 +97,7 @@ export function BlockScreen({ status }: { status: AccessStatus }) {
   const { signOut } = useAuth();
 
   return (
-    <div style={{ display: 'grid', placeItems: 'center', minHeight: '100vh', padding: 24 }}>
+    <div className="full-screen" style={{ display: 'grid', placeItems: 'center', padding: 24 }}>
       <style>{`
         @keyframes grapino-access-in {
           from { opacity: 0; transform: translateY(8px) scale(0.98); }

@@ -543,7 +543,7 @@ export function SettingsPage() {
                     setPasswordSaved(false);
                     setPasswordError(null);
                   }}
-                  placeholder="Neues Passwort (mind. 8 Zeichen)"
+                  placeholder="Mind. 8 Zeichen"
                 />
                 <button
                   type="button"

@@ -122,7 +122,7 @@ export function WineDetailPage() {
 
   if (loading) {
     return (
-      <div className="app-screen" style={{ display: 'grid', placeItems: 'center', minHeight: '100vh' }}>
+      <div className="app-screen full-screen" style={{ display: 'grid', placeItems: 'center' }}>
         <LoadingSpinner label="Wein wird geladen ..." />
       </div>
     );

@@ -15,6 +15,16 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Fuer vollflaechige Bildschirme (Login, Bezahl-/Testphase-Hinweise, Ladeanzeigen).
+   100vh allein bemisst sich auf iOS Safari an der Seite MIT eingeblendeter
+   Adressleiste - beim Ein-/Ausblenden springt der Inhalt dann sichtbar. Die
+   zweite (dvh-)Deklaration ueberschreibt die erste dort, wo unterstuetzt, und
+   folgt stattdessen der tatsaechlichen sichtbaren Hoehe, ohne Sprung. */
+.full-screen {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -36,6 +46,20 @@ body {
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
   transition: background-color 0.15s ease, color 0.15s ease;
+  /* Verhindert das "Gummiband"-Ueberziehen der ganzen Seite beim Ueberscrollen
+     auf iOS/Android - einzelne scrollbare Bereiche (Dialoge, Listen) duerfen
+     trotzdem overscrollen, das gilt nur fuer den App-Rahmen selbst. */
+  overscroll-behavior-y: none;
+}
+
+/* Kein grauer Antipp-Blitz auf iOS/Android - die App hat ueberall eigene
+   :active-Zustaende (Skalierung, Farbwechsel), der Browser-Standard wirkt
+   daneben unfertig. */
+a,
+button,
+[role='button'],
+.card {
+  -webkit-tap-highlight-color: transparent;
 }
 
 h1,
@@ -200,8 +224,10 @@ select {
   background: color-mix(in srgb, var(--color-accent) 18%, transparent);
 }
 .btn-icon {
-  width: 36px;
-  height: 36px;
+  /* 44px = Apples Mindestmass fuer Tippflaechen (HIG) - vorher 36px, auf dem
+     Handy leicht daneben getippt. */
+  width: 44px;
+  height: 44px;
   padding: 0;
   border-radius: 50%;
 }
@@ -224,7 +250,10 @@ select {
   min-height: 40px;
   padding: 8px 10px;
   font: inherit;
-  font-size: 15px;
+  /* 16px statt 15px, sonst zoomt iOS Safari beim Antippen automatisch in
+     jedes Textfeld hinein (Standardverhalten unter 16px), was sich wie ein
+     Bug anfuehlt. */
+  font-size: 16px;
   color: var(--color-text);
   caret-color: var(--color-accent);
   background: transparent;
@@ -345,14 +374,18 @@ a.card:active {
 .chat-tab {
   flex: 1;
   text-align: center;
-  white-space: nowrap;
+  /* Nicht "nowrap": bei schmalen Handy-Breiten (z. B. "Auftrag geben" in 4
+     gleich breiten Tabs) wird der Text sonst abgeschnitten statt umzubrechen -
+     zwei Zeilen bleiben lesbar, ein abgeschnittenes Wort nicht. */
+  white-space: normal;
+  line-height: 1.2;
   cursor: pointer;
   background: none;
   border: none;
   font: inherit;
   font-size: 12.5px;
   font-weight: 500;
-  padding: 7px 6px;
+  padding: 7px 4px;
   border-radius: calc(var(--radius-md) * 0.7);
   color: var(--color-text);
   opacity: 0.7;
@@ -390,6 +423,7 @@ a.card:active {
 .dialog {
   width: min(440px, 100%);
   max-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - var(--space-4) * 2);
+  max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - var(--space-4) * 2);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -616,10 +650,18 @@ a.card:active {
   justify-content: space-between;
   padding: 12px 16px;
   z-index: 5;
+  /* Ohne eigenen Hintergrund scheint der Seiteninhalt beim Scrollen durch die
+     angeheftete Leiste hindurch (bes. auffaellig bei laengeren Texten direkt
+     darunter, z. B. Einstellungen). Leicht transparent + Weichzeichner wirkt
+     wie eine native iOS-Leiste, statt hart abzuschneiden. */
+  background: color-mix(in srgb, var(--color-bg) 82%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 .icon-btn {
-  width: 36px;
-  height: 36px;
+  /* 44px = Apples Mindestmass fuer Tippflaechen (HIG) - vorher 36px. */
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: color-mix(in srgb, var(--color-bg) 60%, white 40%);
   border: 1px solid var(--color-divider);

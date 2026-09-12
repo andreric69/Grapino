@@ -102,7 +102,7 @@ export function PaymentDueScreen({ requests, onDismiss }: { requests: PaymentReq
   const total = requests.reduce((sum, r) => sum + r.amount, 0);
 
   return (
-    <div style={{ display: 'grid', placeItems: 'center', minHeight: '100vh', padding: 24 }}>
+    <div className="full-screen" style={{ display: 'grid', placeItems: 'center', padding: 24 }}>
       <style>{`
         @keyframes grapino-access-in {
           from { opacity: 0; transform: translateY(8px) scale(0.98); }

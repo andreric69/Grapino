@@ -98,7 +98,7 @@ export function LoginPage() {
 
   if (confirmationSent) {
     return (
-      <div className="app-screen" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <div className="app-screen full-screen" style={{ display: 'flex', flexDirection: 'column' }}>
         <div style={{ flex: 1, display: 'grid', placeItems: 'center', padding: 24 }}>
           <div className="card elev-lg" style={{ maxWidth: 360, textAlign: 'center', gap: 14, padding: 28 }}>
             <div style={{ fontSize: 32 }}>📬</div>
@@ -118,7 +118,7 @@ export function LoginPage() {
 
   if (resetSent) {
     return (
-      <div className="app-screen" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <div className="app-screen full-screen" style={{ display: 'flex', flexDirection: 'column' }}>
         <div style={{ flex: 1, display: 'grid', placeItems: 'center', padding: 24 }}>
           <div className="card elev-lg" style={{ maxWidth: 360, textAlign: 'center', gap: 14, padding: 28 }}>
             <div style={{ fontSize: 32 }}>📬</div>

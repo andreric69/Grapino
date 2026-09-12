@@ -36,7 +36,7 @@ export function AnnouncementTakeover({
   onDismiss: () => void;
 }) {
   return (
-    <div style={{ display: 'grid', placeItems: 'center', minHeight: '100vh', padding: 24 }}>
+    <div className="full-screen" style={{ display: 'grid', placeItems: 'center', padding: 24 }}>
       <div className="card elev-lg" style={{ maxWidth: 400, textAlign: 'center', gap: 14, padding: 28 }}>
         <div
           style={{
