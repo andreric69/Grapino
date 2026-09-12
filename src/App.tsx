@@ -1,24 +1,33 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './hooks/useAuth';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
-import { CollectionPage } from './pages/CollectionPage';
-import { WineDetailPage } from './pages/WineDetailPage';
-import { WineFormPage } from './pages/WineFormPage';
-import { SettingsPage } from './pages/SettingsPage';
-import { WineLexiconPage } from './pages/WineLexiconPage';
-import { StatsPage } from './pages/StatsPage';
-import { RueckblickPage } from './pages/RueckblickPage';
-import { PrintPage } from './pages/PrintPage';
-import { ImpressumPage } from './pages/ImpressumPage';
-import { CellarMapPage } from './pages/CellarMapPage';
-import { YearRecapPage } from './pages/YearRecapPage';
-import { DiscoverPage } from './pages/DiscoverPage';
+import { RouteLoadingFallback } from './components/RouteLoadingFallback';
+
+// Code-Splitting: die Login-Seite bleibt eager (das ist der allererste
+// Bildschirm, den jede Nutzerin sieht), alle anderen Seiten werden erst
+// geladen, wenn tatsaechlich zu ihnen navigiert wird - das haelt den
+// initialen Haupt-Chunk klein. Gleiches Muster wie bereits beim
+// BarcodeScanner in WineFormPage.tsx.
+const CollectionPage = lazy(() => import('./pages/CollectionPage').then((m) => ({ default: m.CollectionPage })));
+const WineDetailPage = lazy(() => import('./pages/WineDetailPage').then((m) => ({ default: m.WineDetailPage })));
+const WineFormPage = lazy(() => import('./pages/WineFormPage').then((m) => ({ default: m.WineFormPage })));
+const SettingsPage = lazy(() => import('./pages/SettingsPage').then((m) => ({ default: m.SettingsPage })));
+const WineLexiconPage = lazy(() => import('./pages/WineLexiconPage').then((m) => ({ default: m.WineLexiconPage })));
+const StatsPage = lazy(() => import('./pages/StatsPage').then((m) => ({ default: m.StatsPage })));
+const RueckblickPage = lazy(() => import('./pages/RueckblickPage').then((m) => ({ default: m.RueckblickPage })));
+const PrintPage = lazy(() => import('./pages/PrintPage').then((m) => ({ default: m.PrintPage })));
+const ImpressumPage = lazy(() => import('./pages/ImpressumPage').then((m) => ({ default: m.ImpressumPage })));
+const CellarMapPage = lazy(() => import('./pages/CellarMapPage').then((m) => ({ default: m.CellarMapPage })));
+const YearRecapPage = lazy(() => import('./pages/YearRecapPage').then((m) => ({ default: m.YearRecapPage })));
+const DiscoverPage = lazy(() => import('./pages/DiscoverPage').then((m) => ({ default: m.DiscoverPage })));
 
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <Suspense fallback={<RouteLoadingFallback />}>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           {/* Bewusst OHNE ProtectedRoute erreichbar - ein Interessent soll das
@@ -124,6 +133,7 @@ export default function App() {
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </Suspense>
       </BrowserRouter>
     </AuthProvider>
   );

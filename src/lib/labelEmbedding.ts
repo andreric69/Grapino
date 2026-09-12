@@ -1,4 +1,4 @@
-import { pipeline, type ImageFeatureExtractionPipeline } from '@huggingface/transformers';
+import type { ImageFeatureExtractionPipeline } from '@huggingface/transformers';
 
 /**
  * Berechnet einen visuellen "Fingerabdruck" (Embedding-Vektor) eines
@@ -15,10 +15,12 @@ let extractorPromise: Promise<ImageFeatureExtractionPipeline> | null = null;
 
 function getExtractor(): Promise<ImageFeatureExtractionPipeline> {
   if (!extractorPromise) {
-    extractorPromise = pipeline('image-feature-extraction', 'Xenova/clip-vit-base-patch32').catch((e) => {
-      extractorPromise = null; // beim naechsten Versuch neu probieren, nicht dauerhaft haengen bleiben
-      throw e;
-    });
+    extractorPromise = import('@huggingface/transformers')
+      .then(({ pipeline }) => pipeline('image-feature-extraction', 'Xenova/clip-vit-base-patch32'))
+      .catch((e) => {
+        extractorPromise = null; // beim naechsten Versuch neu probieren, nicht dauerhaft haengen bleiben
+        throw e;
+      });
   }
   return extractorPromise;
 }

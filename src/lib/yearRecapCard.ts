@@ -83,6 +83,154 @@ function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number,
   return lines;
 }
 
+/** Ein einzelnes, laenglich-ovales Weinblatt (gefuellter Canvas-Pfad), lokal um (0,0) gedreht. */
+function drawLeafShape(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  size: number,
+  angle: number,
+): void {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.quadraticCurveTo(size * 0.68, -size * 0.55, 0, -size);
+  ctx.quadraticCurveTo(-size * 0.68, -size * 0.55, 0, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+/**
+ * Wasserzeichen-artige Ranken-Illustration (reiner Canvas-Pfad, kein Bild-
+ * Asset) fuer eine Karten-Ecke - sehr geringe Deckkraft, rein dekorative
+ * Textur passend zur Bordeaux/Gold-Weinsammlung-Aesthetik der App. Identisch
+ * im Aufbau zur Version in shareCard.ts (bewusst dupliziert statt geteilt,
+ * damit beide Dateien unabhaengig voneinander bleiben).
+ */
+function drawVineMotif(
+  ctx: CanvasRenderingContext2D,
+  anchorX: number,
+  anchorY: number,
+  scale: number,
+  color: string,
+  alpha: number,
+  mirrorX: boolean,
+  flipY: boolean,
+): void {
+  ctx.save();
+  ctx.translate(anchorX, anchorY);
+  ctx.scale(mirrorX ? -scale : scale, flipY ? scale : -scale);
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+
+  // Geschwungener Rankenstiel.
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.bezierCurveTo(28, 42, 8, 92, 54, 122);
+  ctx.bezierCurveTo(88, 146, 78, 178, 38, 196);
+  ctx.stroke();
+
+  drawLeafShape(ctx, 18, 58, 36, 0.55);
+  drawLeafShape(ctx, 58, 142, 32, -0.35);
+
+  // Kleine Traubenbeeren am oberen Rankenende.
+  const berries: Array<[number, number]> = [
+    [42, 112],
+    [56, 128],
+    [30, 132],
+    [46, 148],
+  ];
+  for (const [bx, by] of berries) {
+    ctx.beginPath();
+    ctx.arc(bx, by, 7.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+/** Kleines Trauben-Symbol (Beeren + Blatt) als wiederkehrende Marke neben dem "Grapino"-Schriftzug. */
+function drawGrapeMark(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  baseY: number,
+  size: number,
+  color: string,
+): void {
+  ctx.save();
+  ctx.fillStyle = color;
+  const r = size * 0.11;
+  const dots: Array<[number, number]> = [
+    [-0.32, -0.78],
+    [0.32, -0.78],
+    [-0.64, -0.5],
+    [0, -0.5],
+    [0.64, -0.5],
+    [-0.32, -0.2],
+    [0.32, -0.2],
+  ];
+  for (const [fx, fy] of dots) {
+    ctx.beginPath();
+    ctx.arc(cx + fx * size, baseY + fy * size, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // Kleines Blatt oberhalb der Traube.
+  ctx.beginPath();
+  ctx.moveTo(cx, baseY - size * 0.78);
+  ctx.quadraticCurveTo(cx + size * 0.5, baseY - size * 1.05, cx + size * 0.06, baseY - size * 1.3);
+  ctx.quadraticCurveTo(cx - size * 0.42, baseY - size * 1.02, cx, baseY - size * 0.78);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+/**
+ * Fusszeile mit duenner Trennlinie, kleinem Trauben-Symbol und dem
+ * "Grapino"-Schriftzug - gemeinsames wiederkehrendes Familien-Element mit
+ * shareCard.ts, damit beide Karten erkennbar zusammengehoeren. Erwartet,
+ * dass `ctx.font`/`ctx.fillStyle` fuer den Schriftzug bereits gesetzt sind.
+ */
+function drawFooterMark(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  centerX: number,
+  baselineY: number,
+  color: string,
+  dividerAlpha: number,
+): void {
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.globalAlpha = dividerAlpha;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(centerX - 54, baselineY - 36);
+  ctx.lineTo(centerX + 54, baselineY - 36);
+  ctx.stroke();
+  ctx.restore();
+
+  const textWidth = ctx.measureText(text).width;
+  const glyphSize = 26;
+  const gap = 14;
+  const totalWidth = glyphSize * 0.9 + gap + textWidth;
+  const startX = Math.round(centerX - totalWidth / 2);
+
+  ctx.save();
+  ctx.globalAlpha = 0.9;
+  drawGrapeMark(ctx, startX + glyphSize * 0.45, baselineY - 8, glyphSize, color);
+  ctx.restore();
+
+  const prevAlign = ctx.textAlign;
+  ctx.textAlign = 'left';
+  ctx.fillText(text, Math.round(startX + glyphSize * 0.9 + gap), baselineY);
+  ctx.textAlign = prevAlign;
+}
+
 /** Ein grosses, zentriertes "Zahl + Label"-Paar (grosse Ueberschrift-Zahl, kleines Label darunter). */
 function drawBigStat(
   ctx: CanvasRenderingContext2D,
@@ -132,7 +280,9 @@ export async function generateYearRecapCard(stats: YearRecapStats): Promise<Blob
   // Text auf dem Farbverlauf ist bewusst fest hell/creme statt Theme-abhaengig
   // (--color-text waere im dunklen Theme selbst dunkel und unlesbar auf dem
   // Bordeaux/Gold-Verlauf) - identisch zur Logik "helle Schrift auf Akzentfarbe".
-  const textOnGradient = '#f8f4f4';
+  // Nutzt den (in beiden Themes identischen) Neutralton-Token statt eines
+  // freistehenden Hex-Werts, bleibt aber bewusst konstant.
+  const textOnGradient = cssVar('--color-neutral-100', '#f8f4f4');
 
   // Hintergrund: diagonaler Bordeaux-zu-Gold-Verlauf, festlicher als die
   // dezente Flaeche der einzelnen Weinkarte.
@@ -149,12 +299,35 @@ export async function generateYearRecapCard(stats: YearRecapStats): Promise<Blob
   ctx.globalAlpha = 0.08;
   ctx.fillStyle = textOnGradient;
   ctx.beginPath();
-  ctx.arc(CARD_WIDTH * 0.85, CARD_HEIGHT * 0.1, 220, 0, Math.PI * 2);
+  ctx.arc(Math.round(CARD_WIDTH * 0.85), Math.round(CARD_HEIGHT * 0.1), 220, 0, Math.PI * 2);
   ctx.fill();
   ctx.beginPath();
-  ctx.arc(CARD_WIDTH * 0.08, CARD_HEIGHT * 0.92, 260, 0, Math.PI * 2);
+  ctx.arc(Math.round(CARD_WIDTH * 0.08), Math.round(CARD_HEIGHT * 0.92), 260, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
+
+  // Weiche Lichtaura hinter der grossen Jahreszahl, fuer mehr Feierlichkeit
+  // und Bildtiefe als ein reiner Flaechen-Verlauf.
+  ctx.save();
+  const yearGlow = ctx.createRadialGradient(
+    CARD_WIDTH / 2,
+    260,
+    20,
+    CARD_WIDTH / 2,
+    260,
+    340,
+  );
+  yearGlow.addColorStop(0, 'rgba(255, 244, 224, 0.22)');
+  yearGlow.addColorStop(1, 'rgba(255, 244, 224, 0)');
+  ctx.fillStyle = yearGlow;
+  ctx.fillRect(0, 0, CARD_WIDTH, CARD_HEIGHT * 0.4);
+  ctx.restore();
+
+  // Wasserzeichen-artige Ranken-Illustration, von den oberen Ecken haengend -
+  // sehr dezent, dieselbe Formensprache wie in shareCard.ts fuer eine
+  // erkennbar gemeinsame "Grapino"-Bildsprache.
+  drawVineMotif(ctx, 6, 6, 0.8, textOnGradient, 0.09, false, true);
+  drawVineMotif(ctx, CARD_WIDTH - 6, 6, 0.8, textOnGradient, 0.09, true, true);
 
   const centerX = CARD_WIDTH / 2;
   const margin = 90;
@@ -198,8 +371,8 @@ export async function generateYearRecapCard(stats: YearRecapStats): Promise<Blob
   cursorY += 44;
 
   // Zwei grosse Zahlen nebeneinander: Flaschen & verschiedene Weine.
-  const leftX = centerX - CARD_WIDTH * 0.23;
-  const rightX = centerX + CARD_WIDTH * 0.23;
+  const leftX = Math.round(centerX - CARD_WIDTH * 0.23);
+  const rightX = Math.round(centerX + CARD_WIDTH * 0.23);
   drawBigStat(ctx, String(stats.totalBottles), stats.totalBottles === 1 ? 'Flasche' : 'Flaschen', leftX, cursorY, textOnGradient, textOnGradient);
   drawBigStat(
     ctx,
@@ -217,10 +390,14 @@ export async function generateYearRecapCard(stats: YearRecapStats): Promise<Blob
     cursorY += 30;
     const cardHeight = 140;
     ctx.save();
-    roundedRectPath(ctx, margin, cursorY, textMaxWidth, cardHeight, 28);
+    roundedRectPath(ctx, margin, cursorY, textMaxWidth, cardHeight, 32);
     ctx.globalAlpha = 0.14;
     ctx.fillStyle = textOnGradient;
     ctx.fill();
+    ctx.globalAlpha = 0.22;
+    ctx.strokeStyle = textOnGradient;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
     ctx.restore();
 
     const colHalf = textMaxWidth / 2;
@@ -277,11 +454,12 @@ export async function generateYearRecapCard(stats: YearRecapStats): Promise<Blob
     ctx.globalAlpha = 1;
   }
 
-  // Footer-Wortmarke.
+  // Footer: duenne Trennlinie, kleines Trauben-Symbol und "Grapino"-
+  // Schriftzug - gemeinsames Familien-Element mit der einzelnen Weinkarte.
   ctx.font = "600 32px 'Cormorant Garamond', serif";
   ctx.fillStyle = textOnGradient;
-  ctx.globalAlpha = 0.9;
-  ctx.fillText('Grapino', centerX, CARD_HEIGHT - 50);
+  ctx.globalAlpha = 0.92;
+  drawFooterMark(ctx, 'Grapino', centerX, CARD_HEIGHT - 50, textOnGradient, 0.4);
   ctx.globalAlpha = 1;
 
   try {

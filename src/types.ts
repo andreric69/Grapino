@@ -114,6 +114,8 @@ export interface Announcement {
   type: 'news' | 'update';
   /** Alle N Tage nach dem letzten Wegklicken erneut anzeigen - leer = nur einmalig. */
   repeat_every_days: number | null;
+  /** Vollbild-Overlay statt kleiner Banner-Karte - fuer wirklich wichtige Mitteilungen. */
+  is_takeover: boolean;
 }
 
 export interface MyFeedback {

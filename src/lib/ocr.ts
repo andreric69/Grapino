@@ -1,4 +1,4 @@
-import { createWorker, PSM, type Worker } from 'tesseract.js';
+import type { Worker } from 'tesseract.js';
 import {
   matchWineReferences,
   fuzzyMatchWineReferences,
@@ -32,8 +32,9 @@ let workerPromise: Promise<Worker> | null = null;
 
 function getWorker(): Promise<Worker> {
   if (!workerPromise) {
-    workerPromise = createWorker('deu+eng+fra+ita+spa')
-      .then(async (worker) => {
+    workerPromise = import('tesseract.js')
+      .then(async ({ createWorker, PSM }) => {
+        const worker = await createWorker('deu+eng+fra+ita+spa');
         // Etiketten haben keinen durchgehenden Fliesstext, sondern verstreute
         // Textbloecke an unterschiedlichen Stellen (Name oben, Rebsorte/Region
         // klein am Rand, Prozentzahl unten ...). Der Standardmodus (AUTO)

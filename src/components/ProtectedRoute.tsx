@@ -5,9 +5,11 @@ import { LoadingSpinner } from './LoadingSpinner';
 import { BlockScreen } from './BlockScreen';
 import { PaymentDueScreen } from './PaymentDueScreen';
 import { TrialStatusScreen } from './TrialStatusScreen';
+import { AnnouncementTakeover } from './AnnouncementTakeover';
 import { getAccessStatus, type AccessStatus } from '../lib/accessControl';
 import { listMyPaymentRequests } from '../lib/paymentRequestRepository';
-import type { PaymentRequest } from '../types';
+import { getDueTakeoverAnnouncement, dismissAnnouncement } from '../lib/announcementRepository';
+import type { Announcement, PaymentRequest } from '../types';
 
 // Nur fuer diese Sitzung gemerkt (nicht dauerhaft) - taucht bei einem neuen
 // Login oder einer neuen offenen Zahlungsanfrage automatisch wieder auf.
@@ -28,6 +30,8 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   // blockierten Nutzern erscheinen.
   const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
   const [openPayments, setOpenPayments] = useState<PaymentRequest[] | null>(null);
+  // undefined = wird noch geprueft, null = geprueft und keine faellig.
+  const [takeoverAnnouncement, setTakeoverAnnouncement] = useState<Announcement | null | undefined>(undefined);
   // Sobald irgendeine Zahlung je bezahlt wurde, ist der Nutzer erkennbar kein
   // reiner Testphase-Interessent mehr - der Testphase-Hinweis soll dann nicht
   // mehr weiter erscheinen, auch wenn Andrin das Testabo-Datum nicht extra
@@ -66,10 +70,28 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
     };
   }, [session, access]);
 
+  useEffect(() => {
+    if (!session || access === undefined || access) return; // erst nach bestandener Blockade-Pruefung
+    let cancelled = false;
+    getDueTakeoverAnnouncement().then((a) => {
+      if (cancelled) return;
+      setTakeoverAnnouncement(a);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [session, access]);
+
   function handleDismissPayments() {
     const key = openKey;
     sessionStorage.setItem(PAYMENT_DUE_DISMISS_KEY, key);
     setDismissedKey(key);
+  }
+
+  function handleDismissTakeover() {
+    if (!takeoverAnnouncement) return;
+    dismissAnnouncement(takeoverAnnouncement.id);
+    setTakeoverAnnouncement(null);
   }
 
   function handleDismissTrial() {
@@ -84,7 +106,13 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   // Testphase-Hinweis ueberhaupt in Erwaegung gezogen wird - sonst wuerde er
   // bei einem bereits zahlenden Nutzer kurz aufblitzen, bevor "hasPaidBefore"
   // eintrifft und ihn wieder verschwinden laesst.
-  const showTrialStatus = openPayments !== null && !!trialEndsAt && trialEndsAt !== dismissedTrialDate && !hasPaidBefore;
+  const showTrialStatus =
+    openPayments !== null &&
+    takeoverAnnouncement !== undefined &&
+    !takeoverAnnouncement &&
+    !!trialEndsAt &&
+    trialEndsAt !== dismissedTrialDate &&
+    !hasPaidBefore;
 
   if (loading) {
     return (
@@ -120,6 +148,10 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
 
   if (showPaymentDue && openPayments) {
     return <PaymentDueScreen requests={openPayments} onDismiss={handleDismissPayments} />;
+  }
+
+  if (takeoverAnnouncement) {
+    return <AnnouncementTakeover announcement={takeoverAnnouncement} onDismiss={handleDismissTakeover} />;
   }
 
   if (showTrialStatus && trialEndsAt) {
