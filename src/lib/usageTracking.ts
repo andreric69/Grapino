@@ -1,5 +1,3 @@
-import { supabase } from '../supabaseClient';
-
 /**
  * Feste, geschlossene Liste erlaubter Ereignisnamen - deckt sich exakt mit dem
  * CHECK-Constraint in supabase/feature-usage-log-2026-09-13.sql. Bewusst kein
@@ -27,12 +25,20 @@ export type UsageEvent =
  * Solange die Migration noch nicht angewendet ist, schlaegt der Insert mit
  * "relation does not exist" fehl - das wird hier abgefangen und einmalig
  * geloggt, bricht aber nichts in der App.
+ *
+ * Import von "../supabaseClient" bewusst dynamisch statt am Dateianfang:
+ * supabaseClient.ts wirft beim Laden sofort, wenn VITE_SUPABASE_URL/
+ * VITE_SUPABASE_ANON_KEY fehlen (z.B. in der CI-Testumgebung ohne .env.local).
+ * Ein Modul-weiter Import wuerde JEDE Komponente, die trackEvent nur
+ * importiert (auch ohne es je aufzurufen), in Tests zum Abbrechen bringen -
+ * live in der CI reproduziert (TrashReminderBanner.test.ts schlug dadurch
+ * fehl, obwohl es nur eine reine Funktion aus derselben Datei testet).
  */
 export function trackEvent(event: UsageEvent): void {
-  supabase
-    .from('feature_usage_log')
-    .insert({ event_name: event })
-    .then(({ error }) => {
-      if (error) console.error('Nutzungs-Protokoll-Fehler:', error);
-    });
+  import('../supabaseClient')
+    .then(({ supabase }) => supabase.from('feature_usage_log').insert({ event_name: event }))
+    .then((result) => {
+      if (result.error) console.error('Nutzungs-Protokoll-Fehler:', result.error);
+    })
+    .catch((e) => console.error('Nutzungs-Protokoll-Fehler:', e));
 }
