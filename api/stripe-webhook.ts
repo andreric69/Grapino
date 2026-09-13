@@ -42,7 +42,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const stripe = new Stripe(stripeSecretKey);
+  // Siehe create-checkout-session.ts: Stripes Standard-HTTP-Client scheitert
+  // in dieser Serverless-Umgebung, der Fetch-basierte Client behebt das.
+  const stripe = new Stripe(stripeSecretKey, { httpClient: Stripe.createFetchHttpClient() });
   const signature = req.headers['stripe-signature'];
   const rawBody = await readRawBody(req);
 

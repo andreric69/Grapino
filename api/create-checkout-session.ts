@@ -68,7 +68,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // oben verifizierte Nutzer-Identitaet gebunden.
   const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
 
-  const stripe = new Stripe(stripeSecretKey);
+  // Live auf Vercel gefunden: Stripes Standard-HTTP-Client (Node "https"-
+  // Modul) schlaegt in dieser Serverless-Umgebung zuverlaessig fehl ("An
+  // error occurred with our connection to Stripe"), obwohl lokal alles
+  // funktioniert. Stripes eigener Fetch-basierter Client (nutzt die globale
+  // fetch()-Funktion, in Vercels Node-Runtime vorhanden) behebt das.
+  const stripe = new Stripe(stripeSecretKey, { httpClient: Stripe.createFetchHttpClient() });
 
   const { data: accessRow, error: selectError } = await supabaseAdmin
     .from('user_access')
