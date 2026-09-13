@@ -39,3 +39,8 @@ NOTFALL/
 # Claude-Arbeitsordner fuer temporaere Dateien (z. B. Artefakt-Entwuerfe) -
 # kein Projektinhalt.
 scratchpad/
+
+# Lokal per "npx skills add" installierte Referenz-Skills (z. B. Stripe-Doku)
+# - Werkzeug-Hilfsmittel fuer die Entwicklung, kein Projektinhalt.
+.agents/
+skills-lock.json

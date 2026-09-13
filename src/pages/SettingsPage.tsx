@@ -29,6 +29,7 @@ import { listMyPaymentRequests } from '../lib/paymentRequestRepository';
 import { listMyOrders, ORDER_CATEGORY_INFO, SELECTABLE_ORDER_CATEGORIES } from '../lib/orderRepository';
 import { getPricingConfig, computeOrderPrice, type PricingConfig } from '../lib/pricingConfig';
 import { getAccessStatus } from '../lib/accessControl';
+import { canUseProFeatures, type Plan } from '../lib/planLimits';
 import { daysUntil } from '../lib/trialDays';
 import type { DeletionRequest, EnrichmentOrder, MyFeedback, PaymentRequest, Wine, WineInput } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
@@ -59,6 +60,7 @@ export function SettingsPage() {
   const [nameError, setNameError] = useState<string | null>(null);
   const [nameSaved, setNameSaved] = useState(false);
   const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
+  const [plan, setPlan] = useState<Plan | null>(null);
 
   useEffect(() => {
     setNameInput((session?.user.user_metadata?.display_name as string | undefined) ?? '');
@@ -71,7 +73,10 @@ export function SettingsPage() {
   useEffect(() => {
     let cancelled = false;
     getAccessStatus().then((status) => {
-      if (!cancelled) setTrialEndsAt(status.trialEndsAt);
+      if (!cancelled) {
+        setTrialEndsAt(status.trialEndsAt);
+        setPlan(status.plan);
+      }
     });
     return () => {
       cancelled = true;
@@ -873,72 +878,80 @@ export function SettingsPage() {
               <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 15, marginBottom: 4 }}>
                 Aus Vivino oder Excel importieren
               </div>
-              <div style={{ fontSize: 12.5, opacity: 0.65, marginBottom: 10, lineHeight: 1.5 }}>
-                Eine CSV-Datei auswählen (z. B. aus Vivino exportiert). Du ordnest danach kurz zu, welche Spalte
-                welchem Feld entspricht - importierte Weine kommen als neue Einträge hinzu, nichts wird
-                überschrieben.
-              </div>
-
-              <input
-                ref={csvFileInputRef}
-                type="file"
-                accept="text/csv,.csv"
-                style={{ display: 'none' }}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) handleCsvFileChosen(file);
-                  e.target.value = '';
-                }}
-              />
-
-              {csvState.phase === 'idle' && (
-                <button type="button" className="btn btn-secondary" onClick={() => csvFileInputRef.current?.click()}>
-                  CSV-Datei auswählen
-                </button>
-              )}
-
-              {csvState.phase === 'reading' && <LoadingSpinner label="Datei wird gelesen ..." />}
-
-              {csvState.phase === 'mapping' && (
-                <div>
-                  <div style={{ fontSize: 13.5, marginBottom: 10 }}>
-                    {csvState.rows.length} {csvState.rows.length === 1 ? 'Zeile' : 'Zeilen'} gefunden. Bitte prüfen,
-                    welche Spalte welchem Feld entspricht:
+              {plan === null || canUseProFeatures(plan) ? (
+                <>
+                  <div style={{ fontSize: 12.5, opacity: 0.65, marginBottom: 10, lineHeight: 1.5 }}>
+                    Eine CSV-Datei auswählen (z. B. aus Vivino exportiert). Du ordnest danach kurz zu, welche Spalte
+                    welchem Feld entspricht - importierte Weine kommen als neue Einträge hinzu, nichts wird
+                    überschrieben.
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
-                    {csvState.headers.map((header, i) => (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div style={{ flex: 1, fontSize: 13, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {header || `Spalte ${i + 1}`}
-                        </div>
-                        <select
-                          className="input"
-                          style={{ flex: 1, padding: '6px 8px', fontSize: 13 }}
-                          value={csvState.mapping[i]}
-                          onChange={(e) => handleCsvMappingChange(i, e.target.value as MappableField)}
-                        >
-                          {MAPPABLE_FIELDS.map((f) => (
-                            <option key={f} value={f}>
-                              {FIELD_LABELS[f]}
-                            </option>
-                          ))}
-                        </select>
+
+                  <input
+                    ref={csvFileInputRef}
+                    type="file"
+                    accept="text/csv,.csv"
+                    style={{ display: 'none' }}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleCsvFileChosen(file);
+                      e.target.value = '';
+                    }}
+                  />
+
+                  {csvState.phase === 'idle' && (
+                    <button type="button" className="btn btn-secondary" onClick={() => csvFileInputRef.current?.click()}>
+                      CSV-Datei auswählen
+                    </button>
+                  )}
+
+                  {csvState.phase === 'reading' && <LoadingSpinner label="Datei wird gelesen ..." />}
+
+                  {csvState.phase === 'mapping' && (
+                    <div>
+                      <div style={{ fontSize: 13.5, marginBottom: 10 }}>
+                        {csvState.rows.length} {csvState.rows.length === 1 ? 'Zeile' : 'Zeilen'} gefunden. Bitte prüfen,
+                        welche Spalte welchem Feld entspricht:
                       </div>
-                    ))}
-                  </div>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button type="button" className="btn btn-secondary" onClick={() => setCsvState({ phase: 'idle' })}>
-                      Abbrechen
-                    </button>
-                    <button type="button" className="btn btn-primary" onClick={handleCsvImportStart}>
-                      Importieren
-                    </button>
-                  </div>
-                </div>
-              )}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
+                        {csvState.headers.map((header, i) => (
+                          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <div style={{ flex: 1, fontSize: 13, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {header || `Spalte ${i + 1}`}
+                            </div>
+                            <select
+                              className="input"
+                              style={{ flex: 1, padding: '6px 8px', fontSize: 13 }}
+                              value={csvState.mapping[i]}
+                              onChange={(e) => handleCsvMappingChange(i, e.target.value as MappableField)}
+                            >
+                              {MAPPABLE_FIELDS.map((f) => (
+                                <option key={f} value={f}>
+                                  {FIELD_LABELS[f]}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        ))}
+                      </div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button type="button" className="btn btn-secondary" onClick={() => setCsvState({ phase: 'idle' })}>
+                          Abbrechen
+                        </button>
+                        <button type="button" className="btn btn-primary" onClick={handleCsvImportStart}>
+                          Importieren
+                        </button>
+                      </div>
+                    </div>
+                  )}
 
-              {csvState.phase === 'error' && (
-                <ErrorBanner message={csvState.message} onRetry={() => setCsvState({ phase: 'idle' })} />
+                  {csvState.phase === 'error' && (
+                    <ErrorBanner message={csvState.message} onRetry={() => setCsvState({ phase: 'idle' })} />
+                  )}
+                </>
+              ) : (
+                <div style={{ fontSize: 12.5, opacity: 0.65, lineHeight: 1.5 }}>
+                  CSV-Import ab der Pro-Stufe verfügbar.
+                </div>
               )}
             </div>
           </div>

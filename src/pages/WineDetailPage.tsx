@@ -14,6 +14,8 @@ import { useToast } from '../hooks/useToast';
 import { shareOrDownloadWineCard } from '../lib/shareCard';
 import { lookupVintageInfo, VINTAGE_RATING_LABELS, type VintageRating } from '../lib/vintageChart';
 import { trackEvent } from '../lib/usageTracking';
+import { getAccessStatus } from '../lib/accessControl';
+import { canUseProFeatures, type Plan } from '../lib/planLimits';
 
 export function WineDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -33,7 +35,22 @@ export function WineDetailPage() {
   const [quantityError, setQuantityError] = useState<string | null>(null);
   const [sharing, setSharing] = useState(false);
   const [shareError, setShareError] = useState<string | null>(null);
+  const [plan, setPlan] = useState<Plan | null>(null);
   const { toastMessage, showToast } = useToast();
+
+  useEffect(() => {
+    let cancelled = false;
+    getAccessStatus().then((status) => {
+      if (!cancelled) setPlan(status.plan);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // "default allow" waehrend die Stufe noch laedt (siehe accessControl.ts) -
+  // erst nach eindeutig bestaetigtem "basis" wird der Teilen-Button gesperrt.
+  const shareLocked = plan !== null && !canUseProFeatures(plan);
 
   async function load() {
     if (!id) return;
@@ -91,7 +108,7 @@ export function WineDetailPage() {
   }
 
   async function handleShare() {
-    if (!wine) return;
+    if (!wine || shareLocked) return;
     trackEvent('share_geklickt');
     setSharing(true);
     setShareError(null);
@@ -157,11 +174,11 @@ export function WineDetailPage() {
           <button
             type="button"
             className="icon-btn"
-            aria-label="Wein teilen"
-            title="Als Bild teilen"
+            aria-label={shareLocked ? 'Teilen ab der Pro-Stufe' : 'Wein teilen'}
+            title={shareLocked ? 'Teilen ab der Pro-Stufe' : 'Als Bild teilen'}
             onClick={handleShare}
-            disabled={sharing}
-            style={{ opacity: sharing ? 0.5 : 1 }}
+            disabled={sharing || shareLocked}
+            style={{ opacity: sharing || shareLocked ? 0.4 : 1, cursor: shareLocked ? 'not-allowed' : undefined }}
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--color-text)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="18" cy="5" r="3" />

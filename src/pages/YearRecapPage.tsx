@@ -8,6 +8,8 @@ import { shareOrDownloadYearRecap, type YearRecapStats } from '../lib/yearRecapC
 import { Toast } from '../components/Toast';
 import { useToast } from '../hooks/useToast';
 import { trackEvent } from '../lib/usageTracking';
+import { getAccessStatus } from '../lib/accessControl';
+import { canUseProFeatures, type Plan } from '../lib/planLimits';
 
 /** Gruppiert Eintraege nach einem Schluessel und zaehlt, absteigend sortiert - selbe Idee wie in RueckblickPage.tsx. */
 function groupCount(entries: ConsumptionLogEntry[], pick: (e: ConsumptionLogEntry) => string | null) {
@@ -71,9 +73,26 @@ export function YearRecapPage() {
   const [yearOverride, setYearOverride] = useState<number | null>(null);
   const [sharing, setSharing] = useState(false);
   const [shareError, setShareError] = useState<string | null>(null);
+  const [plan, setPlan] = useState<Plan | null>(null);
   const { toastMessage, showToast } = useToast();
 
   useEffect(() => trackEvent('page_view_weinjahr_rueckblick'), []);
+
+  // Weinjahr-Rueckblick ist ein Pro-Feature (siehe planLimits.ts) - erst
+  // sobald die Stufe feststeht, wird zwischen normaler Ansicht und dem
+  // Hinweis fuer Basis-Nutzer entschieden (kein Flackern der vollen Ansicht).
+  useEffect(() => {
+    let cancelled = false;
+    getAccessStatus().then((status) => {
+      if (!cancelled) setPlan(status.plan);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const planLoading = plan === null;
+  const blocked = plan !== null && !canUseProFeatures(plan);
 
   async function load() {
     setLoading(true);
@@ -134,6 +153,7 @@ export function YearRecapPage() {
   const headline = useMemo(() => buildHeadline(totalBottles, byRegion.length, topGrape), [totalBottles, byRegion.length, topGrape]);
 
   async function handleShare() {
+    if (blocked) return;
     trackEvent('share_geklickt');
     setSharing(true);
     setShareError(null);
@@ -170,10 +190,25 @@ export function YearRecapPage() {
         <h1 style={{ fontSize: 25, marginBottom: 4 }}>Weinjahr</h1>
         <div style={{ fontSize: 12.5, opacity: 0.6, marginBottom: 20 }}>Dein Jahr in Wein, als kleiner Rückblick</div>
 
-        {loading && <LoadingSpinner label="Weinjahr wird zusammengestellt ..." />}
+        {(loading || planLoading) && <LoadingSpinner label="Weinjahr wird zusammengestellt ..." />}
         {error && <ErrorBanner message={error} onRetry={load} />}
 
-        {!loading && !error && (
+        {!loading && !planLoading && !error && blocked && (
+          <div style={{ padding: '48px 20px', textAlign: 'center' }}>
+            <div style={{ fontSize: 34, marginBottom: 10, opacity: 0.7 }}>🔒</div>
+            <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 20, marginBottom: 8 }}>
+              Nur ab der Pro-Stufe
+            </div>
+            <div style={{ opacity: 0.6, fontSize: 14, marginBottom: 18 }}>
+              Der Weinjahr-Rückblick ist ab der Pro-Stufe verfügbar.
+            </div>
+            <button type="button" className="btn btn-primary" onClick={() => navigate('/')}>
+              Zur Sammlung
+            </button>
+          </div>
+        )}
+
+        {!loading && !planLoading && !error && !blocked && (
           <>
             {hasMultipleYears && (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 18, marginBottom: 18 }}>

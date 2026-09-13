@@ -1,0 +1,21 @@
+-- Fuehrt das 3-Stufen-Abomodell ein: Basis (max. 100 Weine, kein KI-Etikett-
+-- Scan), Pro (max. 400 Weine, KI-Scan erlaubt), Ultra (unbegrenzt, alle
+-- Funktionen). Siehe src/lib/planLimits.ts fuer die konkreten Grenzen je
+-- Stufe und src/lib/accessControl.ts fuer den Abruf.
+--
+-- Default bewusst 'ultra', NICHT 'basis': bestehende, bereits zahlende Kunden
+-- hatten bisher unbegrenzten Zugang. Ohne diesen Default wuerden sie durch die
+-- blosse Einfuehrung der Stufen ploetzlich auf 100 Weine ohne KI-Scan
+-- eingeschraenkt - das waere ein Versehen, keine Absicht. 'ultra' ist daher
+-- bewusster Bestandsschutz: neue/zukuenftige Nutzer werden separat (z. B. bei
+-- Registrierung oder im Admin-Bereich) auf 'basis'/'pro' gesetzt, bestehende
+-- bleiben unangetastet auf 'ultra'.
+--
+-- "not null default 'ultra'" fuellt beim Hinzufuegen der Spalte automatisch
+-- ALLE bestehenden Zeilen mit 'ultra' auf (Postgres-Standardverhalten bei
+-- ADD COLUMN ... NOT NULL DEFAULT ...) - keine separate UPDATE-Anweisung
+-- noetig.
+--
+-- Im Supabase Dashboard -> SQL Editor der Weinapp-Datenbank ausfuehren.
+
+alter table public.user_access add column if not exists plan text not null default 'ultra' check (plan in ('basis', 'pro', 'ultra'));

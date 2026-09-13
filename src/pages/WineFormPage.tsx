@@ -18,6 +18,8 @@ import { lookupFoodPairingForGrape } from '../lib/grapeFoodPairing';
 import { preloadLabelEmbeddingModel, computeLabelEmbedding } from '../lib/labelEmbedding';
 import { listRecognitionRefs, upsertRecognitionRef, bestEmbeddingMatch, bestTextMatch, type RecognitionRef } from '../lib/recognitionRefs';
 import { lookupWineKnowledge } from '../lib/wineKnowledgeCache';
+import { getAccessStatus } from '../lib/accessControl';
+import { canUseAiScan, getMaxWines, PLAN_LABELS, type Plan } from '../lib/planLimits';
 import { WINE_TYPE_LABELS, type Wine, type WineType } from '../types';
 import { PhotoCapture } from '../components/PhotoCapture';
 import { OcrChipTray } from '../components/OcrChipTray';
@@ -93,6 +95,9 @@ const EMPTY_FORM: FormState = {
 };
 
 const WINE_TYPE_OPTIONS: WineType[] = ['rot', 'weiss', 'rose', 'dessert', 'schaumwein'];
+
+/** Naechsthoehere Stufe fuer den Hinweis beim erreichten Weinlimit (siehe planLimits.ts) - Ultra hat kein Limit und taucht hier nie als aktuelle Stufe auf. */
+const NEXT_PLAN: Record<Exclude<Plan, 'ultra'>, Plan> = { basis: 'pro', pro: 'ultra' };
 
 /**
  * Liest ein Etikett - versucht zuerst die KI-Erkennung (deutlich
@@ -239,6 +244,20 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
   // ausgefuellte erweiterte Felder) - nie stillschweigend Daten verstecken.
   const [showAdvanced, setShowAdvanced] = useState(false);
 
+  // Abo-Stufen-Gate (Basis/Pro/Ultra, siehe planLimits.ts). Das Weinlimit
+  // wird nur beim Neuanlegen geprueft - ein bereits bestehender Wein darf
+  // immer weiter bearbeitet werden, auch wenn die Sammlung inzwischen ueber
+  // dem Limit liegt. checkingPlanLimit haelt das Formular so lange zurueck,
+  // bis Bestand und Abo-Stufe geladen sind, damit es nicht kurz aufblitzt,
+  // bevor der Hinweis erscheint.
+  const [checkingPlanLimit, setCheckingPlanLimit] = useState(mode === 'create');
+  const [planLimitBlock, setPlanLimitBlock] = useState<{ plan: Plan; maxWines: number } | null>(null);
+  // Ob die KI-Etikett-Erkennung fuer diesen Nutzer erlaubt ist (ab Pro, siehe
+  // canUseAiScan) - startet optimistisch auf true, damit ein kurzzeitig
+  // langsamer Ladevorgang nicht faelschlich die Funktion fuer einen
+  // berechtigten Nutzer ausblendet; wird gleich beim Laden korrigiert.
+  const [aiScanAllowed, setAiScanAllowed] = useState(true);
+
   const {
     setExistingWinesForCheck,
     duplicateWine,
@@ -291,12 +310,41 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
     preloadWineReference(); // schon mal im Hintergrund laden, bevor ein Foto gewählt wird
     preloadOcrWorker(); // OCR-Sprachmodelle ebenfalls schon vorab laden, spart Zeit beim ersten Foto
     preloadLabelEmbeddingModel(); // Bild-Embedding-Modell ebenfalls schon vorab laden
+
+    // Abo-Stufe einmal laden (siehe accessControl.ts) - unabhaengig vom Modus,
+    // da die KI-Erkennung sowohl beim Neuanlegen als auch beim Bearbeiten
+    // greift. Bei jedem Fehler (Netzwerk, Migration noch nicht angewendet)
+    // bleibt aiScanAllowed auf seinem Startwert "true" stehen (default allow,
+    // gleiches Muster wie in accessControl.ts) - ein Datenbankfehler soll nie
+    // faelschlich eine erlaubte Funktion sperren.
+    const accessStatusPromise = getAccessStatus().catch(() => null);
+    accessStatusPromise.then((status) => {
+      if (status) setAiScanAllowed(canUseAiScan(status.plan));
+    });
+
     if (mode === 'create') {
-      listWines()
-        .then(setExistingWinesForCheck)
-        .catch(() => {
-          /* Duplikat-Check ist nur eine Hilfestellung - bei Fehler einfach ohne ihn weitermachen. */
-        });
+      const winesPromise = listWines();
+      winesPromise.then(setExistingWinesForCheck).catch(() => {
+        /* Duplikat-Check ist nur eine Hilfestellung - bei Fehler einfach ohne ihn weitermachen. */
+      });
+
+      // Weinlimit je Abo-Stufe pruefen, bevor das Formular zum Ausfuellen
+      // erscheint (siehe planLimits.ts) - gezaehlt werden nur AKTIVE Weine
+      // (listWines() liefert ohnehin nur nicht-geloeschte, siehe
+      // wineRepository.ts), Weine im Papierkorb zaehlen also nicht mit. Bei
+      // jedem Fehler (Netzwerk, Migration noch nicht angewendet) wird
+      // "ultra"/unbegrenzt angenommen, damit ein Datenbankfehler nie
+      // faelschlich das Formular sperrt.
+      Promise.all([winesPromise.catch(() => [] as Wine[]), accessStatusPromise])
+        .then(([wines, status]) => {
+          const plan = status?.plan ?? 'ultra';
+          const maxWines = getMaxWines(plan);
+          if (maxWines !== null && wines.length >= maxWines) {
+            setPlanLimitBlock({ plan, maxWines });
+          }
+        })
+        .finally(() => setCheckingPlanLimit(false));
+
       const draft = loadWineDraft();
       if (draft) {
         setForm(draft);
@@ -917,6 +965,18 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
     );
   }
 
+  if (mode === 'create' && checkingPlanLimit) {
+    return (
+      <div className="app-screen full-screen" style={{ display: 'grid', placeItems: 'center' }}>
+        <LoadingSpinner label="Wird geprüft ..." />
+      </div>
+    );
+  }
+
+  if (mode === 'create' && planLimitBlock) {
+    return <PlanLimitScreen plan={planLimitBlock.plan} maxWines={planLimitBlock.maxWines} onBack={() => navigate(-1)} />;
+  }
+
   return (
     <div className="app-screen">
       <div className="top-bar">
@@ -953,39 +1013,69 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
           </div>
         ) : (
           <>
-            {mode === 'edit' && (
-              <label
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  fontSize: 12.5,
-                  marginBottom: 10,
-                  cursor: 'pointer',
-                }}
+            {mode === 'edit' &&
+              (aiScanAllowed ? (
+                <label
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    fontSize: 12.5,
+                    marginBottom: 10,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={recognitionEnabled}
+                    onChange={(e) => setRecognitionEnabled(e.target.checked)}
+                  />
+                  Bilderkennung für das nächste Foto einschalten
+                </label>
+              ) : (
+                <div style={{ fontSize: 11.5, opacity: 0.55, marginBottom: 10, lineHeight: 1.4 }}>
+                  KI-Erkennung ab der Pro-Stufe. Ein Foto lässt sich trotzdem hinzufügen, die Felder unten bitte von
+                  Hand eintragen.
+                </div>
+              ))}
+
+            {/* Beim Neuanlegen gibt es (anders als beim Bearbeiten oben) keinen
+                Schalter, der die Erkennung fuer dieses eine Foto abschaltet -
+                ein Foto startet hier immer die KI-Erkennung. Fuer Basis (kein
+                KI-Etikett-Scan, siehe planLimits.ts) wird die Foto-Erfassung
+                deshalb hier komplett durch einen deaktivierten Hinweis ersetzt,
+                statt versehentlich doch eine KI-Erkennung auszulösen - die
+                manuelle Eingabe aller Felder bleibt davon unberührt. */}
+            {mode === 'create' && !aiScanAllowed ? (
+              <div
+                className="card elev-sm"
+                style={{ marginBottom: 16, padding: 20, textAlign: 'center', opacity: 0.6 }}
               >
-                <input
-                  type="checkbox"
-                  checked={recognitionEnabled}
-                  onChange={(e) => setRecognitionEnabled(e.target.checked)}
-                />
-                Bilderkennung für das nächste Foto einschalten
-              </label>
-            )}
-            <PhotoCapture
-              previewUrl={photoPreviewUrl}
-              onSelect={handlePhotoSelect}
-              busy={ocrBusy}
-              busyLabel="Etikett wird gelesen ..."
-              onSkipBusy={handleSkipOcr}
-            />
-            {recognitionEnabled && (
-              <div style={{ fontSize: 11.5, fontStyle: 'italic', opacity: 0.55, marginBottom: 12, lineHeight: 1.4 }}>
-                Das Etikett-Foto wird dafür kurz an einen KI-Dienst geschickt, nicht dauerhaft dort gespeichert. Nach
-                dem Foto trägt die App erkannte Werte direkt ein, wo sie sich sicher ist (z. B. den Jahrgang).
-                Unsichere Vorschläge sind als "Bitte prüfen" markiert. Bei allem anderen: unten erscheinen die
-                erkannten Wörter als Chips zum Ziehen - auf das passende Feld ziehen.
+                <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 14.5, marginBottom: 6 }}>
+                  Etikett fotografieren
+                </div>
+                <div style={{ fontSize: 12, lineHeight: 1.5 }}>
+                  KI-Erkennung ab der Pro-Stufe. Bitte die Angaben unten von Hand eintragen.
+                </div>
               </div>
+            ) : (
+              <>
+                <PhotoCapture
+                  previewUrl={photoPreviewUrl}
+                  onSelect={handlePhotoSelect}
+                  busy={ocrBusy}
+                  busyLabel="Etikett wird gelesen ..."
+                  onSkipBusy={handleSkipOcr}
+                />
+                {recognitionEnabled && (
+                  <div style={{ fontSize: 11.5, fontStyle: 'italic', opacity: 0.55, marginBottom: 12, lineHeight: 1.4 }}>
+                    Das Etikett-Foto wird dafür kurz an einen KI-Dienst geschickt, nicht dauerhaft dort gespeichert.
+                    Nach dem Foto trägt die App erkannte Werte direkt ein, wo sie sich sicher ist (z. B. den
+                    Jahrgang). Unsichere Vorschläge sind als "Bitte prüfen" markiert. Bei allem anderen: unten
+                    erscheinen die erkannten Wörter als Chips zum Ziehen - auf das passende Feld ziehen.
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
@@ -1557,6 +1647,55 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
           {saving ? 'Wird gespeichert ...' : 'Wein speichern'}
         </button>
       </form>
+    </div>
+  );
+}
+
+/**
+ * Vollflaechiger Hinweis statt des Formulars, wenn das Weinlimit der
+ * aktuellen Abo-Stufe erreicht ist (siehe planLimits.ts) - erscheint nur beim
+ * Neuanlegen (mode='create'), bestehende Weine bleiben immer bearbeitbar.
+ * Gleiche Optik wie BlockScreen/TrialStatusScreen, aber bewusst als einfacher
+ * Block direkt hier statt einer eigenen globalen Komponente, da er nur an
+ * dieser einen Stelle gebraucht wird.
+ */
+function PlanLimitScreen({ plan, maxWines, onBack }: { plan: Plan; maxWines: number; onBack: () => void }) {
+  const nextPlan = plan === 'ultra' ? null : NEXT_PLAN[plan];
+  return (
+    <div className="app-screen full-screen" style={{ display: 'grid', placeItems: 'center', padding: 24 }}>
+      <div className="card elev-lg" style={{ maxWidth: 380, textAlign: 'center', gap: 16, padding: 30 }}>
+        <div
+          style={{
+            width: 56,
+            height: 56,
+            margin: '0 auto',
+            flex: '0 0 auto',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'color-mix(in srgb, var(--color-bordeaux) 16%, transparent)',
+            color: 'var(--color-bordeaux)',
+          }}
+        >
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M8 3h8l-1 6.5c1.8 1 3 2.9 3 5a6 6 0 01-12 0c0-2.1 1.2-4 3-5L8 3z" />
+            <path d="M9 14.5h6" />
+          </svg>
+        </div>
+        <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: 21, margin: 0 }}>Weinlimit erreicht</h1>
+        <div style={{ fontSize: 14, lineHeight: 1.6 }}>
+          Du hast dein Limit von {maxWines} Weinen in der {PLAN_LABELS[plan]}-Stufe erreicht.
+        </div>
+        {nextPlan && (
+          <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.75 }}>
+            Für mehr Weine: {PLAN_LABELS[nextPlan]}-Stufe wählen.
+          </div>
+        )}
+        <button type="button" className="btn btn-primary" onClick={onBack} style={{ marginTop: 4 }}>
+          Zurück
+        </button>
+      </div>
     </div>
   );
 }
