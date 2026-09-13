@@ -85,31 +85,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  let customerId = accessRow?.stripe_customer_id ?? null;
-  if (!customerId) {
-    const customer = await stripe.customers.create({
-      email: user.email ?? undefined,
-      metadata: { supabase_user_id: user.id },
-    });
-    customerId = customer.id;
-    // Upsert statt update: falls fuer diesen Nutzer noch gar keine
-    // user_access-Zeile existiert (z. B. nie eine Testphase durchlaufen),
-    // legt das die Zeile jetzt an, statt fehlzuschlagen.
-    const { error: upsertError } = await supabaseAdmin
-      .from('user_access')
-      .upsert({ user_id: user.id, stripe_customer_id: customerId }, { onConflict: 'user_id' });
-    if (upsertError) {
-      // Der eben erstellte Stripe-Kunde ist jetzt verwaist (keine
-      // user_access-Zeile kennt ihn) - aufraeumen, statt ihn stillschweigend
-      // liegen zu lassen, und den Fehler klar melden statt einen Checkout zu
-      // erlauben, den der Webhook spaeter niemandem zuordnen kann.
-      await stripe.customers.del(customerId);
-      res.status(500).json({ error: `user_access nicht beschreibbar: ${upsertError.message}` });
-      return;
-    }
-  }
-
+  // Alles ab hier faengt echte Stripe-API-Aufrufe ein - OHNE dieses try/catch
+  // wuerde ein Fehler (z.B. von stripe.customers.create) die ganze Funktion
+  // unbehandelt abstuerzen lassen (Vercel zeigt dann nur "FUNCTION_INVOCATION_
+  // FAILED" ohne jede Fehlermeldung) statt eine auswertbare JSON-Antwort zu
+  // liefern - live so vorgefunden und behoben.
   try {
+    let customerId = accessRow?.stripe_customer_id ?? null;
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        email: user.email ?? undefined,
+        metadata: { supabase_user_id: user.id },
+      });
+      customerId = customer.id;
+      // Upsert statt update: falls fuer diesen Nutzer noch gar keine
+      // user_access-Zeile existiert (z. B. nie eine Testphase durchlaufen),
+      // legt das die Zeile jetzt an, statt fehlzuschlagen.
+      const { error: upsertError } = await supabaseAdmin
+        .from('user_access')
+        .upsert({ user_id: user.id, stripe_customer_id: customerId }, { onConflict: 'user_id' });
+      if (upsertError) {
+        // Der eben erstellte Stripe-Kunde ist jetzt verwaist (keine
+        // user_access-Zeile kennt ihn) - aufraeumen, statt ihn
+        // stillschweigend liegen zu lassen, und den Fehler klar melden statt
+        // einen Checkout zu erlauben, den der Webhook spaeter niemandem
+        // zuordnen kann.
+        await stripe.customers.del(customerId);
+        res.status(500).json({ error: `user_access nicht beschreibbar: ${upsertError.message}` });
+        return;
+      }
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       customer: customerId,
