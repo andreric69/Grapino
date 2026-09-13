@@ -5,6 +5,7 @@ import { WINE_TYPE_LABELS, type Wine } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { WineBottlePlaceholder } from '../components/WineBottlePlaceholder';
+import { trackEvent } from '../lib/usageTracking';
 
 /** Ein Lagerort-Eintrag: der Anzeigename (null = "Nicht zugeordnet") plus die Weine darin. */
 interface LocationGroup {
@@ -44,6 +45,8 @@ export function CellarMapPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
+
+  useEffect(() => trackEvent('page_view_lagerplan'), []);
 
   async function load() {
     setLoading(true);

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorBanner } from '../components/ErrorBanner';
+import { trackEvent } from '../lib/usageTracking';
 
 interface LexiconEntry {
   name: string;
@@ -44,6 +45,8 @@ export function WineLexiconPage() {
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>(searchParams.get('type') === 'regionen' ? 'regions' : 'grapes');
   const [search, setSearch] = useState(searchParams.get('q') ?? '');
+
+  useEffect(() => trackEvent('page_view_lexikon'), []);
 
   async function load() {
     setLoading(true);

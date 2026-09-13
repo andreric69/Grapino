@@ -1,5 +1,6 @@
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { trackEvent } from '../lib/usageTracking';
 
 /**
  * "Entdecken" - zentrale Übersicht über alle sekundären Bereiche der App
@@ -21,6 +22,8 @@ interface DiscoverGroup {
 
 export function DiscoverPage() {
   const navigate = useNavigate();
+
+  useEffect(() => trackEvent('page_view_entdecken'), []);
 
   const groups: DiscoverGroup[] = [
     {

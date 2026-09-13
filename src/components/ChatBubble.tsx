@@ -4,6 +4,7 @@ import { sendMessage } from '../lib/messageRepository';
 import { submitOrder, ORDER_CATEGORY_INFO, SELECTABLE_ORDER_CATEGORIES } from '../lib/orderRepository';
 import { computeOrderPrice, getPricingConfig, type PricingConfig } from '../lib/pricingConfig';
 import { FeedbackModal } from './FeedbackModal';
+import { trackEvent } from '../lib/usageTracking';
 
 type Tab = 'allgemein' | 'vorschlag' | 'auftrag';
 type WineMode = 'alle' | 'bestimmte';
@@ -120,7 +121,10 @@ export function ChatBubble({ wines }: { wines: Wine[] }) {
         className="icon-btn chat-bubble-btn"
         aria-label="Kontakt / Nachricht senden"
         title="Kontakt"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          trackEvent('chatbubble_geoeffnet');
+          setOpen(true);
+        }}
         style={{
           position: 'fixed',
           bottom: 'calc(28px + env(safe-area-inset-bottom))',

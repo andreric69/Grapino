@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import type { Wine } from '../types';
+import { trackEvent } from '../lib/usageTracking';
 
 /**
  * Schwelle, ab der proaktiv gewarnt wird: bei genau 30 Tagen Aufbewahrung
@@ -80,7 +81,14 @@ export function TrashReminderBanner({ deletedWines, onDismiss }: TrashReminderBa
     >
       <div style={{ fontSize: 13.5, lineHeight: 1.5 }}>{message}</div>
       <div style={{ display: 'flex', gap: 8 }}>
-        <button type="button" className="btn btn-primary" onClick={() => navigate('/settings')}>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => {
+            trackEvent('papierkorb_geoeffnet');
+            navigate('/settings');
+          }}
+        >
           Papierkorb ansehen
         </button>
         {onDismiss && (

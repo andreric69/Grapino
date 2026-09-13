@@ -6,6 +6,7 @@ import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { computeConsumptionForecast } from '../lib/consumptionForecast';
 import { computeLifetimeDiversity } from '../lib/lifetimeDiversity';
+import { trackEvent } from '../lib/usageTracking';
 
 type CountMode = 'bottles' | 'wines';
 
@@ -85,6 +86,8 @@ export function StatsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<CountMode>('bottles');
+
+  useEffect(() => trackEvent('page_view_statistik'), []);
 
   async function load() {
     setLoading(true);

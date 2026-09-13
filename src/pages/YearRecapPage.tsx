@@ -7,6 +7,7 @@ import { ErrorBanner } from '../components/ErrorBanner';
 import { shareOrDownloadYearRecap, type YearRecapStats } from '../lib/yearRecapCard';
 import { Toast } from '../components/Toast';
 import { useToast } from '../hooks/useToast';
+import { trackEvent } from '../lib/usageTracking';
 
 /** Gruppiert Eintraege nach einem Schluessel und zaehlt, absteigend sortiert - selbe Idee wie in RueckblickPage.tsx. */
 function groupCount(entries: ConsumptionLogEntry[], pick: (e: ConsumptionLogEntry) => string | null) {
@@ -72,6 +73,8 @@ export function YearRecapPage() {
   const [shareError, setShareError] = useState<string | null>(null);
   const { toastMessage, showToast } = useToast();
 
+  useEffect(() => trackEvent('page_view_weinjahr_rueckblick'), []);
+
   async function load() {
     setLoading(true);
     setError(null);
@@ -131,6 +134,7 @@ export function YearRecapPage() {
   const headline = useMemo(() => buildHeadline(totalBottles, byRegion.length, topGrape), [totalBottles, byRegion.length, topGrape]);
 
   async function handleShare() {
+    trackEvent('share_geklickt');
     setSharing(true);
     setShareError(null);
     try {

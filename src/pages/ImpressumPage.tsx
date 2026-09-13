@@ -79,6 +79,13 @@ export function ImpressumPage() {
           Kontakt-Chatblase, sowie welche Weine du wann als getrunken markiert hast.
         </p>
         <p style={{ marginTop: 0, marginBottom: 14 }}>
+          <strong>Nutzungsstatistik:</strong> zusätzlich wird erfasst, welche Zusatzfunktionen genutzt werden (z. B.
+          Lagerplan, Weinjahr-Rückblick, Nachschlagewerk, Teilen-Funktion, Textgrössen-Einstellung) - jeweils nur der
+          Name der Funktion mit Zeitstempel, nie Inhalte wie Sucheingaben, Weinnamen oder Notizen. Zweck ist
+          ausschliesslich, zu erkennen, welche Funktionen wirklich gebraucht werden und welche nicht - keine
+          Überwachung einzelner Personen. Diese Einträge werden nach spätestens 120 Tagen automatisch gelöscht.
+        </p>
+        <p style={{ marginTop: 0, marginBottom: 14 }}>
           <strong>Wofür:</strong> ausschliesslich für den Betrieb der App selbst - deine Sammlung zu verwalten, den
           Zugang/die Zahlungen abzuwickeln und Anfragen zu bearbeiten. Keine Werbung, kein Verkauf oder Weitergabe
           deiner Daten an Dritte.

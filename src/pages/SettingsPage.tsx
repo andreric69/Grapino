@@ -14,6 +14,7 @@ import {
   permanentlyDeleteWine,
 } from '../lib/wineRepository';
 import { downloadWinesBackup, parseWinesBackupFile } from '../lib/backup';
+import { trackEvent } from '../lib/usageTracking';
 import { mergeDuplicatesWithinBatch, buildExistingActiveIndex, findExistingMatch } from '../lib/importMerge';
 import {
   parseCsv,
@@ -245,6 +246,7 @@ export function SettingsPage() {
     setRestoringId(wine.id);
     setRestoreError(null);
     try {
+      trackEvent('papierkorb_wiederhergestellt');
       await restoreDeletedWine(wine);
       await loadWines();
       await loadDeletedWines();
@@ -771,7 +773,10 @@ export function SettingsPage() {
                   type="button"
                   className="btn btn-secondary"
                   disabled={wines.length === 0}
-                  onClick={() => downloadWinesBackup(wines)}
+                  onClick={() => {
+                    trackEvent('export_ausgeloest');
+                    downloadWinesBackup(wines);
+                  }}
                 >
                   Sammlung herunterladen ({wines.length})
                 </button>

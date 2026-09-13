@@ -1,4 +1,5 @@
 import { useTextScale, type TextScale } from '../hooks/useTextScale';
+import { trackEvent } from '../lib/usageTracking';
 
 export function TextScaleToggle() {
   const { scale, setScale } = useTextScale();
@@ -17,7 +18,10 @@ export function TextScaleToggle() {
           <button
             key={opt.value}
             type="button"
-            onClick={() => setScale(opt.value)}
+            onClick={() => {
+              if (opt.value !== scale) trackEvent('textgroesse_geaendert');
+              setScale(opt.value);
+            }}
             aria-label={`Textgrösse: ${opt.label}`}
             aria-pressed={active}
             style={{

@@ -4,6 +4,7 @@ import { listWines } from '../lib/wineRepository';
 import { splitCommaList, type Wine } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorBanner } from '../components/ErrorBanner';
+import { trackEvent } from '../lib/usageTracking';
 
 /**
  * Druckoptimierte Listenansicht - ueber den Browser-Druckdialog ("Als PDF
@@ -15,6 +16,8 @@ export function PrintPage() {
   const [wines, setWines] = useState<Wine[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => trackEvent('page_view_drucken'), []);
 
   async function load() {
     setLoading(true);

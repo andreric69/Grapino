@@ -13,6 +13,7 @@ import { Toast } from '../components/Toast';
 import { useToast } from '../hooks/useToast';
 import { shareOrDownloadWineCard } from '../lib/shareCard';
 import { lookupVintageInfo, VINTAGE_RATING_LABELS, type VintageRating } from '../lib/vintageChart';
+import { trackEvent } from '../lib/usageTracking';
 
 export function WineDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -91,6 +92,7 @@ export function WineDetailPage() {
 
   async function handleShare() {
     if (!wine) return;
+    trackEvent('share_geklickt');
     setSharing(true);
     setShareError(null);
     try {
