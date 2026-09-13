@@ -9,8 +9,12 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
   const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
   const result: Record<string, unknown> = {
     hasKey: !!stripeSecretKey,
-    keyPrefix: stripeSecretKey?.slice(0, 12),
     keyLength: stripeSecretKey?.length,
+    // Zeigt JEDES Zeichen als Code-Punkt - ein normales ASCII-Zeichen liegt
+    // unter 128, ein maskiertes "•" (Bullet) liegt bei 8226. So laesst sich
+    // genau sehen, WELCHE Position(en) betroffen sind, ohne den echten
+    // Schluessel-Wert selbst preiszugeben (dies ist ohnehin ein Test-Key).
+    charCodes: stripeSecretKey ? Array.from(stripeSecretKey).map((c) => c.charCodeAt(0)) : null,
   };
 
   try {
