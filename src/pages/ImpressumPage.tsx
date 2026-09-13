@@ -68,6 +68,36 @@ export function ImpressumPage() {
           Zahlungsanfragen in den Einstellungen).
         </p>
 
+        <div className="card-kicker" style={{ marginBottom: 6 }}>Verfügbarkeit &amp; Haftung</div>
+        <p style={{ marginTop: 0, marginBottom: 14 }}>
+          Grapino wird als Einzelprojekt privat betrieben - es besteht kein Anspruch auf ununterbrochene
+          Verfügbarkeit oder eine bestimmte Reaktionszeit bei Störungen. Wir bemühen uns nach bestem Wissen um einen
+          zuverlässigen Betrieb (tägliche Datensicherung, wöchentliche Foto-Sicherung, siehe unten), können einen
+          vorübergehenden Ausfall (z. B. durch einen Fehler bei Supabase oder Vercel, unseren technischen
+          Dienstleistern) aber nicht ausschliessen.
+        </p>
+        <p style={{ marginTop: 0, marginBottom: 20 }}>
+          Für Schäden aus leichter Fahrlässigkeit (z. B. ein vorübergehender Ausfall) wird keine Haftung
+          übernommen; die Haftung für grobe Fahrlässigkeit oder Vorsatz bleibt davon unberührt. Diese
+          Haftungsbeschränkung gilt nicht für Personenschäden.
+        </p>
+
+        <div className="card-kicker" style={{ marginBottom: 6 }}>Preisänderungen</div>
+        <p style={{ marginTop: 0, marginBottom: 20 }}>
+          Preise können für zukünftige Abrechnungszeiträume angepasst werden - eine bereits bezahlte Laufzeit
+          bleibt dabei immer zum bezahlten Preis gültig. Über eine Preisänderung wird mindestens 60 Tage im Voraus
+          persönlich informiert (Nachricht in der App oder E-Mail). Wer die neuen Konditionen nicht möchte, kann bis
+          zum Ende der laufenden, bereits bezahlten Periode kündigen, ohne dass die neuen Preise für einen gelten.
+        </p>
+
+        <div className="card-kicker" style={{ marginBottom: 6 }}>Falls der Betrieb einmal eingestellt wird</div>
+        <p style={{ marginTop: 0, marginBottom: 20 }}>
+          Sollte Grapino als Projekt einmal nicht mehr weitergeführt werden, wird das mindestens 60 Tage im Voraus
+          persönlich angekündigt. In dieser Zeit bleibt der Export der eigenen Sammlung (siehe "Deine Rechte"
+          unten) garantiert möglich, es werden keine neuen Zahlungen mehr eingefordert, und für bereits bezahlte,
+          aber noch nicht genutzte Zeiträume wird der anteilige Betrag zurückerstattet.
+        </p>
+
         <div className="card-kicker" style={{ marginBottom: 6 }}>Datenschutz</div>
         <p style={{ marginTop: 0, marginBottom: 14 }}>
           Alle Angaben zur eigenen Sammlung sind nur für den jeweiligen Account sichtbar (technisch abgesichert über

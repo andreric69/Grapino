@@ -35,3 +35,7 @@ backups/
 # Notfall-/Wiederherstellungsordner - enthaelt echte Zugangsdaten
 # (service_role-Schluessel, Admin-Passwort etc.), darf niemals committet werden.
 NOTFALL/
+
+# Claude-Arbeitsordner fuer temporaere Dateien (z. B. Artefakt-Entwuerfe) -
+# kein Projektinhalt.
+scratchpad/
