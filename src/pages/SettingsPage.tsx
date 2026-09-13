@@ -29,7 +29,8 @@ import { listMyPaymentRequests } from '../lib/paymentRequestRepository';
 import { listMyOrders, ORDER_CATEGORY_INFO, SELECTABLE_ORDER_CATEGORIES } from '../lib/orderRepository';
 import { getPricingConfig, computeOrderPrice, type PricingConfig } from '../lib/pricingConfig';
 import { getAccessStatus } from '../lib/accessControl';
-import { canUseProFeatures, type Plan } from '../lib/planLimits';
+import { canUseProFeatures, getMaxWines, PLAN_LABELS, type Plan } from '../lib/planLimits';
+import { startCheckout, openBillingPortal } from '../lib/billing';
 import { daysUntil } from '../lib/trialDays';
 import type { DeletionRequest, EnrichmentOrder, MyFeedback, PaymentRequest, Wine, WineInput } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
@@ -61,6 +62,8 @@ export function SettingsPage() {
   const [nameSaved, setNameSaved] = useState(false);
   const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
   const [plan, setPlan] = useState<Plan | null>(null);
+  const [billingBusy, setBillingBusy] = useState<Plan | 'portal' | null>(null);
+  const [billingError, setBillingError] = useState<string | null>(null);
 
   useEffect(() => {
     setNameInput((session?.user.user_metadata?.display_name as string | undefined) ?? '');
@@ -82,6 +85,31 @@ export function SettingsPage() {
       cancelled = true;
     };
   }, []);
+
+  async function handleChooseTier(target: Plan) {
+    setBillingBusy(target);
+    setBillingError(null);
+    try {
+      await startCheckout(target);
+      // Bei Erfolg leitet startCheckout selbst weiter (window.location.href) -
+      // setBillingBusy(null) wuerde hier ohnehin nie mehr sichtbar, die Seite
+      // wird gerade verlassen.
+    } catch (e) {
+      setBillingError(e instanceof Error ? e.message : 'Konnte nicht gestartet werden.');
+      setBillingBusy(null);
+    }
+  }
+
+  async function handleOpenPortal() {
+    setBillingBusy('portal');
+    setBillingError(null);
+    try {
+      await openBillingPortal();
+    } catch (e) {
+      setBillingError(e instanceof Error ? e.message : 'Kundenportal konnte nicht geöffnet werden.');
+      setBillingBusy(null);
+    }
+  }
 
   async function handleSaveName() {
     setSavingName(true);
@@ -652,6 +680,37 @@ export function SettingsPage() {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {plan && (
+            <div className="card" style={{ gap: 10 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <div style={{ fontSize: 12.5, opacity: 0.65 }}>Deine Abo-Stufe</div>
+                <strong style={{ fontFamily: 'var(--font-heading)', fontSize: 16 }}>{PLAN_LABELS[plan]}</strong>
+              </div>
+              <div style={{ fontSize: 12, opacity: 0.6 }}>
+                {getMaxWines(plan) === null ? 'Unbegrenzt viele Weine' : `Bis ${getMaxWines(plan)} Weine`}
+              </div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
+                {(['basis', 'pro', 'ultra'] as const)
+                  .filter((tier) => tier !== plan)
+                  .map((tier) => (
+                    <button
+                      key={tier}
+                      type="button"
+                      className="btn btn-secondary"
+                      disabled={billingBusy !== null}
+                      onClick={() => handleChooseTier(tier)}
+                    >
+                      {billingBusy === tier ? 'Wird geöffnet ...' : `Zu ${PLAN_LABELS[tier]} wechseln`}
+                    </button>
+                  ))}
+                <button type="button" className="btn btn-ghost" disabled={billingBusy !== null} onClick={handleOpenPortal}>
+                  {billingBusy === 'portal' ? 'Wird geöffnet ...' : 'Abo verwalten / kündigen'}
+                </button>
+              </div>
+              {billingError && <div style={{ fontSize: 12.5, color: 'var(--color-bordeaux)' }}>{billingError}</div>}
             </div>
           )}
 
