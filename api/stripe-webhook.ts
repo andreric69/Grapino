@@ -87,6 +87,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // eintreffenden) customer.subscription.created-Event warten muss.
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
+
+        // Einmalzahlung fuer offene Zahlungsanfragen (Aktualisierungs-
+        // Auftraege, siehe create-payment-checkout-session.ts) - eigener
+        // Zweig, da hier keine Abo-Stufe/Subscription-ID involviert ist,
+        // sondern payment_requests direkt als bezahlt markiert werden.
+        if (session.mode === 'payment') {
+          const ids = session.metadata?.payment_request_ids?.split(',').filter(Boolean) ?? [];
+          if (ids.length > 0) {
+            // ".eq('status','open')" macht das idempotent, falls Stripe
+            // denselben Webhook erneut zustellt (Retry) - ein bereits
+            // bezahlter Eintrag wird nicht nochmal mit einem neuen paid_at
+            // ueberschrieben.
+            await supabase
+              .from('payment_requests')
+              .update({ status: 'paid', paid_at: new Date().toISOString() })
+              .in('id', ids)
+              .eq('status', 'open');
+          }
+          break;
+        }
+
         const userId = session.client_reference_id;
         const subscriptionId = typeof session.subscription === 'string' ? session.subscription : session.subscription?.id;
         if (userId && subscriptionId) {

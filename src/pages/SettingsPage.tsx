@@ -30,7 +30,7 @@ import { listMyOrders, ORDER_CATEGORY_INFO, SELECTABLE_ORDER_CATEGORIES } from '
 import { getPricingConfig, computeOrderPrice, type PricingConfig } from '../lib/pricingConfig';
 import { getAccessStatus } from '../lib/accessControl';
 import { canUseProFeatures, getMaxWines, PLAN_LABELS, type Plan } from '../lib/planLimits';
-import { startCheckout, openBillingPortal } from '../lib/billing';
+import { startCheckout, openBillingPortal, startPaymentRequestCheckout } from '../lib/billing';
 import { daysUntil } from '../lib/trialDays';
 import type { DeletionRequest, EnrichmentOrder, MyFeedback, PaymentRequest, Wine, WineInput } from '../types';
 import { LoadingSpinner } from '../components/LoadingSpinner';
@@ -62,8 +62,9 @@ export function SettingsPage() {
   const [nameSaved, setNameSaved] = useState(false);
   const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
   const [plan, setPlan] = useState<Plan | null>(null);
-  const [billingBusy, setBillingBusy] = useState<Plan | 'portal' | null>(null);
+  const [billingBusy, setBillingBusy] = useState<Plan | 'portal' | 'orderPayment' | null>(null);
   const [billingError, setBillingError] = useState<string | null>(null);
+  const [orderPaymentError, setOrderPaymentError] = useState<string | null>(null);
 
   useEffect(() => {
     setNameInput((session?.user.user_metadata?.display_name as string | undefined) ?? '');
@@ -107,6 +108,17 @@ export function SettingsPage() {
       await openBillingPortal();
     } catch (e) {
       setBillingError(e instanceof Error ? e.message : 'Kundenportal konnte nicht geöffnet werden.');
+      setBillingBusy(null);
+    }
+  }
+
+  async function handlePayOpenRequests() {
+    setBillingBusy('orderPayment');
+    setOrderPaymentError(null);
+    try {
+      await startPaymentRequestCheckout();
+    } catch (e) {
+      setOrderPaymentError(e instanceof Error ? e.message : 'Zahlung konnte nicht gestartet werden.');
       setBillingBusy(null);
     }
   }
@@ -634,7 +646,17 @@ export function SettingsPage() {
                     <div style={{ fontSize: 13.5 }}>{p.reason}</div>
                   </div>
                 ))}
-              <div style={{ fontSize: 12, opacity: 0.7 }}>Überweisung/TWINT an Andrin, wie besprochen.</div>
+              <button
+                type="button"
+                className="btn btn-primary"
+                disabled={billingBusy !== null}
+                onClick={handlePayOpenRequests}
+                style={{ alignSelf: 'flex-start' }}
+              >
+                {billingBusy === 'orderPayment' ? 'Wird geöffnet ...' : 'Jetzt mit Karte bezahlen'}
+              </button>
+              {orderPaymentError && <div style={{ fontSize: 12.5, color: 'var(--color-bordeaux)' }}>{orderPaymentError}</div>}
+              <div style={{ fontSize: 12, opacity: 0.7 }}>Alternativ Überweisung/TWINT an Andrin, wie besprochen.</div>
             </div>
           )}
 

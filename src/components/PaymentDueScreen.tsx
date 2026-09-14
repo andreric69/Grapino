@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { PaymentRequest } from '../types';
+import { startPaymentRequestCheckout } from '../lib/billing';
 
 // Kein Zahlungsanbieter (Stripe o. ae.) - bewusst einfach gehalten wie der
 // Rest der Zahlungsabwicklung in der App: TWINT/Ueberweisung von Hand an
@@ -100,6 +101,21 @@ function CopyButton({
 /** Vollflaechige, dominante Anzeige offener Zahlungsanfragen direkt nach dem Login - im Unterschied zu BlockScreen aber nur ein Hinweis, kein harter Zugangsstop (der Nutzer kann weiter in die App). */
 export function PaymentDueScreen({ requests, onDismiss }: { requests: PaymentRequest[]; onDismiss: () => void }) {
   const total = requests.reduce((sum, r) => sum + r.amount, 0);
+  const [payBusy, setPayBusy] = useState(false);
+  const [payError, setPayError] = useState<string | null>(null);
+
+  async function handlePayWithStripe() {
+    setPayBusy(true);
+    setPayError(null);
+    try {
+      await startPaymentRequestCheckout();
+      // Bei Erfolg leitet startPaymentRequestCheckout selbst weiter - payBusy
+      // bleibt bewusst gesetzt, bis die Seite tatsaechlich wechselt.
+    } catch (e) {
+      setPayError(e instanceof Error ? e.message : 'Zahlung konnte nicht gestartet werden.');
+      setPayBusy(false);
+    }
+  }
 
   return (
     <div className="full-screen" style={{ display: 'grid', placeItems: 'center', padding: 24 }}>
@@ -178,8 +194,12 @@ export function PaymentDueScreen({ requests, onDismiss }: { requests: PaymentReq
             </div>
           ))}
         </div>
+        <button type="button" className="btn btn-primary" disabled={payBusy} onClick={handlePayWithStripe}>
+          {payBusy ? 'Wird geöffnet ...' : 'Jetzt mit Karte bezahlen'}
+        </button>
+        {payError && <div style={{ fontSize: 12.5, color: 'var(--color-bordeaux)' }}>{payError}</div>}
         <div style={{ fontSize: 12.5, lineHeight: 1.6, opacity: 0.65 }}>
-          Bitte per TWINT an{' '}
+          Alternativ per TWINT an{' '}
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, verticalAlign: 'middle' }}>
             <strong>{TWINT_NUMBER}</strong>
             <CopyButton value={TWINT_NUMBER} label="TWINT-Nummer kopieren" size={20} iconSize={11} />
@@ -191,8 +211,8 @@ export function PaymentDueScreen({ requests, onDismiss }: { requests: PaymentReq
           </a>
           .
         </div>
-        <button type="button" className="btn btn-primary" onClick={onDismiss} style={{ marginTop: 4 }}>
-          Verstanden, weiter zur App
+        <button type="button" className="btn btn-secondary" onClick={onDismiss} style={{ marginTop: 4 }}>
+          Später - weiter zur App
         </button>
       </div>
     </div>
