@@ -38,6 +38,48 @@ import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { TextScaleToggle } from '../components/TextScaleToggle';
 
+/**
+ * Uebergeordnete Gruppen-Ueberschrift (z. B. "Konto", "Abo & Zahlungen") -
+ * eine Ebene ueber den bisherigen .card-kicker-Unterueberschriften, damit die
+ * neun vorher flachen Abschnitte sichtbar zu vier/fuenf groesseren Bloecken
+ * gebuendelt wirken. Bewusst deutlich groesser/fetter als .card-kicker
+ * (10px, uppercase), aber kleiner als der Seitentitel "Einstellungen" (25px).
+ */
+function SettingsGroupHeading({ title }: { title: string }) {
+  return (
+    <h2
+      style={{
+        fontFamily: 'var(--font-heading)',
+        fontWeight: 700,
+        fontSize: 19,
+        letterSpacing: '-0.01em',
+        margin: '0 0 14px',
+      }}
+    >
+      {title}
+    </h2>
+  );
+}
+
+/** Kleiner Pfeil nach rechts fuer kompakte Listenzeilen - gleiches Muster wie in DiscoverPage.tsx. */
+function ChevronRightIcon() {
+  return (
+    <svg
+      width="7"
+      height="12"
+      viewBox="0 0 8 14"
+      fill="none"
+      stroke="var(--color-text)"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ flex: '0 0 auto', opacity: 0.4 }}
+    >
+      <path d="M1 1l6 6-6 6" />
+    </svg>
+  );
+}
+
 type ImportState =
   | { phase: 'idle' }
   | { phase: 'reading' }
@@ -583,119 +625,123 @@ export function SettingsPage() {
           </div>
         )}
 
-        <section style={{ marginBottom: 28 }}>
-          <div className="card-kicker" style={{ marginBottom: 8 }}>
-            Konto
-          </div>
-          <div className="card" style={{ gap: 12 }}>
-            <div className="settings-account-email" style={{ fontSize: 14 }}>{session?.user.email}</div>
-            {trialEndsAt &&
-              (() => {
-                const daysLeft = daysUntil(trialEndsAt, new Date());
-                const isExpired = daysLeft < 0;
-                return (
-                  <div
-                    style={{
-                      fontSize: 12.5,
-                      padding: '6px 10px',
-                      borderRadius: 'var(--radius-sm)',
-                      background: isExpired
-                        ? 'color-mix(in srgb, var(--color-bordeaux) 10%, transparent)'
-                        : 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
-                      color: isExpired ? 'var(--color-bordeaux)' : 'inherit',
+        <div style={{ marginBottom: 30 }}>
+          <SettingsGroupHeading title="Konto" />
+
+          <section style={{ marginBottom: 20 }}>
+            <div className="card-kicker" style={{ marginBottom: 8 }}>
+              Konto
+            </div>
+            <div className="card" style={{ gap: 12 }}>
+              <div className="settings-account-email" style={{ fontSize: 14 }}>{session?.user.email}</div>
+              {trialEndsAt &&
+                (() => {
+                  const daysLeft = daysUntil(trialEndsAt, new Date());
+                  const isExpired = daysLeft < 0;
+                  return (
+                    <div
+                      style={{
+                        fontSize: 12.5,
+                        padding: '6px 10px',
+                        borderRadius: 'var(--radius-sm)',
+                        background: isExpired
+                          ? 'color-mix(in srgb, var(--color-bordeaux) 10%, transparent)'
+                          : 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
+                        color: isExpired ? 'var(--color-bordeaux)' : 'inherit',
+                      }}
+                    >
+                      {isExpired
+                        ? 'Testphase abgelaufen'
+                        : daysLeft === 0
+                          ? 'Testphase: letzter Tag'
+                          : `Testphase: noch ${daysLeft} Tag${daysLeft === 1 ? '' : 'e'}`}
+                    </div>
+                  );
+                })()}
+              <div>
+                <label style={{ fontSize: 12.5, opacity: 0.65, display: 'block', marginBottom: 4 }}>
+                  Name (so wirst du in der App angesprochen)
+                </label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input
+                    className="input"
+                    style={{ flex: 1 }}
+                    value={nameInput}
+                    onChange={(e) => {
+                      setNameInput(e.target.value);
+                      setNameSaved(false);
                     }}
+                    placeholder="z.B. Vorname"
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    disabled={savingName || !nameInput.trim()}
+                    onClick={handleSaveName}
                   >
-                    {isExpired
-                      ? 'Testphase abgelaufen'
-                      : daysLeft === 0
-                        ? 'Testphase: letzter Tag'
-                        : `Testphase: noch ${daysLeft} Tag${daysLeft === 1 ? '' : 'e'}`}
-                  </div>
-                );
-              })()}
-            <div>
-              <label style={{ fontSize: 12.5, opacity: 0.65, display: 'block', marginBottom: 4 }}>
-                Name (so wirst du in der App angesprochen)
-              </label>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <input
-                  className="input"
-                  style={{ flex: 1 }}
-                  value={nameInput}
-                  onChange={(e) => {
-                    setNameInput(e.target.value);
-                    setNameSaved(false);
-                  }}
-                  placeholder="z.B. Vorname"
-                />
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  disabled={savingName || !nameInput.trim()}
-                  onClick={handleSaveName}
-                >
-                  {savingName ? 'Speichert ...' : 'Speichern'}
-                </button>
+                    {savingName ? 'Speichert ...' : 'Speichern'}
+                  </button>
+                </div>
+                {nameError && <ErrorBanner message={nameError} />}
+                {nameSaved && <div style={{ fontSize: 12.5, color: 'var(--color-bordeaux)', marginTop: 4 }}>Gespeichert.</div>}
               </div>
-              {nameError && <ErrorBanner message={nameError} />}
-              {nameSaved && <div style={{ fontSize: 12.5, color: 'var(--color-bordeaux)', marginTop: 4 }}>Gespeichert.</div>}
-            </div>
-            <div>
-              <label style={{ fontSize: 12.5, opacity: 0.65, display: 'block', marginBottom: 4 }}>
-                Passwort ändern
-              </label>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <input
-                  className="input"
-                  style={{ flex: 1 }}
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => {
-                    setNewPassword(e.target.value);
-                    setPasswordSaved(false);
-                    setPasswordError(null);
-                  }}
-                  placeholder="Mind. 8 Zeichen"
-                />
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  disabled={savingPassword || newPassword.length < 8}
-                  onClick={handleSetPassword}
-                >
-                  {savingPassword ? 'Speichert ...' : 'Speichern'}
-                </button>
+              <div>
+                <label style={{ fontSize: 12.5, opacity: 0.65, display: 'block', marginBottom: 4 }}>
+                  Passwort ändern
+                </label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input
+                    className="input"
+                    style={{ flex: 1 }}
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => {
+                      setNewPassword(e.target.value);
+                      setPasswordSaved(false);
+                      setPasswordError(null);
+                    }}
+                    placeholder="Mind. 8 Zeichen"
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    disabled={savingPassword || newPassword.length < 8}
+                    onClick={handleSetPassword}
+                  >
+                    {savingPassword ? 'Speichert ...' : 'Speichern'}
+                  </button>
+                </div>
+                {passwordError && <ErrorBanner message={passwordError} />}
+                {passwordSaved && <div style={{ fontSize: 12.5, color: 'var(--color-bordeaux)', marginTop: 4 }}>Gespeichert.</div>}
               </div>
-              {passwordError && <ErrorBanner message={passwordError} />}
-              {passwordSaved && <div style={{ fontSize: 12.5, color: 'var(--color-bordeaux)', marginTop: 4 }}>Gespeichert.</div>}
+              <button type="button" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }} onClick={handleSignOut}>
+                Abmelden
+              </button>
             </div>
-            <button type="button" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }} onClick={handleSignOut}>
-              Abmelden
-            </button>
-          </div>
-        </section>
+          </section>
 
-        <section style={{ marginBottom: 28 }}>
-          <div className="card-kicker" style={{ marginBottom: 8 }}>
-            Darstellung
-          </div>
-          <div className="card" style={{ gap: 12 }}>
-            <div style={{ fontSize: 12.5, opacity: 0.65, lineHeight: 1.5 }}>
-              Textgrösse der ganzen App - falls die Schrift zu klein ist.
+          <section>
+            <div className="card-kicker" style={{ marginBottom: 8 }}>
+              Darstellung
             </div>
-            <TextScaleToggle />
-          </div>
-        </section>
+            <div className="card" style={{ gap: 12 }}>
+              <div style={{ fontSize: 12.5, opacity: 0.65, lineHeight: 1.5 }}>
+                Textgrösse der ganzen App - falls die Schrift zu klein ist.
+              </div>
+              <TextScaleToggle />
+            </div>
+          </section>
+        </div>
 
-        <section style={{ marginBottom: 28 }}>
-          <div className="card-kicker" style={{ marginBottom: 8 }}>
-            Kosten &amp; Zahlungen
-          </div>
+        <div className="hr" style={{ margin: '4px 0 30px' }} />
+
+        <div style={{ marginBottom: 30 }}>
+          <SettingsGroupHeading title="Abo & Zahlungen" />
 
           {myPaymentRequests.filter((p) => p.status === 'open').length > 0 && (
             <div
               className="card"
-              style={{ gap: 10, marginBottom: 14, border: '2px solid var(--color-bordeaux)', background: 'color-mix(in srgb, var(--color-bordeaux) 10%, transparent)' }}
+              style={{ gap: 10, marginBottom: 20, border: '2px solid var(--color-bordeaux)', background: 'color-mix(in srgb, var(--color-bordeaux) 10%, transparent)' }}
             >
               <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 16, color: 'var(--color-bordeaux)' }}>
                 Offene Zahlung{myPaymentRequests.filter((p) => p.status === 'open').length > 1 ? 'en' : ''}
@@ -725,29 +771,54 @@ export function SettingsPage() {
             </div>
           )}
 
-          {myPaymentRequests.filter((p) => p.status !== 'open').length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
-              {myPaymentRequests
-                .filter((p) => p.status !== 'open')
-                .map((p) => (
-                  <div key={p.id} className="card" style={{ gap: 6 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                      <strong style={{ fontSize: 15 }}>{p.amount.toFixed(2)} CHF</strong>
-                      <span style={{ fontSize: 12, opacity: 0.55 }}>{new Date(p.created_at).toLocaleDateString('de-CH')}</span>
-                    </div>
-                    <div style={{ fontSize: 13.5 }}>{p.reason}</div>
-                    <div style={{ fontSize: 12.5, opacity: 0.7 }}>
-                      {p.status === 'paid' && `Bezahlt${p.paid_at ? ' am ' + new Date(p.paid_at).toLocaleDateString('de-CH') : ''}.`}
-                      {p.status === 'cancelled' && 'Storniert.'}
-                    </div>
+          {plan && (
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 15, marginBottom: 8 }}>
+                Mein Abo
+              </div>
+              <div className="card" style={{ gap: 10 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <div style={{ fontSize: 12.5, opacity: 0.65 }}>Deine Abo-Stufe</div>
+                  <strong style={{ fontFamily: 'var(--font-heading)', fontSize: 16 }}>{PLAN_LABELS[plan]}</strong>
+                </div>
+                {planPrices?.[plan] && (
+                  <div style={{ fontSize: 12, opacity: 0.6 }}>
+                    {formatPlanPrice(planPrices[plan])} · {formatTaxHint(planPrices[plan])}
                   </div>
-                ))}
+                )}
+                <div style={{ fontSize: 12, opacity: 0.6 }}>
+                  {getMaxWines(plan) === null ? 'Unbegrenzt viele Weine' : `Bis ${getMaxWines(plan)} Weine`}
+                </div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
+                  {(['basis', 'pro', 'ultra'] as const)
+                    .filter((tier) => tier !== plan)
+                    .map((tier) => (
+                      <button
+                        key={tier}
+                        type="button"
+                        className="btn btn-secondary"
+                        disabled={billingBusy !== null}
+                        onClick={() => handleChooseTier(tier)}
+                      >
+                        {billingBusy === tier
+                          ? 'Wird geöffnet ...'
+                          : `Zu ${PLAN_LABELS[tier]} wechseln${planPrices?.[tier] ? ` (${formatPlanPrice(planPrices[tier])})` : ''}`}
+                      </button>
+                    ))}
+                  <button type="button" className="btn btn-ghost" disabled={billingBusy !== null} onClick={handleOpenPortal}>
+                    {billingBusy === 'portal' ? 'Wird geöffnet ...' : 'Abo verwalten / kündigen'}
+                  </button>
+                </div>
+                {billingError && <div style={{ fontSize: 12.5, color: 'var(--color-bordeaux)' }}>{billingError}</div>}
+              </div>
             </div>
           )}
 
           {myOrders.length > 0 && (
-            <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 12.5, opacity: 0.65, marginBottom: 8 }}>Meine Aufträge</div>
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 15, marginBottom: 8 }}>
+                Meine Aufträge
+              </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {myOrders.map((o) => (
                   <div key={o.id} className="card" style={{ gap: 6 }}>
@@ -770,149 +841,81 @@ export function SettingsPage() {
             </div>
           )}
 
-          {plan && (
-            <div className="card" style={{ gap: 10 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                <div style={{ fontSize: 12.5, opacity: 0.65 }}>Deine Abo-Stufe</div>
-                <strong style={{ fontFamily: 'var(--font-heading)', fontSize: 16 }}>{PLAN_LABELS[plan]}</strong>
+          {myPaymentRequests.filter((p) => p.status !== 'open').length > 0 && (
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 15, marginBottom: 8 }}>
+                Frühere Zahlungen
               </div>
-              {planPrices?.[plan] && (
-                <div style={{ fontSize: 12, opacity: 0.6 }}>
-                  {formatPlanPrice(planPrices[plan])} · {formatTaxHint(planPrices[plan])}
-                </div>
-              )}
-              <div style={{ fontSize: 12, opacity: 0.6 }}>
-                {getMaxWines(plan) === null ? 'Unbegrenzt viele Weine' : `Bis ${getMaxWines(plan)} Weine`}
-              </div>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
-                {(['basis', 'pro', 'ultra'] as const)
-                  .filter((tier) => tier !== plan)
-                  .map((tier) => (
-                    <button
-                      key={tier}
-                      type="button"
-                      className="btn btn-secondary"
-                      disabled={billingBusy !== null}
-                      onClick={() => handleChooseTier(tier)}
-                    >
-                      {billingBusy === tier
-                        ? 'Wird geöffnet ...'
-                        : `Zu ${PLAN_LABELS[tier]} wechseln${planPrices?.[tier] ? ` (${formatPlanPrice(planPrices[tier])})` : ''}`}
-                    </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {myPaymentRequests
+                  .filter((p) => p.status !== 'open')
+                  .map((p) => (
+                    <div key={p.id} className="card" style={{ gap: 6 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                        <strong style={{ fontSize: 15 }}>{p.amount.toFixed(2)} CHF</strong>
+                        <span style={{ fontSize: 12, opacity: 0.55 }}>{new Date(p.created_at).toLocaleDateString('de-CH')}</span>
+                      </div>
+                      <div style={{ fontSize: 13.5 }}>{p.reason}</div>
+                      <div style={{ fontSize: 12.5, opacity: 0.7 }}>
+                        {p.status === 'paid' && `Bezahlt${p.paid_at ? ' am ' + new Date(p.paid_at).toLocaleDateString('de-CH') : ''}.`}
+                        {p.status === 'cancelled' && 'Storniert.'}
+                      </div>
+                    </div>
                   ))}
-                <button type="button" className="btn btn-ghost" disabled={billingBusy !== null} onClick={handleOpenPortal}>
-                  {billingBusy === 'portal' ? 'Wird geöffnet ...' : 'Abo verwalten / kündigen'}
-                </button>
               </div>
-              {billingError && <div style={{ fontSize: 12.5, color: 'var(--color-bordeaux)' }}>{billingError}</div>}
             </div>
           )}
 
           {pricing && (
-            <div className="card" style={{ gap: 8 }}>
-              <div style={{ fontSize: 12.5, opacity: 0.65, marginBottom: 2 }}>
-                Preise für Aktualisierungs-Aufträge ({ownActiveWineCount} {ownActiveWineCount === 1 ? 'Wein' : 'Weine'} in deiner Sammlung)
+            <div>
+              <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 15, marginBottom: 8 }}>
+                Preise für neue Aufträge
               </div>
-              {SELECTABLE_ORDER_CATEGORIES.map((key) => (
-                <div key={key} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-                  <span>{ORDER_CATEGORY_INFO[key].label}</span>
-                  <span style={{ opacity: 0.7 }}>
-                    {computeOrderPrice(pricing, key, ownActiveWineCount > 0 ? ownActiveWineCount : 1).toFixed(2)} CHF
-                  </span>
+              <div className="card" style={{ gap: 8 }}>
+                <div style={{ fontSize: 12.5, opacity: 0.65, marginBottom: 2 }}>
+                  Preise für Aktualisierungs-Aufträge ({ownActiveWineCount} {ownActiveWineCount === 1 ? 'Wein' : 'Weine'} in deiner Sammlung)
                 </div>
-              ))}
-              <div style={{ fontSize: 11.5, opacity: 0.55, marginTop: 4 }}>
-                {ownActiveWineCount > 0
-                  ? 'Preis, wenn du deine ganze aktuelle Sammlung als Auftrag gibst. Bei einer Auswahl (z. B. nur neue Weine) fällt er entsprechend kleiner aus.'
-                  : 'Preis für einen Auftrag mit einem Wein - bei mehr Weinen wird es pro Wein günstiger.'}
+                {SELECTABLE_ORDER_CATEGORIES.map((key) => (
+                  <div key={key} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+                    <span>{ORDER_CATEGORY_INFO[key].label}</span>
+                    <span style={{ opacity: 0.7 }}>
+                      {computeOrderPrice(pricing, key, ownActiveWineCount > 0 ? ownActiveWineCount : 1).toFixed(2)} CHF
+                    </span>
+                  </div>
+                ))}
+                <div style={{ fontSize: 11.5, opacity: 0.55, marginTop: 4 }}>
+                  {ownActiveWineCount > 0
+                    ? 'Preis, wenn du deine ganze aktuelle Sammlung als Auftrag gibst. Bei einer Auswahl (z. B. nur neue Weine) fällt er entsprechend kleiner aus.'
+                    : 'Preis für einen Auftrag mit einem Wein - bei mehr Weinen wird es pro Wein günstiger.'}
+                </div>
+                <div style={{ fontSize: 11.5, opacity: 0.55, marginTop: 4 }}>
+                  Aktualisierungs-Aufträge kosten, weil dahinter echte Recherche steckt - pro Wein wird online nach
+                  Region, Rebsorte, Trinkfenster und Kritiker-Punkten gesucht. "Import" ist aufwendiger, weil bei
+                  diesen Weinen noch gar keine Angaben vorhanden sind und alles neu recherchiert werden muss. Fotos
+                  fügen wir nicht mehr von fremden Seiten hinzu - nur, wenn du selbst eins von der Flasche machst.
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  style={{ fontSize: 11.5, alignSelf: 'flex-start', padding: 0, marginTop: 4 }}
+                  onClick={() => navigate('/impressum')}
+                >
+                  Impressum &amp; Kosten-Hinweise
+                </button>
               </div>
-              <div style={{ fontSize: 11.5, opacity: 0.55, marginTop: 4 }}>
-                Aktualisierungs-Aufträge kosten, weil dahinter echte Recherche steckt - pro Wein wird online nach
-                Region, Rebsorte, Trinkfenster und Kritiker-Punkten gesucht. "Import" ist aufwendiger, weil bei
-                diesen Weinen noch gar keine Angaben vorhanden sind und alles neu recherchiert werden muss. Fotos
-                fügen wir nicht mehr von fremden Seiten hinzu - nur, wenn du selbst eins von der Flasche machst.
-              </div>
-              <button
-                type="button"
-                className="btn btn-ghost"
-                style={{ fontSize: 11.5, alignSelf: 'flex-start', padding: 0, marginTop: 4 }}
-                onClick={() => navigate('/impressum')}
-              >
-                Impressum &amp; Kosten-Hinweise
-              </button>
             </div>
           )}
-        </section>
+        </div>
 
-        <section style={{ marginBottom: 28 }}>
-          <div className="card-kicker" style={{ marginBottom: 8 }}>
-            Entdecken
-          </div>
-          <div className="card" style={{ gap: 12 }}>
-            <div style={{ fontSize: 12.5, opacity: 0.65, lineHeight: 1.5 }}>
-              Statistik, Rückblick, Weinjahr, Lagerplan und Weinlexikon - alles an einem Ort.
+        <div className="hr" style={{ margin: '4px 0 30px' }} />
+
+        <div style={{ marginBottom: 30 }}>
+          <SettingsGroupHeading title="Sammlung & Daten" />
+
+          <section style={{ marginBottom: 20 }}>
+            <div className="card-kicker" style={{ marginBottom: 8 }}>
+              Daten
             </div>
-            <button type="button" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }} onClick={() => navigate('/entdecken')}>
-              Entdecken öffnen
-            </button>
-          </div>
-        </section>
-
-        <section style={{ marginBottom: 28 }}>
-          <div className="card-kicker" style={{ marginBottom: 8 }}>
-            Hilfe
-          </div>
-          <div className="card" style={{ gap: 10 }}>
-            <div style={{ fontSize: 12.5, opacity: 0.65, lineHeight: 1.5 }}>
-              Anleitungen zur Bedienung von Grapino.
-            </div>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              style={{ alignSelf: 'flex-start' }}
-              onClick={() => setOpenPdf({ key: 'onboarding', title: 'Erste Schritte' })}
-            >
-              Erste Schritte (PDF)
-            </button>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              style={{ alignSelf: 'flex-start' }}
-              onClick={() => setOpenPdf({ key: 'weine-anlegen', title: 'Weine anlegen' })}
-            >
-              Weine anlegen (PDF)
-            </button>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              style={{ alignSelf: 'flex-start' }}
-              onClick={() => setOpenPdf({ key: 'app', title: 'So funktioniert die App' })}
-            >
-              So funktioniert die App (PDF)
-            </button>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              style={{ alignSelf: 'flex-start' }}
-              onClick={() => setOpenPdf({ key: 'nachrichten', title: 'Kontakt und Nachrichten' })}
-            >
-              Kontakt und Nachrichten (PDF)
-            </button>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              style={{ alignSelf: 'flex-start' }}
-              onClick={() => setOpenPdf({ key: 'auftraege', title: 'Aktualisierungs-Aufträge geben' })}
-            >
-              Aktualisierungs-Aufträge geben (PDF)
-            </button>
-          </div>
-        </section>
-
-        <section style={{ marginBottom: 28 }}>
-          <div className="card-kicker" style={{ marginBottom: 8 }}>
-            Daten
-          </div>
           <div className="card" style={{ gap: 14 }}>
             <div>
               <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 15, marginBottom: 4 }}>
@@ -1157,9 +1160,73 @@ export function SettingsPage() {
             </div>
           </section>
         )}
+        </div>
+
+        <div className="hr" style={{ margin: '4px 0 30px' }} />
+
+        <div style={{ marginBottom: 30 }}>
+          <SettingsGroupHeading title="Hilfe & Mehr" />
+
+          <section style={{ marginBottom: 20 }}>
+            <div className="card-kicker" style={{ marginBottom: 8 }}>
+              Entdecken
+            </div>
+            <div className="card" style={{ gap: 12 }}>
+              <div style={{ fontSize: 12.5, opacity: 0.65, lineHeight: 1.5 }}>
+                Statistik, Rückblick, Weinjahr, Lagerplan und Weinlexikon - alles an einem Ort.
+              </div>
+              <button type="button" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }} onClick={() => navigate('/entdecken')}>
+                Entdecken öffnen
+              </button>
+            </div>
+          </section>
+
+          <section style={{ marginBottom: myFeedback.length > 0 ? 20 : 0 }}>
+            <div className="card-kicker" style={{ marginBottom: 8 }}>
+              Hilfe
+            </div>
+            <div style={{ fontSize: 12.5, opacity: 0.65, lineHeight: 1.5, marginBottom: 10 }}>
+              Anleitungen zur Bedienung von Grapino.
+            </div>
+            <div className="card" style={{ gap: 0, padding: 0 }}>
+              {(
+                [
+                  { title: 'Erste Schritte (PDF)', pdf: { key: 'onboarding', title: 'Erste Schritte' } },
+                  { title: 'Weine anlegen (PDF)', pdf: { key: 'weine-anlegen', title: 'Weine anlegen' } },
+                  { title: 'So funktioniert die App (PDF)', pdf: { key: 'app', title: 'So funktioniert die App' } },
+                  { title: 'Kontakt und Nachrichten (PDF)', pdf: { key: 'nachrichten', title: 'Kontakt und Nachrichten' } },
+                  { title: 'Aktualisierungs-Aufträge geben (PDF)', pdf: { key: 'auftraege', title: 'Aktualisierungs-Aufträge geben' } },
+                ] as const
+              ).map((item, i, arr) => (
+                <button
+                  key={item.pdf.key}
+                  type="button"
+                  onClick={() => setOpenPdf({ key: item.pdf.key, title: item.pdf.title })}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 10,
+                    width: '100%',
+                    padding: '13px 4px',
+                    border: 'none',
+                    borderBottom: i < arr.length - 1 ? '1px solid var(--color-divider)' : 'none',
+                    background: 'none',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    font: 'inherit',
+                    color: 'inherit',
+                  }}
+                >
+                  <span style={{ fontSize: 13.5 }}>{item.title}</span>
+                  <ChevronRightIcon />
+                </button>
+              ))}
+            </div>
+          </section>
 
         {myFeedback.length > 0 && (
-          <section style={{ marginBottom: 28 }}>
+          <section>
             <div className="card-kicker" style={{ marginBottom: 8 }}>
               Meine Rückmeldungen
             </div>
@@ -1200,6 +1267,9 @@ export function SettingsPage() {
             </div>
           </section>
         )}
+        </div>
+
+        <div className="hr" style={{ margin: '4px 0 30px' }} />
 
         <section style={{ marginBottom: 28 }}>
           <div className="card-kicker" style={{ marginBottom: 8, color: 'var(--color-bordeaux)' }}>
