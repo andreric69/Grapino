@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from './_types.js';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
+import { isStripeManagedBlock } from '../src/lib/stripeBlockReasons.js';
 
 // Gegenstueck zu create-checkout-session.ts: Preis-ID -> Abo-Stufe (fuer den
 // Ruecksschluss, welche Stufe ein Nutzer nach dem Checkout/einer Aenderung
@@ -17,16 +18,10 @@ const PLAN_BY_PRICE_ID: Record<string, 'basis' | 'pro' | 'ultra'> = {
 // (z. B. eine erfolgreiche Abo-Verlaengerung) einen ganz anderen, manuell
 // gesetzten Block versehentlich wieder aufheben - der Webhook darf einen
 // Block nur dann automatisch loesen, wenn er ihn selbst (oder gar keinen)
-// gesetzt hat, nie einen von Andrin gesetzten.
-const STRIPE_BLOCK_REASONS = new Set([
-  'Zahlung ausstehend - bitte Zahlungsmethode aktualisieren.',
-  'Abo beendet.',
-  'Die letzte Zahlung ist fehlgeschlagen - bitte Zahlungsmethode pruefen.',
-]);
-
-function isStripeManagedBlock(currentBlockReason: string | null): boolean {
-  return currentBlockReason === null || STRIPE_BLOCK_REASONS.has(currentBlockReason);
-}
+// gesetzt hat, nie einen von Andrin gesetzten. Die Liste selbst liegt jetzt
+// in src/lib/stripeBlockReasons.ts (von Client UND Server importierbar),
+// damit BlockScreen.tsx dieselbe Erkennung fuer die Selbsthilfe-Optionen
+// nutzen kann, statt sie ein zweites Mal separat zu pflegen.
 
 // Vercel liefert den Body standardmaessig schon als geparstes JSON - fuer die
 // Stripe-Signaturpruefung wird aber der ROHE, unveraenderte Byte-Body

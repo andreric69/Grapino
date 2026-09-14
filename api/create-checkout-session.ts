@@ -6,7 +6,7 @@ import Stripe from 'stripe';
 // Stufe angelegt (nicht mehrere Preise auf einem Produkt), damit Checkout/
 // Rechnung fuer jede Stufe den richtigen Namen zeigen. IDs stammen aus dem
 // einmaligen Setup im Stripe-Test-Modus, siehe Commit-Beschreibung.
-const PRICE_IDS: Record<'basis' | 'pro' | 'ultra', string> = {
+export const PRICE_IDS: Record<'basis' | 'pro' | 'ultra', string> = {
   basis: 'price_1UFKjwCA1Lpg114OukUSXThO',
   pro: 'price_1UFKjwCA1Lpg114ORHMZ5qJJ',
   ultra: 'price_1UFKjxCA1Lpg114OBMZ6aObX',

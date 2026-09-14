@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../supabaseClient';
 import {
@@ -30,6 +30,7 @@ import { listMyOrders, ORDER_CATEGORY_INFO, SELECTABLE_ORDER_CATEGORIES } from '
 import { getPricingConfig, computeOrderPrice, type PricingConfig } from '../lib/pricingConfig';
 import { getAccessStatus } from '../lib/accessControl';
 import { canUseProFeatures, getMaxWines, PLAN_LABELS, type Plan } from '../lib/planLimits';
+import { getPlanPrices, formatPlanPrice, formatTaxHint, type PlanPrices } from '../lib/planPrices';
 import { startCheckout, openBillingPortal, startPaymentRequestCheckout } from '../lib/billing';
 import { daysUntil } from '../lib/trialDays';
 import type { DeletionRequest, EnrichmentOrder, MyFeedback, PaymentRequest, Wine, WineInput } from '../types';
@@ -54,6 +55,7 @@ type CsvImportState =
 export function SettingsPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { session, signOut, updateDisplayName, needsPasswordReset, clearPasswordResetFlag } = useAuth();
 
   const [nameInput, setNameInput] = useState('');
@@ -62,9 +64,34 @@ export function SettingsPage() {
   const [nameSaved, setNameSaved] = useState(false);
   const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
   const [plan, setPlan] = useState<Plan | null>(null);
+  const [planPrices, setPlanPrices] = useState<PlanPrices | null>(null);
   const [billingBusy, setBillingBusy] = useState<Plan | 'portal' | 'orderPayment' | null>(null);
   const [billingError, setBillingError] = useState<string | null>(null);
   const [orderPaymentError, setOrderPaymentError] = useState<string | null>(null);
+
+  // Erfolgs-Bestaetigung nach einem Stripe-Checkout: create-checkout-
+  // session.ts leitet nach einem bezahlten Abo auf "?checkout=erfolgreich"
+  // um, create-payment-checkout-session.ts (Auftrags-Zahlungen) auf
+  // "?zahlung=erfolgreich" - beide werden hier ausgewertet, als Banner
+  // gezeigt und sofort aus der URL entfernt, damit ein Reload den Hinweis
+  // nicht erneut zeigt.
+  const [checkoutBanner, setCheckoutBanner] = useState<'abo' | 'zahlung' | null>(null);
+  useEffect(() => {
+    const checkoutParam = searchParams.get('checkout');
+    const zahlungParam = searchParams.get('zahlung');
+    if (checkoutParam === 'erfolgreich' || zahlungParam === 'erfolgreich') {
+      setCheckoutBanner(checkoutParam === 'erfolgreich' ? 'abo' : 'zahlung');
+      const next = new URLSearchParams(searchParams);
+      next.delete('checkout');
+      next.delete('zahlung');
+      setSearchParams(next, { replace: true });
+    }
+    // Nur beim ersten Laden der Seite pruefen - "searchParams" aendert sich
+    // durch setSearchParams() selbst, ein Aufnehmen in die Abhaengigkeiten
+    // wuerde diesen Effekt sonst ein zweites Mal (ohne die Parameter) laufen
+    // lassen, was harmlos, aber unnoetig waere.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     setNameInput((session?.user.user_metadata?.display_name as string | undefined) ?? '');
@@ -81,6 +108,17 @@ export function SettingsPage() {
         setTrialEndsAt(status.trialEndsAt);
         setPlan(status.plan);
       }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Live-Preise nur fuer die Anzeige - rein informativ, siehe planPrices.ts.
+  useEffect(() => {
+    let cancelled = false;
+    getPlanPrices().then((p) => {
+      if (!cancelled) setPlanPrices(p);
     });
     return () => {
       cancelled = true;
@@ -501,6 +539,33 @@ export function SettingsPage() {
       <div className="form-page" style={{ paddingTop: 0 }}>
         <h1 style={{ fontSize: 25, marginBottom: 20 }}>Einstellungen</h1>
 
+        {checkoutBanner && (
+          <div
+            className="card"
+            style={{
+              marginBottom: 20,
+              gap: 8,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              border: '1px solid var(--color-accent)',
+              background: 'color-mix(in srgb, var(--color-accent) 12%, transparent)',
+            }}
+          >
+            <div style={{ fontSize: 13.5 }}>
+              {checkoutBanner === 'abo' ? 'Danke, dein Abo ist aktiv!' : 'Danke, deine Zahlung ist eingegangen!'}
+            </div>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              style={{ padding: 0, fontSize: 12, flex: '0 0 auto' }}
+              onClick={() => setCheckoutBanner(null)}
+            >
+              Schliessen
+            </button>
+          </div>
+        )}
+
         {needsPasswordReset && (
           <div
             className="card"
@@ -711,6 +776,11 @@ export function SettingsPage() {
                 <div style={{ fontSize: 12.5, opacity: 0.65 }}>Deine Abo-Stufe</div>
                 <strong style={{ fontFamily: 'var(--font-heading)', fontSize: 16 }}>{PLAN_LABELS[plan]}</strong>
               </div>
+              {planPrices?.[plan] && (
+                <div style={{ fontSize: 12, opacity: 0.6 }}>
+                  {formatPlanPrice(planPrices[plan])} · {formatTaxHint(planPrices[plan])}
+                </div>
+              )}
               <div style={{ fontSize: 12, opacity: 0.6 }}>
                 {getMaxWines(plan) === null ? 'Unbegrenzt viele Weine' : `Bis ${getMaxWines(plan)} Weine`}
               </div>
@@ -725,7 +795,9 @@ export function SettingsPage() {
                       disabled={billingBusy !== null}
                       onClick={() => handleChooseTier(tier)}
                     >
-                      {billingBusy === tier ? 'Wird geöffnet ...' : `Zu ${PLAN_LABELS[tier]} wechseln`}
+                      {billingBusy === tier
+                        ? 'Wird geöffnet ...'
+                        : `Zu ${PLAN_LABELS[tier]} wechseln${planPrices?.[tier] ? ` (${formatPlanPrice(planPrices[tier])})` : ''}`}
                     </button>
                   ))}
                 <button type="button" className="btn btn-ghost" disabled={billingBusy !== null} onClick={handleOpenPortal}>

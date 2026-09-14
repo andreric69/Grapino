@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { startCheckout } from '../lib/billing';
 import { getMaxWines, PLAN_LABELS, type Plan } from '../lib/planLimits';
+import { getPlanPrices, formatPlanPrice, formatTaxHint, type PlanPrices } from '../lib/planPrices';
 
 /* ---- kleine Linien-Icons, gleiche Machart wie in BlockScreen.tsx --------- */
 function iconProps(size: number) {
@@ -46,6 +47,19 @@ export function ChoosePlanScreen() {
   const { signOut } = useAuth();
   const [busyPlan, setBusyPlan] = useState<Plan | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Preise sind rein informativ - schlaegt der Abruf fehl, bleiben sie
+  // einfach weg (siehe getPlanPrices()), die Plaene bleiben trotzdem waehlbar.
+  const [prices, setPrices] = useState<PlanPrices | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    getPlanPrices().then((p) => {
+      if (!cancelled) setPrices(p);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function handleChoose(plan: Plan) {
     setBusyPlan(plan);
@@ -103,6 +117,9 @@ export function ChoosePlanScreen() {
               style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: '10px 16px' }}
             >
               <span>{busyPlan === plan ? 'Wird geöffnet ...' : `${PLAN_LABELS[plan]} wählen`}</span>
+              <span style={{ fontSize: 12.5, fontWeight: 600 }}>
+                {prices?.[plan] ? `${formatPlanPrice(prices[plan])} · ${formatTaxHint(prices[plan])}` : 'Preis im nächsten Schritt'}
+              </span>
               <span style={{ fontSize: 11.5, fontWeight: 400, opacity: 0.85 }}>
                 {PLAN_DESCRIPTIONS[plan]}
                 {getMaxWines(plan) !== null ? ` · bis ${getMaxWines(plan)} Weine` : ' · unbegrenzt'}

@@ -1,6 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import type { AccessStatus } from '../lib/accessControl';
+import { isStripeManagedBlock } from '../lib/stripeBlockReasons';
+import { openBillingPortal } from '../lib/billing';
+import { listWines } from '../lib/wineRepository';
+import type { Wine } from '../types';
+import { ChatBubble } from './ChatBubble';
 
 /* ---- kleine Linien-Icons, gleiche Machart wie in DiscoverPage.tsx -------- */
 function iconProps(size: number) {
@@ -92,9 +97,59 @@ function CopyButton({
   );
 }
 
-/** Vollflaechige Sperre nach dem Login, wenn der Zugang blockiert wurde (siehe accessControl.ts) - zeigt Grund und Betrag, statt die App einfach zu verweigern. */
+/**
+ * Vollflaechige Sperre nach dem Login, wenn der Zugang blockiert wurde
+ * (siehe accessControl.ts) - zeigt Grund und Betrag, statt die App einfach
+ * zu verweigern.
+ *
+ * Stammt der aktuelle Block laut block_reason von Stripe selbst (siehe
+ * isStripeManagedBlock()/stripeBlockReasons.ts, z. B. eine fehlgeschlagene
+ * Abbuchung), war dieser Bildschirm bisher eine Sackgasse fuer zahlende
+ * Kunden: kein Weg, die Zahlungsmethode zu aktualisieren, keine erreichbare
+ * Kontaktmoeglichkeit (die Chat-Blase ist sonst nur auf der Hauptseite
+ * eingebunden). Deshalb hier zusaetzlich ein Link ins Stripe-Kundenportal
+ * und die Chat-Blase, aber NUR bei einem Stripe-verursachten Block - bei
+ * einem manuell von Andrin gesetzten Block (z. B. Missbrauch) waere ein
+ * "Zahlungsmethode aktualisieren"-Button falsch/verwirrend, da bleibt das
+ * Verhalten unveraendert.
+ */
 export function BlockScreen({ status }: { status: AccessStatus }) {
   const { signOut } = useAuth();
+  const isStripeBlock = isStripeManagedBlock(status.blockReason);
+
+  const [portalBusy, setPortalBusy] = useState(false);
+  const [portalError, setPortalError] = useState<string | null>(null);
+
+  async function handleOpenPortal() {
+    setPortalBusy(true);
+    setPortalError(null);
+    try {
+      await openBillingPortal();
+      // Bei Erfolg leitet openBillingPortal selbst weiter (window.location.href).
+    } catch (e) {
+      setPortalError(e instanceof Error ? e.message : 'Kundenportal konnte nicht geöffnet werden.');
+      setPortalBusy(false);
+    }
+  }
+
+  // Weine nur laden, wenn die Chat-Blase (fuer den Kontaktweg) ueberhaupt
+  // gebraucht wird - Lesen bleibt fuer blockierte Nutzer bewusst erlaubt
+  // (siehe payment-gate-enforcement-2026-09-14.sql), ein Fehlschlag ist hier
+  // aber nicht kritisch: die Chat-Blase funktioniert fuer Nachrichten auch
+  // mit einer leeren Weinliste, nur der "Auftrag geben"-Tab waere dann leer.
+  const [wines, setWines] = useState<Wine[]>([]);
+  useEffect(() => {
+    if (!isStripeBlock) return;
+    let cancelled = false;
+    listWines()
+      .then((w) => {
+        if (!cancelled) setWines(w);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [isStripeBlock]);
 
   return (
     <div className="full-screen" style={{ display: 'grid', placeItems: 'center', padding: 24 }}>
@@ -155,13 +210,36 @@ export function BlockScreen({ status }: { status: AccessStatus }) {
             <CopyButton value={status.blockAmount.toFixed(2)} label="Betrag kopieren" />
           </div>
         )}
-        <div style={{ fontSize: 12.5, lineHeight: 1.6, opacity: 0.65 }}>
-          Bitte den offenen Betrag wie besprochen begleichen - der Zugang wird danach wieder freigeschaltet.
-        </div>
+        {isStripeBlock ? (
+          <>
+            <div style={{ fontSize: 12.5, lineHeight: 1.6, opacity: 0.65 }}>
+              Meist reicht es, die Zahlungsmethode im Kundenportal zu aktualisieren - der Zugang wird danach
+              automatisch wieder freigeschaltet.
+            </div>
+            <button
+              type="button"
+              className="btn btn-primary"
+              disabled={portalBusy}
+              onClick={handleOpenPortal}
+              style={{ marginTop: 4 }}
+            >
+              {portalBusy ? 'Wird geöffnet ...' : 'Zahlungsmethode aktualisieren'}
+            </button>
+            {portalError && <div style={{ fontSize: 12.5, color: 'var(--color-bordeaux)' }}>{portalError}</div>}
+            <div style={{ fontSize: 12, opacity: 0.55 }}>
+              Fragen oder ein anderes Problem? Über die Kontakt-Blase unten links erreichst du uns direkt.
+            </div>
+          </>
+        ) : (
+          <div style={{ fontSize: 12.5, lineHeight: 1.6, opacity: 0.65 }}>
+            Bitte den offenen Betrag wie besprochen begleichen - der Zugang wird danach wieder freigeschaltet.
+          </div>
+        )}
         <button type="button" className="btn btn-secondary" onClick={() => signOut()} style={{ marginTop: 6 }}>
           Abmelden
         </button>
       </div>
+      {isStripeBlock && <ChatBubble wines={wines} />}
     </div>
   );
 }
