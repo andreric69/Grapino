@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from './_types.js';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
+import { logError } from './_errorLog.js';
 
 /**
  * Bezahlt ALLE offenen Zahlungsanfragen des Nutzers (Aktualisierungs-
@@ -83,6 +84,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
     res.status(200).json({ url: session.url });
   } catch (e) {
+    // Echter, unerwarteter Fehler beim Anlegen der Stripe-Checkout-Session
+    // (z. B. Stripe-API-Fehler) - nicht die weiter oben behandelten
+    // erwarteten Faelle (keine offenen Zahlungsanfragen, fehlende Sitzung).
+    await logError('create-payment-checkout-session', e);
     res.status(500).json({ error: e instanceof Error ? e.message : 'Zahlung konnte nicht gestartet werden.' });
   }
 }

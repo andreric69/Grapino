@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from './_types.js';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { isStripeManagedBlock } from '../src/lib/stripeBlockReasons.js';
+import { logError } from './_errorLog.js';
 
 // Gegenstueck zu create-checkout-session.ts: Preis-ID -> Abo-Stufe (fuer den
 // Ruecksschluss, welche Stufe ein Nutzer nach dem Checkout/einer Aenderung
@@ -193,6 +194,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     res.status(200).json({ received: true });
   } catch (e) {
+    // Echter, unerwarteter Fehler bei der Verarbeitung eines bereits als
+    // authentisch verifizierten Stripe-Ereignisses (z. B. ein DB-Fehler oder
+    // ein Stripe-API-Fehler beim Nachladen der Subscription) - genau der
+    // Fall, den Andrin sonst erst durch eine Kundenbeschwerde bemerkt haette
+    // (falsche Abo-Stufe gesetzt, Blockierung nicht aufgehoben). Bewusst NICHT
+    // fuer die Signatur-Pruefung weiter oben (400) - das ist kein Systemfehler.
+    await logError('stripe-webhook', e);
     res.status(500).json({ error: e instanceof Error ? e.message : 'Webhook-Verarbeitung fehlgeschlagen.' });
   }
 }

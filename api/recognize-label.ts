@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from './_types.js';
 import { createClient } from '@supabase/supabase-js';
+import { logError } from './_errorLog.js';
 import Anthropic from '@anthropic-ai/sdk';
 import { betaZodOutputFormat } from '@anthropic-ai/sdk/helpers/beta/zod';
 import { z } from 'zod';
@@ -202,15 +203,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Nebeneffekt, kein kritischer Schritt - schlaegt das Loggen fehl, wird
     // trotzdem das Ergebnis zurueckgegeben (nur das Tageslimit ist dann
     // etwas ungenauer, kein Grund den Nutzer warten zu lassen).
-    const { error: logError } = await supabase.from('label_recognition_log').insert({});
-    if (logError) console.error('Rate-Limit-Log fehlgeschlagen:', logError);
+    const { error: logInsertError } = await supabase.from('label_recognition_log').insert({});
+    if (logInsertError) console.error('Rate-Limit-Log fehlgeschlagen:', logInsertError);
 
     res.status(200).json(parsed);
   } catch (e) {
     // Nie die rohe Fehlermeldung an den Client durchreichen - SDK-/Anthropic-
     // Fehlertexte koennen interne Details verraten. Vollstaendiger Fehler nur
-    // ins Server-Log (nie das Bild oder den Access-Token selbst).
+    // ins Server-Log (nie das Bild oder den Access-Token selbst). Echter,
+    // unerwarteter Fehler (Anthropic-API-Fehler, DB-Fehler) - nicht die weiter
+    // oben behandelten erwarteten Faelle (Tages-/Burst-Limit erreicht, kein
+    // aktiver Zugang, ungueltiges Bild), die kommen gar nicht bis hierher.
     console.error('Etikett-Erkennung fehlgeschlagen:', e);
+    await logError('recognize-label', e);
     res.status(502).json({ error: 'Etikett-Erkennung momentan nicht verfuegbar.' });
   }
 }
