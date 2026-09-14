@@ -2,10 +2,14 @@ import type { Plan } from './planLimits';
 
 type TaxBehavior = 'inclusive' | 'exclusive' | 'unspecified';
 
+type Interval = 'day' | 'week' | 'month' | 'year';
+
 export interface PlanPriceInfo {
   amount: number;
   currency: string;
   taxBehavior: TaxBehavior;
+  interval: Interval;
+  intervalCount: number;
 }
 
 export type PlanPrices = Record<Plan, PlanPriceInfo>;
@@ -47,9 +51,18 @@ export function getPlanPrices(): Promise<PlanPrices | null> {
   return cached;
 }
 
-/** "CHF 4.90 / Monat" - ohne Steuerhinweis, der wird separat angezeigt (siehe formatTaxHint). */
+const INTERVAL_LABELS_SINGULAR: Record<Interval, string> = { day: 'Tag', week: 'Woche', month: 'Monat', year: 'Jahr' };
+const INTERVAL_LABELS_PLURAL: Record<Interval, string> = { day: 'Tage', week: 'Wochen', month: 'Monate', year: 'Jahre' };
+
+/**
+ * "CHF 10.00 / Jahr" - Intervall wird IMMER aus den echten Stripe-Preisdaten
+ * uebernommen, nie angenommen (alle drei Abo-Stufen laufen tatsaechlich
+ * jaehrlich, nicht monatlich - siehe api/plan-prices.ts). Ohne Steuerhinweis,
+ * der wird separat angezeigt (siehe formatTaxHint).
+ */
 export function formatPlanPrice(price: PlanPriceInfo): string {
-  return `${price.currency.toUpperCase()} ${price.amount.toFixed(2)} / Monat`;
+  const intervalLabel = price.intervalCount > 1 ? `${price.intervalCount} ${INTERVAL_LABELS_PLURAL[price.interval]}` : INTERVAL_LABELS_SINGULAR[price.interval];
+  return `${price.currency.toUpperCase()} ${price.amount.toFixed(2)} / ${intervalLabel}`;
 }
 
 /** Neutraler Hinweistext zur Mehrwertsteuer - keine Steuerberatung, nur Weitergabe dessen, was bei Stripe hinterlegt ist. */

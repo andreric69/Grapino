@@ -8,6 +8,11 @@ interface PlanPriceInfo {
   amount: number;
   currency: string;
   taxBehavior: TaxBehavior;
+  // Abrechnungsintervall direkt aus Stripe uebernommen (NICHT annehmen/
+  // hardcoden - die drei Abos laufen tatsaechlich jaehrlich, nicht
+  // monatlich, siehe price.recurring.interval bei allen drei Price-IDs).
+  interval: Stripe.Price.Recurring.Interval;
+  intervalCount: number;
 }
 
 type PlanPrices = Record<keyof typeof PRICE_IDS, PlanPriceInfo>;
@@ -69,6 +74,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           amount: (price.unit_amount ?? 0) / 100,
           currency: price.currency,
           taxBehavior: normalizeTaxBehavior(price.tax_behavior),
+          interval: price.recurring?.interval ?? 'year',
+          intervalCount: price.recurring?.interval_count ?? 1,
         };
         return [plan, info] as const;
       }),
