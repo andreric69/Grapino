@@ -1,5 +1,6 @@
 import { supabase } from '../supabaseClient';
 import type { Plan } from './planLimits';
+import { daysUntil } from './trialDays';
 
 export interface AccessStatus {
   isBlocked: boolean;
@@ -7,6 +8,12 @@ export interface AccessStatus {
   blockAmount: number | null;
   trialEndsAt: string | null;
   plan: Plan;
+  // true, wenn die kostenlose Testphase abgelaufen ist und (noch) kein
+  // Stripe-Abo existiert - ersetzt das frueher rein manuelle Nachhalten der
+  // einmaligen Zugangsgebuehr durch Andrin. Nur fuer Selbst-Registrierungen
+  // relevant (siehe useAuth.tsx/insertTrialRow): Konten ohne trial_ends_at
+  // (z. B. von Andrin direkt angelegt) haben nie needsPlan=true - Bestandsschutz.
+  needsPlan: boolean;
 }
 
 const DEFAULT_STATUS: AccessStatus = {
@@ -18,6 +25,7 @@ const DEFAULT_STATUS: AccessStatus = {
   // oder schlaegt der Request fehl, gilt 'ultra' (unbegrenzt, alle Funktionen)
   // statt versehentlich jemanden einzuschraenken.
   plan: 'ultra',
+  needsPlan: false,
 };
 
 // Postgres-Fehlermeldung, wenn die Spalte "plan" noch nicht per Migration
@@ -42,24 +50,28 @@ const PLAN_COLUMN_MISSING = /column .*plan.* does not exist/i;
 export async function getAccessStatus(): Promise<AccessStatus> {
   let { data, error } = await supabase
     .from('user_access')
-    .select('is_blocked, block_reason, block_amount, trial_ends_at, plan')
+    .select('is_blocked, block_reason, block_amount, trial_ends_at, plan, stripe_subscription_id')
     .maybeSingle();
 
   if (error && PLAN_COLUMN_MISSING.test(error.message)) {
     const fallback = await supabase
       .from('user_access')
-      .select('is_blocked, block_reason, block_amount, trial_ends_at')
+      .select('is_blocked, block_reason, block_amount, trial_ends_at, stripe_subscription_id')
       .maybeSingle();
     data = fallback.data ? { ...fallback.data, plan: 'ultra' } : fallback.data;
     error = fallback.error;
   }
 
   if (error || !data) return DEFAULT_STATUS;
+  const isBlocked = data.is_blocked;
+  const trialEndsAt = data.trial_ends_at;
+  const needsPlan = !isBlocked && trialEndsAt !== null && daysUntil(trialEndsAt, new Date()) < 0 && !data.stripe_subscription_id;
   return {
-    isBlocked: data.is_blocked,
+    isBlocked,
     blockReason: data.block_reason,
     blockAmount: data.block_amount,
-    trialEndsAt: data.trial_ends_at,
+    trialEndsAt,
     plan: (data.plan ?? 'ultra') as Plan,
+    needsPlan,
   };
 }

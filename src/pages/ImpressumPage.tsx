@@ -1,29 +1,7 @@
-import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getPricingConfig } from '../lib/pricingConfig';
-import { listMyPaymentRequests } from '../lib/paymentRequestRepository';
-import { getAccessStatus } from '../lib/accessControl';
-import { daysUntil } from '../lib/trialDays';
 
 export function ImpressumPage() {
   const navigate = useNavigate();
-  const [accessFee, setAccessFee] = useState<number | null>(null);
-  const [accessFeePaid, setAccessFeePaid] = useState(false);
-  const [inActiveTrial, setInActiveTrial] = useState(false);
-
-  useEffect(() => {
-    getPricingConfig().then((p) => setAccessFee(p.accessFee));
-    listMyPaymentRequests().then((requests) => {
-      const paid = requests.some((r) => r.status === 'paid' && r.reason.toLowerCase().includes('zugangsgeb'));
-      setAccessFeePaid(paid);
-    });
-    // Waehrend einer laufenden Testphase ist die Formulierung "wird
-    // verrechnet" irrefuehrend (klingt nach sofort faellig, obwohl der
-    // Zugang gerade gratis ist) - deshalb hier gesondert geprueft.
-    getAccessStatus().then((status) => {
-      if (status.trialEndsAt) setInActiveTrial(daysUntil(status.trialEndsAt, new Date()) >= 0);
-    });
-  }, []);
 
   return (
     <div className="app-screen">
@@ -50,20 +28,10 @@ export function ImpressumPage() {
 
         <div className="card-kicker" style={{ marginBottom: 6 }}>Kosten</div>
         <p style={{ marginTop: 0, marginBottom: 20 }}>
-          {!accessFeePaid && (
-            <>
-              {inActiveTrial ? 'Nach der Testphase wird der Zugang einmalig verrechnet' : 'Der Zugang zur App wird einmalig verrechnet'}
-              {accessFee !== null && (
-                <>
-                  {' '}
-                  (<strong>{accessFee.toFixed(2)} CHF</strong>)
-                </>
-              )}
-              , per TWINT an <strong>077 456 31 23</strong> (Andrin).{' '}
-            </>
-          )}
-          Aktualisierungs-Aufträge (Recherche einzelner Angaben) werden nach Aufwand berechnet - die aktuellen
-          Preise stehen in den Einstellungen.
+          Grapino gibt es kostenlos zum Testen. Danach kann in den Einstellungen ein Abo (Basis/Pro/Ultra) gewählt
+          werden - Abrechnung und Kündigung laufen automatisch über Stripe, unser Zahlungsdienstleister.
+          Aktualisierungs-Aufträge (Recherche einzelner Angaben) werden separat nach Aufwand berechnet - die
+          aktuellen Preise stehen in den Einstellungen.
         </p>
         <p style={{ marginTop: 0, marginBottom: 20 }}>
           Sollten für den Betrieb der App laufende Kosten anfallen (z. B. eine monatliche Gebühr für benutzte
@@ -129,7 +97,9 @@ export function ImpressumPage() {
           <strong>Wer die Daten technisch verarbeitet:</strong> Supabase (Datenbank, Fotospeicher, Login) und Vercel
           (Hosting) - beide ausschliesslich in unserem Auftrag, mit eigenen Zugriffsregeln pro Konto. Lädst du ein
           Etikett-Foto zur automatischen Texterkennung hoch, wird dieses Foto kurz an Anthropic (Claude) geschickt,
-          um Angaben auszulesen - nicht dauerhaft dort gespeichert. Keine Analyse- oder Werbe-Cookies.
+          um Angaben auszulesen - nicht dauerhaft dort gespeichert. Schliesst du ein Abo ab, verarbeitet Stripe
+          (Zahlungsdienstleister) deine E-Mail-Adresse und Zahlungsdaten, um die Abrechnung abzuwickeln - deine
+          Kartendaten sehen wir selbst nie. Keine Analyse- oder Werbe-Cookies.
         </p>
         <p style={{ marginTop: 0, marginBottom: 14 }}>
           <strong>Sicherungen:</strong> zusätzlich zur täglichen Datenbank-Sicherung werden deine Weinfotos einmal

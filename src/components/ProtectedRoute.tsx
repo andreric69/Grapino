@@ -3,12 +3,14 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { LoadingSpinner } from './LoadingSpinner';
 import { BlockScreen } from './BlockScreen';
+import { ChoosePlanScreen } from './ChoosePlanScreen';
 import { PaymentDueScreen } from './PaymentDueScreen';
 import { TrialStatusScreen } from './TrialStatusScreen';
 import { AnnouncementTakeover } from './AnnouncementTakeover';
 import { getAccessStatus, type AccessStatus } from '../lib/accessControl';
 import { listMyPaymentRequests } from '../lib/paymentRequestRepository';
 import { getDueTakeoverAnnouncement, dismissAnnouncement } from '../lib/announcementRepository';
+import { daysUntil } from '../lib/trialDays';
 import type { Announcement, PaymentRequest } from '../types';
 
 // Nur fuer diese Sitzung gemerkt (nicht dauerhaft) - taucht bei einem neuen
@@ -49,7 +51,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
     let cancelled = false;
     getAccessStatus().then((status) => {
       if (cancelled) return;
-      setAccess(status.isBlocked ? status : null);
+      setAccess(status.isBlocked || status.needsPlan ? status : null);
       setTrialEndsAt(status.trialEndsAt);
     });
     return () => {
@@ -106,11 +108,17 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   // Testphase-Hinweis ueberhaupt in Erwaegung gezogen wird - sonst wuerde er
   // bei einem bereits zahlenden Nutzer kurz aufblitzen, bevor "hasPaidBefore"
   // eintrifft und ihn wieder verschwinden laesst.
+  // Nur waehrend einer NOCH LAUFENDEN Testphase relevant - ist sie bereits
+  // abgelaufen, hat getAccessStatus() entweder schon vorher ueber
+  // "needsPlan" ein Abo eingefordert (ChoosePlanScreen), oder der Nutzer hat
+  // laengst ein aktives Stripe-Abo (dann ist ein "Testphase abgelaufen"-
+  // Hinweis nur verwirrend, siehe TrialStatusScreen.tsx).
   const showTrialStatus =
     openPayments !== null &&
     takeoverAnnouncement !== undefined &&
     !takeoverAnnouncement &&
     !!trialEndsAt &&
+    daysUntil(trialEndsAt, new Date()) >= 0 &&
     trialEndsAt !== dismissedTrialDate &&
     !hasPaidBefore;
 
@@ -142,8 +150,12 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
     );
   }
 
-  if (access) {
+  if (access?.isBlocked) {
     return <BlockScreen status={access} />;
+  }
+
+  if (access?.needsPlan) {
+    return <ChoosePlanScreen />;
   }
 
   if (showPaymentDue && openPayments) {

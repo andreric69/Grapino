@@ -6,7 +6,6 @@ export type PricingConfig = Record<OrderCategory, number> & {
   standardMax: number;
   ultraMin: number;
   ultraMax: number;
-  accessFee: number;
 };
 
 // Rueckfallwerte, falls die Preise (noch) nicht aus der DB geladen werden
@@ -20,7 +19,6 @@ const FALLBACK_PRICING: PricingConfig = {
   standardMax: 30,
   ultraMin: 10,
   ultraMax: 50,
-  accessFee: 45,
 };
 
 // Kurzes Cache-Zeitfenster statt eines dauerhaften Caches - eine unbegrenzte
@@ -36,7 +34,7 @@ let cachedAt = 0;
 async function fetchPricingConfig(): Promise<PricingConfig> {
   const { data, error } = await supabase
     .from('pricing_config')
-    .select('refresh_price, neue_weine_price, ultra_price, standard_min_price, standard_max_price, ultra_min_price, ultra_max_price, access_fee')
+    .select('refresh_price, neue_weine_price, ultra_price, standard_min_price, standard_max_price, ultra_min_price, ultra_max_price')
     .eq('id', 1)
     .single();
   if (error || !data) return FALLBACK_PRICING;
@@ -48,7 +46,6 @@ async function fetchPricingConfig(): Promise<PricingConfig> {
     standardMax: data.standard_max_price,
     ultraMin: data.ultra_min_price,
     ultraMax: data.ultra_max_price,
-    accessFee: data.access_fee,
   };
 }
 

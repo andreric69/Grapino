@@ -11,6 +11,23 @@ const PLAN_BY_PRICE_ID: Record<string, 'basis' | 'pro' | 'ultra'> = {
   price_1UFKjxCA1Lpg114OBMZ6aObX: 'ultra',
 };
 
+// Block-Gruende, die DIESER Webhook selbst setzt (siehe unten) - im
+// Unterschied zu einem manuell in der Admin-App gesetzten Block (z. B. wegen
+// Missbrauch). Ohne diese Unterscheidung wuerde ein spaeteres Stripe-Ereignis
+// (z. B. eine erfolgreiche Abo-Verlaengerung) einen ganz anderen, manuell
+// gesetzten Block versehentlich wieder aufheben - der Webhook darf einen
+// Block nur dann automatisch loesen, wenn er ihn selbst (oder gar keinen)
+// gesetzt hat, nie einen von Andrin gesetzten.
+const STRIPE_BLOCK_REASONS = new Set([
+  'Zahlung ausstehend - bitte Zahlungsmethode aktualisieren.',
+  'Abo beendet.',
+  'Die letzte Zahlung ist fehlgeschlagen - bitte Zahlungsmethode pruefen.',
+]);
+
+function isStripeManagedBlock(currentBlockReason: string | null): boolean {
+  return currentBlockReason === null || STRIPE_BLOCK_REASONS.has(currentBlockReason);
+}
+
 // Vercel liefert den Body standardmaessig schon als geparstes JSON - fuer die
 // Stripe-Signaturpruefung wird aber der ROHE, unveraenderte Byte-Body
 // gebraucht (jede Abweichung, auch nur eine andere Formatierung, macht die
@@ -77,10 +94,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const priceId = subscription.items.data[0]?.price.id;
           const plan = priceId ? PLAN_BY_PRICE_ID[priceId] : undefined;
           if (plan) {
-            await supabase
+            // Aktuellen Block-Grund vor dem Update lesen: ein manuell in der
+            // Admin-App gesetzter Block (z. B. Missbrauch) darf durch einen
+            // erfolgreichen Checkout nicht stillschweigend aufgehoben werden -
+            // siehe isStripeManagedBlock() oben.
+            const { data: current } = await supabase
               .from('user_access')
-              .update({ plan, stripe_subscription_id: subscriptionId, is_blocked: false, block_reason: null })
-              .eq('user_id', userId);
+              .select('block_reason')
+              .eq('user_id', userId)
+              .maybeSingle();
+            const update: Record<string, unknown> = { plan, stripe_subscription_id: subscriptionId };
+            if (isStripeManagedBlock(current?.block_reason ?? null)) {
+              update.is_blocked = false;
+              update.block_reason = null;
+            }
+            await supabase.from('user_access').update(update).eq('user_id', userId);
           }
         }
         break;
@@ -95,19 +123,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const plan = priceId ? PLAN_BY_PRICE_ID[priceId] : undefined;
         const { data: row } = await supabase
           .from('user_access')
-          .select('user_id')
+          .select('user_id, block_reason')
           .eq('stripe_customer_id', subscription.customer as string)
           .maybeSingle();
         if (row && plan) {
           const stillActive = subscription.status === 'active' || subscription.status === 'trialing';
-          await supabase
-            .from('user_access')
-            .update({
-              plan,
-              is_blocked: !stillActive,
-              block_reason: stillActive ? null : 'Zahlung ausstehend - bitte Zahlungsmethode aktualisieren.',
-            })
-            .eq('user_id', row.user_id);
+          const update: Record<string, unknown> = { plan };
+          // Genau wie bei checkout.session.completed: nur automatisch
+          // entsperren, wenn der aktuelle Block von diesem Webhook selbst
+          // stammt - ein manueller Block bleibt unangetastet, bis Andrin ihn
+          // selbst aufhebt. In Richtung "sperren" (stillActive=false) ist das
+          // dagegen immer sicher, da es niemanden freigibt.
+          if (!stillActive || isStripeManagedBlock(row.block_reason)) {
+            update.is_blocked = !stillActive;
+            update.block_reason = stillActive ? null : 'Zahlung ausstehend - bitte Zahlungsmethode aktualisieren.';
+          }
+          await supabase.from('user_access').update(update).eq('user_id', row.user_id);
         }
         break;
       }
