@@ -4,6 +4,7 @@ import { AuthProvider } from './hooks/useAuth';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
 import { RouteLoadingFallback } from './components/RouteLoadingFallback';
+import { AppErrorBoundary } from './components/AppErrorBoundary';
 
 // Code-Splitting: die Login-Seite bleibt eager (das ist der allererste
 // Bildschirm, den jede Nutzerin sieht), alle anderen Seiten werden erst
@@ -25,10 +26,11 @@ const DiscoverPage = lazy(() => import('./pages/DiscoverPage').then((m) => ({ de
 
 export default function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Suspense fallback={<RouteLoadingFallback />}>
-        <Routes>
+    <AppErrorBoundary>
+      <AuthProvider>
+        <BrowserRouter>
+          <Suspense fallback={<RouteLoadingFallback />}>
+            <Routes>
           <Route path="/login" element={<LoginPage />} />
           {/* Bewusst OHNE ProtectedRoute erreichbar - ein Interessent soll das
               Impressum/die Kosten-Info schon vor der Registrierung lesen
@@ -132,9 +134,10 @@ export default function App() {
             }
           />
           <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-        </Suspense>
-      </BrowserRouter>
-    </AuthProvider>
+            </Routes>
+          </Suspense>
+        </BrowserRouter>
+      </AuthProvider>
+    </AppErrorBoundary>
   );
 }
