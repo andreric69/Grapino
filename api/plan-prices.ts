@@ -48,7 +48,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (cachedPrices && Date.now() - cachedAt < CACHE_TTL_MS) {
-    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.setHeader('Cache-Control', 'public, max-age=600');
     res.status(200).json(cachedPrices);
     return;
   }
@@ -83,7 +83,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const result = Object.fromEntries(entries) as PlanPrices;
     cachedPrices = result;
     cachedAt = Date.now();
-    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.setHeader('Cache-Control', 'public, max-age=600');
     res.status(200).json(result);
   } catch (e) {
     res.status(500).json({ error: e instanceof Error ? e.message : 'Preise konnten nicht geladen werden.' });

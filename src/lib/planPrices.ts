@@ -16,8 +16,12 @@ export type PlanPrices = Record<Plan, PlanPriceInfo>;
 
 // Kurzes Cache-Zeitfenster (identisch zum "Cache-Control"-Header von
 // api/plan-prices.ts) - Abo-Preise aendern sich praktisch nie, ein erneuter
-// Abruf bei jedem Seitenwechsel waere unnoetig.
-const CACHE_TTL_MS = 60 * 60 * 1000;
+// Abruf bei jedem Seitenwechsel waere unnoetig. Bewusst nicht laenger: eine
+// zu lange Cache-Zeit liess live eine veraltete Antwort (noch ohne
+// "interval"-Feld) bis zu eine Stunde lang haengen ("undefined" in der
+// Anzeige, siehe formatPlanPrice) - 10 Minuten sind fuer Preise, die sich
+// praktisch nie aendern, immer noch mehr als genug Entlastung.
+const CACHE_TTL_MS = 10 * 60 * 1000;
 let cached: Promise<PlanPrices | null> | null = null;
 let cachedAt = 0;
 
@@ -61,8 +65,16 @@ const INTERVAL_LABELS_PLURAL: Record<Interval, string> = { day: 'Tage', week: 'W
  * der wird separat angezeigt (siehe formatTaxHint).
  */
 export function formatPlanPrice(price: PlanPriceInfo): string {
-  const intervalLabel = price.intervalCount > 1 ? `${price.intervalCount} ${INTERVAL_LABELS_PLURAL[price.interval]}` : INTERVAL_LABELS_SINGULAR[price.interval];
-  return `${price.currency.toUpperCase()} ${price.amount.toFixed(2)} / ${intervalLabel}`;
+  const base = `${price.currency.toUpperCase()} ${price.amount.toFixed(2)}`;
+  // Verteidigt gegen eine veraltet zwischengespeicherte Antwort (Browser-
+  // HTTP-Cache oder dieser Modul-Cache), die noch aus der Zeit VOR dem
+  // "interval"-Feld stammt (siehe api/plan-prices.ts) - "undefined" wurde
+  // live beobachtet, statt still "/ Jahr" wegzulassen war das schlechter als
+  // gar kein Intervall-Zusatz.
+  const label = INTERVAL_LABELS_SINGULAR[price.interval];
+  if (!label) return base;
+  const intervalLabel = price.intervalCount > 1 ? `${price.intervalCount} ${INTERVAL_LABELS_PLURAL[price.interval]}` : label;
+  return `${base} / ${intervalLabel}`;
 }
 
 /** Neutraler Hinweistext zur Mehrwertsteuer - keine Steuerberatung, nur Weitergabe dessen, was bei Stripe hinterlegt ist. */
