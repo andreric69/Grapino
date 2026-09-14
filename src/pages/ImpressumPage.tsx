@@ -42,6 +42,11 @@ export function ImpressumPage() {
           Diese App wird privat von Andrin betrieben und weiterentwickelt und richtet sich an erwachsene Nutzerinnen
           und Nutzer. Fragen, Feedback oder Aufträge bitte über die Kontakt-Chatblase.
         </p>
+        <p style={{ marginTop: 0, marginBottom: 20 }}>
+          Die Zahlungsabwicklung für Abos (Stripe) läuft über das Konto der Mutter von Andrin, da Andrin
+          minderjährig ist und dafür noch kein eigenes Konto eröffnen kann. Am Betrieb und an der Verantwortung für
+          die App ändert das nichts.
+        </p>
 
         <div className="card-kicker" style={{ marginBottom: 6 }}>Kosten</div>
         <p style={{ marginTop: 0, marginBottom: 20 }}>
