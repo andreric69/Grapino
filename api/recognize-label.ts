@@ -102,8 +102,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // grapino-admin: UserDetailPanel -> "KI-Tageslimit"). RLS beschraenkt
     // diese Abfrage automatisch auf die eigene Zeile - kein Service-Role-Key
     // noetig.
-    const { data: accessRow } = await supabase.from('user_access').select('ai_daily_limit').eq('user_id', userData.user.id).maybeSingle();
+    const { data: accessRow } = await supabase
+      .from('user_access')
+      .select('ai_daily_limit, is_blocked, trial_ends_at, stripe_subscription_id, paid_outside_stripe, plan')
+      .eq('user_id', userData.user.id)
+      .maybeSingle();
     const dailyLimit = accessRow?.ai_daily_limit ?? DAILY_LIMIT;
+
+    // Serverseitige Zugangs-/Plan-Pruefung (Sicherheitsfix 2026-09-14, siehe
+    // supabase/payment-gate-enforcement-2026-09-14.sql) - bisher pruefte nur
+    // das Frontend (canUseAiScan in planLimits.ts), ein direkter API-Call mit
+    // gueltigem, aber abgelaufenem/Basis-Token kam bis hierhin durch. Spiegelt
+    // exakt needsPlan aus src/lib/accessControl.ts bzw. has_active_access()
+    // in der Datenbank.
+    if (accessRow) {
+      // ISO-Datumsstrings (YYYY-MM-DD) lassen sich als Text vergleichen wie
+      // Daten - entspricht exakt "trial_ends_at < current_date" in Postgres,
+      // ohne Zeitzonen-Stolperfallen durch new Date(...)-Vergleiche.
+      const todayIso = new Date().toISOString().slice(0, 10);
+      const trialExpired = accessRow.trial_ends_at !== null && accessRow.trial_ends_at < todayIso;
+      const hasActiveAccess = !accessRow.is_blocked && !(trialExpired && !accessRow.stripe_subscription_id && !accessRow.paid_outside_stripe);
+      if (!hasActiveAccess) {
+        res.status(403).json({ error: 'Kein aktiver Zugang - bitte Abo abschliessen.' });
+        return;
+      }
+      if (accessRow.plan === 'basis') {
+        res.status(403).json({ error: 'Die KI-Etikett-Erkennung ist ab der Pro-Stufe verfuegbar.' });
+        return;
+      }
+    }
 
     const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const { count, error: countError } = await supabase

@@ -46,7 +46,17 @@ function insertTrialRow(userId: string) {
   trialEndsAt.setDate(trialEndsAt.getDate() + SELF_SIGNUP_TRIAL_DAYS);
   supabase
     .from('user_access')
-    .insert({ user_id: userId, trial_ends_at: trialEndsAt.toISOString().slice(0, 10) })
+    // plan/paid_outside_stripe werden bewusst explizit mitgeschickt (nicht
+    // dem Spalten-Default ueberlassen, siehe user-plan-2026-09-13.sql -
+    // Default ist aus Altnutzer-Bestandsschutz-Gruenden 'ultra') - die
+    // Sign-up-RLS-Policy (user-access-insert-lockdown-plan-2026-09-14.sql)
+    // verlangt fuer einen selbst registrierten Nutzer genau diese Werte.
+    .insert({
+      user_id: userId,
+      trial_ends_at: trialEndsAt.toISOString().slice(0, 10),
+      plan: 'basis',
+      paid_outside_stripe: false,
+    })
     .then(({ error }) => {
       if (error) console.error('Testphase konnte nicht angelegt werden:', error);
     });
