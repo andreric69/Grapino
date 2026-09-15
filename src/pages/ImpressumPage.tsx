@@ -17,8 +17,16 @@ export function ImpressumPage() {
 
         <div className="card-kicker" style={{ marginBottom: 6 }}>Betrieb</div>
         <p style={{ marginTop: 0, marginBottom: 20 }}>
-          Diese App wird privat von Andrin betrieben und weiterentwickelt und richtet sich an erwachsene Nutzerinnen
-          und Nutzer. Fragen, Feedback oder Aufträge bitte über die Kontakt-Chatblase.
+          Diese App wird privat betrieben und weiterentwickelt von:
+          <br />
+          <strong>Andrin Meier</strong>
+          <br />
+          E-Mail: <a href="mailto:andrin2009@icloud.com">andrin2009@icloud.com</a>
+        </p>
+        <p style={{ marginTop: 0, marginBottom: 20 }}>
+          Fragen, Feedback oder Aufträge gerne über die Kontakt-Chatblase in der App oder direkt per E-Mail. Dieses
+          Angebot richtet sich ausschliesslich an Kundinnen und Kunden mit Wohnsitz in der Schweiz sowie an
+          erwachsene Nutzerinnen und Nutzer.
         </p>
         <p style={{ marginTop: 0, marginBottom: 20 }}>
           Die Zahlungsabwicklung für Abos (Stripe) läuft über das Konto der Mutter von Andrin, da Andrin
