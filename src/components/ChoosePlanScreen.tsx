@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { startCheckout } from '../lib/billing';
-import { getMaxWines, PLAN_DESCRIPTIONS, PLAN_LABELS, type Plan } from '../lib/planLimits';
-import { getPlanPrices, formatPlanPrice, formatTaxHint, type PlanPrices } from '../lib/planPrices';
+import { getMaxWines, PLAN_DESCRIPTIONS, PLAN_LABELS, POPULAR_PLAN, POPULAR_PLAN_BADGE_LABEL, type Plan } from '../lib/planLimits';
+import { getPlanPrices, formatPlanPrice, formatMonthlyEquivalentHint, formatTaxHint, type PlanPrices } from '../lib/planPrices';
 
 /* ---- kleine Linien-Icons, gleiche Machart wie in BlockScreen.tsx --------- */
 function iconProps(size: number) {
@@ -101,25 +101,52 @@ export function ChoosePlanScreen() {
           Wähle ein Abo, um mit Grapino weiterzumachen. Jederzeit über die Einstellungen wechselbar oder kündbar.
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {PLAN_ORDER.map((plan) => (
-            <button
-              key={plan}
-              type="button"
-              className="btn btn-primary"
-              disabled={busyPlan !== null}
-              onClick={() => handleChoose(plan)}
-              style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: '10px 16px' }}
-            >
-              <span>{busyPlan === plan ? 'Wird geöffnet ...' : `${PLAN_LABELS[plan]} wählen`}</span>
-              <span style={{ fontSize: 12.5, fontWeight: 600 }}>
-                {prices?.[plan] ? `${formatPlanPrice(prices[plan])} · ${formatTaxHint(prices[plan])}` : 'Preis im nächsten Schritt'}
-              </span>
-              <span style={{ fontSize: 11.5, fontWeight: 400, opacity: 0.85 }}>
-                {PLAN_DESCRIPTIONS[plan]}
-                {getMaxWines(plan) !== null ? ` · bis ${getMaxWines(plan)} Weine` : ' · unbegrenzt'}
-              </span>
-            </button>
-          ))}
+          {PLAN_ORDER.map((plan) => {
+            const isPopular = plan === POPULAR_PLAN;
+            const monthlyHint = prices?.[plan] ? formatMonthlyEquivalentHint(prices[plan]) : null;
+            return (
+              <button
+                key={plan}
+                type="button"
+                className="btn btn-primary"
+                disabled={busyPlan !== null}
+                onClick={() => handleChoose(plan)}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 2,
+                  padding: '10px 16px',
+                  position: 'relative',
+                  ...(isPopular
+                    ? {
+                        borderWidth: 2,
+                        background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
+                      }
+                    : null),
+                }}
+              >
+                {isPopular && (
+                  <span
+                    className="tag tag-accent"
+                    style={{ position: 'absolute', top: -10, right: 12, fontWeight: 600 }}
+                  >
+                    {POPULAR_PLAN_BADGE_LABEL}
+                  </span>
+                )}
+                <span>{busyPlan === plan ? 'Wird geöffnet ...' : `${PLAN_LABELS[plan]} wählen`}</span>
+                <span style={{ fontSize: 12.5, fontWeight: 600 }}>
+                  {prices?.[plan] ? `${formatPlanPrice(prices[plan])} · ${formatTaxHint(prices[plan])}` : 'Preis im nächsten Schritt'}
+                </span>
+                {monthlyHint && (
+                  <span style={{ fontSize: 10.5, fontWeight: 400, opacity: 0.7 }}>({monthlyHint})</span>
+                )}
+                <span style={{ fontSize: 11.5, fontWeight: 400, opacity: 0.85 }}>
+                  {PLAN_DESCRIPTIONS[plan]}
+                  {getMaxWines(plan) !== null ? ` · bis ${getMaxWines(plan)} Weine` : ' · unbegrenzt'}
+                </span>
+              </button>
+            );
+          })}
         </div>
         {error && <div style={{ fontSize: 12.5, color: 'var(--color-bordeaux)' }}>{error}</div>}
         <div style={{ fontSize: 12.5, lineHeight: 1.6, opacity: 0.65 }}>

@@ -8,6 +8,16 @@ export type Plan = 'basis' | 'pro' | 'ultra';
 export const PLAN_LABELS: Record<Plan, string> = { basis: 'Basis', pro: 'Pro', ultra: 'Ultra' };
 
 /**
+ * Die Stufe, die als "Beliebteste Wahl"/"Empfohlen" hervorgehoben wird
+ * (Kompromiss-/Decoy-Effekt: die mittlere Stufe zwischen der knappen Basis-
+ * und der teuersten Ultra-Stufe wirkt als ausgewogener Mittelweg). Eine
+ * einzige Quelle fuer ChoosePlanScreen.tsx und SettingsPage.tsx, damit beide
+ * Stellen immer dieselbe Stufe markieren, falls sich das je aendert.
+ */
+export const POPULAR_PLAN: Plan = 'pro';
+export const POPULAR_PLAN_BADGE_LABEL = 'Beliebteste Wahl';
+
+/**
  * Kurze, fuer nicht-technische Kundschaft (45+, siehe Projektvorgabe)
  * verstaendliche Beschreibung je Stufe - ohne Fachbegriffe wie "OCR". Wird
  * sowohl in ChoosePlanScreen.tsx (Stufenauswahl nach Ablauf der Testphase)

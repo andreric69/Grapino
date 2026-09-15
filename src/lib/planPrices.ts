@@ -77,6 +77,29 @@ export function formatPlanPrice(price: PlanPriceInfo): string {
   return `${base} / ${intervalLabel}`;
 }
 
+/**
+ * Kleiner, dezenter Zusatztext zum Jahrespreis, der die ungefaehre
+ * Monatsgroessenordnung einordnet (Preispsychologie: "CHF 1.58/Monat" wirkt
+ * greifbarer als "CHF 19.00/Jahr", ohne dass am eigentlichen Preis etwas
+ * geaendert wird). Liefert bewusst `null` bei jedem Intervall ausser "year":
+ * ein Monatsäquivalent zu einem Wochen-/Tagespreis waere hier nie gebraucht
+ * und koennte nur verwirren.
+ *
+ * WICHTIG (UWG-Rechtsrisiko, siehe NOTFALL/README.md): der zurueckgegebene
+ * Text sagt IMMER "entspricht ca." - er behauptet nie eine monatliche
+ * Abrechnung. Die tatsaechliche Abrechnung bleibt jaehrlich (ein einziger
+ * Betrag pro Jahr über Stripe) - dieser Text ist rein eine Grössenordnungs-
+ * Einordnung fuer die Anzeige, kein zweites Preismodell. Immer zusammen mit
+ * (nicht anstelle von) formatPlanPrice() anzeigen, siehe ChoosePlanScreen.tsx/
+ * SettingsPage.tsx.
+ */
+export function formatMonthlyEquivalentHint(price: PlanPriceInfo): string | null {
+  if (price.interval !== 'year' || price.intervalCount <= 0) return null;
+  const months = 12 * price.intervalCount;
+  const monthly = price.amount / months;
+  return `entspricht ca. ${price.currency.toUpperCase()} ${monthly.toFixed(2)}/Monat`;
+}
+
 /** Neutraler Hinweistext zur Mehrwertsteuer - keine Steuerberatung, nur Weitergabe dessen, was bei Stripe hinterlegt ist. */
 export function formatTaxHint(price: PlanPriceInfo): string {
   if (price.taxBehavior === 'inclusive') return 'inkl. MWST';

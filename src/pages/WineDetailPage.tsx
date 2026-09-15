@@ -488,7 +488,14 @@ export function WineDetailPage() {
         )}
         {wine.region && wine.vintage && !advancedAiAllowed && (
           <div style={{ fontSize: 12.5, opacity: 0.6, marginTop: 10 }}>
-            Jahrgangs-Einschätzung ab der Ultra-Stufe verfügbar.
+            Jahrgangs-Einschätzung ab der Ultra-Stufe verfügbar.{' '}
+            <button
+              type="button"
+              onClick={() => navigate('/settings#abo-zahlungen')}
+              style={{ padding: 0, fontSize: 12.5, textDecoration: 'underline', color: 'var(--color-accent)', background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              Jetzt upgraden
+            </button>
           </div>
         )}
 

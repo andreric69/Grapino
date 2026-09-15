@@ -202,9 +202,14 @@ export function YearRecapPage() {
             <div style={{ opacity: 0.6, fontSize: 14, marginBottom: 18 }}>
               Der Weinjahr-Rückblick ist ab der Pro-Stufe verfügbar.
             </div>
-            <button type="button" className="btn btn-primary" onClick={() => navigate('/')}>
-              Zur Sammlung
-            </button>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button type="button" className="btn btn-primary" onClick={() => navigate('/settings#abo-zahlungen')}>
+                Jetzt upgraden
+              </button>
+              <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>
+                Zur Sammlung
+              </button>
+            </div>
           </div>
         )}
 

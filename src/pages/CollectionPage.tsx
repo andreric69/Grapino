@@ -5,6 +5,8 @@ import { listWines, getSignedPhotoUrls, listConsumptionLog, listDeletedWines } f
 import { isBackupOverdue } from '../lib/backupReminder';
 import { getUnfulfilledFeedbackRequest, markFeedbackRequestFulfilled } from '../lib/feedbackRepository';
 import { getDueAnnouncements, dismissAnnouncement } from '../lib/announcementRepository';
+import { getAccessStatus } from '../lib/accessControl';
+import { getMaxWines, type Plan } from '../lib/planLimits';
 import { useWineActions } from '../hooks/useWineActions';
 import { WINE_TYPE_LABELS, splitCommaList, type Announcement, type ConsumptionLogEntry, type SortDirection, type SortOption, type Wine } from '../types';
 import { WineCard } from '../components/WineCard';
@@ -18,6 +20,7 @@ import { BackupReminderBanner } from '../components/BackupReminderBanner';
 import { AnnouncementBanner } from '../components/AnnouncementBanner';
 import { DraftReminderBanner } from '../components/DraftReminderBanner';
 import { TrashReminderBanner } from '../components/TrashReminderBanner';
+import { NearWineLimitBanner } from '../components/NearWineLimitBanner';
 import { hasWineDraft, clearWineDraft } from '../lib/wineDraft';
 import { saveWinesToCache, loadWinesFromCache } from '../lib/offlineCache';
 import { FeedbackModal } from '../components/FeedbackModal';
@@ -31,6 +34,16 @@ type FilterKey = 'vintage' | 'region' | 'country' | 'grape_variety' | 'wine_type
 type Tab = 'active' | 'consumed';
 type ViewMode = 'grid' | 'list';
 const VIEW_MODE_KEY = 'weinsammlung-view-mode';
+// Nur fuer die laufende Sitzung gemerkt (sessionStorage, nicht localStorage) -
+// bei einem neuen App-Start darf der Hinweis ruhig nochmal erscheinen, soll
+// aber nicht bei jedem Seitenwechsel innerhalb derselben Sitzung erneut
+// auftauchen, siehe NearWineLimitBanner.tsx.
+const NEAR_LIMIT_DISMISSED_KEY = 'weinsammlung-near-limit-dismissed';
+// Ab wieviel Prozent des Basis-Weinlimits (siehe getMaxWines() in
+// planLimits.ts) der sanfte, wegklickbare Hinweis erscheint - bewusst kein
+// blockierender Hinweis, siehe PlanLimitScreen in WineFormPage.tsx fuer die
+// tatsaechliche harte Sperre beim Erreichen des Limits.
+const NEAR_LIMIT_THRESHOLD_RATIO = 0.8;
 
 // Reihenfolge, in der die Filter-Chips angezeigt werden (Kundenperspektive:
 // Jahrgang/Region/Land/Rebsorte sind die haeufigsten Suchkriterien, kommen
@@ -120,6 +133,14 @@ export function CollectionPage() {
   const [drinkNowOnly, setDrinkNowOnly] = useState(persistedFilterState.drinkNowOnly ?? false);
   const [showBackupReminder, setShowBackupReminder] = useState(false);
   const [showDraftReminder, setShowDraftReminder] = useState(false);
+  const [plan, setPlan] = useState<Plan | null>(null);
+  const [nearLimitDismissed, setNearLimitDismissed] = useState(() => {
+    try {
+      return sessionStorage.getItem(NEAR_LIMIT_DISMISSED_KEY) === '1';
+    } catch {
+      return false;
+    }
+  });
   const [deletedWines, setDeletedWines] = useState<Wine[]>([]);
   const [trashReminderDismissed, setTrashReminderDismissed] = useState(false);
   const [unseenAnnouncements, setUnseenAnnouncements] = useState<Announcement[]>([]);
@@ -221,6 +242,10 @@ export function CollectionPage() {
       listDeletedWines().then(setDeletedWines).catch(() => {});
       if (data.length > 0 && isBackupOverdue()) setShowBackupReminder(true);
       if (hasWineDraft()) setShowDraftReminder(true);
+      // Fuer den sanften Nahe-am-Weinlimit-Hinweis (NearWineLimitBanner) -
+      // nicht kritisch, bleibt bei Fehler einfach ohne Hinweis statt die
+      // Seite zu blockieren (siehe DEFAULT_STATUS in accessControl.ts).
+      getAccessStatus().then((status) => setPlan(status.plan)).catch(() => {});
       // Das Feedback-Popup erscheint nur noch, wenn der Betreiber es ueber
       // "Feedback anfragen" aktiv ausgeloest hat - keine automatische
       // Anzeige mehr nach Zeit/Wein-Anzahl.
@@ -531,6 +556,24 @@ export function CollectionPage() {
       {!trashReminderDismissed && (
         <TrashReminderBanner deletedWines={deletedWines} onDismiss={() => setTrashReminderDismissed(true)} />
       )}
+
+      {plan === 'basis' &&
+        !nearLimitDismissed &&
+        wines.length >= Math.floor((getMaxWines('basis') ?? 100) * NEAR_LIMIT_THRESHOLD_RATIO) && (
+          <NearWineLimitBanner
+            count={wines.length}
+            maxWines={getMaxWines('basis') ?? 100}
+            onUpgrade={() => navigate('/settings#abo-zahlungen')}
+            onDismiss={() => {
+              setNearLimitDismissed(true);
+              try {
+                sessionStorage.setItem(NEAR_LIMIT_DISMISSED_KEY, '1');
+              } catch {
+                /* Privater Modus o.ae. - dann erscheint der Hinweis eben bei jedem Aufruf erneut, kein Beinbruch. */
+              }
+            }}
+          />
+        )}
 
       <div style={{ display: 'flex', gap: 8, padding: '0 20px 14px' }}>
         <button

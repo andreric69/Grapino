@@ -29,8 +29,8 @@ import { listMyPaymentRequests } from '../lib/paymentRequestRepository';
 import { listMyOrders, ORDER_CATEGORY_INFO, SELECTABLE_ORDER_CATEGORIES } from '../lib/orderRepository';
 import { getPricingConfig, computeOrderPrice, type PricingConfig } from '../lib/pricingConfig';
 import { getAccessStatus } from '../lib/accessControl';
-import { canUseProFeatures, getMaxWines, PLAN_DESCRIPTIONS, PLAN_LABELS, type Plan } from '../lib/planLimits';
-import { getPlanPrices, formatPlanPrice, formatTaxHint, type PlanPrices } from '../lib/planPrices';
+import { canUseProFeatures, getMaxWines, PLAN_DESCRIPTIONS, PLAN_LABELS, POPULAR_PLAN, POPULAR_PLAN_BADGE_LABEL, type Plan } from '../lib/planLimits';
+import { getPlanPrices, formatPlanPrice, formatMonthlyEquivalentHint, formatTaxHint, type PlanPrices } from '../lib/planPrices';
 import { startCheckout, openBillingPortal, startPaymentRequestCheckout } from '../lib/billing';
 import { daysUntil } from '../lib/trialDays';
 import type { DeletionRequest, EnrichmentOrder, MyFeedback, PaymentRequest, Wine, WineInput } from '../types';
@@ -166,6 +166,22 @@ export function SettingsPage() {
       cancelled = true;
     };
   }, []);
+
+  // Direktsprung zum Abo-Bereich, wenn von anderswo per "Jetzt upgraden"-Link
+  // hierher navigiert wurde (z. B. WineDetailPage.tsx/YearRecapPage.tsx bei
+  // gesperrten Ab-Pro/Ultra-Funktionen, CollectionPage.tsx bei nahendem
+  // Weinlimit) - sonst muesste erst manuell zum Abschnitt gescrollt werden.
+  useEffect(() => {
+    if (location.hash === '#abo-zahlungen') {
+      requestAnimationFrame(() => {
+        document.getElementById('abo-zahlungen')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+  }, [location.hash]);
+
+  function scrollToAboSection() {
+    document.getElementById('abo-zahlungen')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
   async function handleChooseTier(target: Plan) {
     setBillingBusy(target);
@@ -735,7 +751,7 @@ export function SettingsPage() {
 
         <div className="hr" style={{ margin: '4px 0 30px' }} />
 
-        <div style={{ marginBottom: 30 }}>
+        <div id="abo-zahlungen" style={{ marginBottom: 30 }}>
           <SettingsGroupHeading title="Abo & Zahlungen" />
 
           {myPaymentRequests.filter((p) => p.status === 'open').length > 0 && (
@@ -777,13 +793,25 @@ export function SettingsPage() {
                 Mein Abo
               </div>
               <div className="card" style={{ gap: 10 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
                   <div style={{ fontSize: 12.5, opacity: 0.65 }}>Deine Abo-Stufe</div>
-                  <strong style={{ fontFamily: 'var(--font-heading)', fontSize: 16 }}>{PLAN_LABELS[plan]}</strong>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    {plan === POPULAR_PLAN && (
+                      <span className="tag tag-accent" style={{ fontWeight: 600 }}>
+                        {POPULAR_PLAN_BADGE_LABEL}
+                      </span>
+                    )}
+                    <strong style={{ fontFamily: 'var(--font-heading)', fontSize: 16 }}>{PLAN_LABELS[plan]}</strong>
+                  </span>
                 </div>
                 {planPrices?.[plan] && (
                   <div style={{ fontSize: 12, opacity: 0.6 }}>
                     {formatPlanPrice(planPrices[plan])} · {formatTaxHint(planPrices[plan])}
+                    {formatMonthlyEquivalentHint(planPrices[plan]) && (
+                      <span style={{ display: 'block', fontSize: 10.5, opacity: 0.85, marginTop: 2 }}>
+                        ({formatMonthlyEquivalentHint(planPrices[plan])})
+                      </span>
+                    )}
                   </div>
                 )}
                 <div style={{ fontSize: 12, opacity: 0.6 }}>
@@ -800,7 +828,9 @@ export function SettingsPage() {
                         className="btn btn-secondary"
                         disabled={billingBusy !== null}
                         onClick={() => handleChooseTier(tier)}
+                        style={tier === POPULAR_PLAN ? { borderWidth: 2, borderColor: 'var(--color-accent)' } : undefined}
                       >
+                        {tier === POPULAR_PLAN && `${POPULAR_PLAN_BADGE_LABEL} · `}
                         {billingBusy === tier
                           ? 'Wird geöffnet ...'
                           : `Zu ${PLAN_LABELS[tier]} wechseln${planPrices?.[tier] ? ` (${formatPlanPrice(planPrices[tier])})` : ''}`}
@@ -1107,7 +1137,14 @@ export function SettingsPage() {
                 </>
               ) : (
                 <div style={{ fontSize: 12.5, opacity: 0.65, lineHeight: 1.5 }}>
-                  CSV-Import ab der Pro-Stufe verfügbar.
+                  CSV-Import ab der Pro-Stufe verfügbar.{' '}
+                  <button
+                    type="button"
+                    onClick={scrollToAboSection}
+                    style={{ padding: 0, fontSize: 12.5, textDecoration: 'underline', color: 'var(--color-accent)', background: 'none', border: 'none', cursor: 'pointer' }}
+                  >
+                    Jetzt upgraden
+                  </button>
                 </div>
               )}
             </div>
