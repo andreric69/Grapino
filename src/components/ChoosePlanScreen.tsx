@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { startCheckout } from '../lib/billing';
-import { getMaxWines, PLAN_LABELS, type Plan } from '../lib/planLimits';
+import { getMaxWines, PLAN_DESCRIPTIONS, PLAN_LABELS, type Plan } from '../lib/planLimits';
 import { getPlanPrices, formatPlanPrice, formatTaxHint, type PlanPrices } from '../lib/planPrices';
 
 /* ---- kleine Linien-Icons, gleiche Machart wie in BlockScreen.tsx --------- */
@@ -28,12 +28,6 @@ function SparkleIcon(size: number) {
 }
 
 const PLAN_ORDER: Plan[] = ['basis', 'pro', 'ultra'];
-
-const PLAN_DESCRIPTIONS: Record<Plan, string> = {
-  basis: 'Weine von Hand erfassen',
-  pro: 'Foto-Scan, Weinjahr-Rückblick, Teilen',
-  ultra: 'Unbegrenzte Sammlung, alle Funktionen',
-};
 
 /**
  * Ersetzt die frueher rein manuelle Zahlungsanfrage ("Zugangsgebuehr per

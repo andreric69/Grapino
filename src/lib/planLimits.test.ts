@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { canUseAiScan, canUseProFeatures, getMaxWines, PLAN_LABELS } from './planLimits';
+import { canUseAdvancedAiFeatures, canUseAiScan, canUseProFeatures, getMaxWines, PLAN_LABELS } from './planLimits';
 
 describe('getMaxWines', () => {
   it('begrenzt Basis auf 100 Weine', () => {
@@ -34,6 +34,17 @@ describe('canUseProFeatures', () => {
   it('erlaubt die Pro-Funktionen fuer Pro und Ultra', () => {
     expect(canUseProFeatures('pro')).toBe(true);
     expect(canUseProFeatures('ultra')).toBe(true);
+  });
+});
+
+describe('canUseAdvancedAiFeatures', () => {
+  it('sperrt die schlaueren KI-Faehigkeiten (Runde 3) fuer Basis und Pro', () => {
+    expect(canUseAdvancedAiFeatures('basis')).toBe(false);
+    expect(canUseAdvancedAiFeatures('pro')).toBe(false);
+  });
+
+  it('erlaubt sie nur fuer Ultra', () => {
+    expect(canUseAdvancedAiFeatures('ultra')).toBe(true);
   });
 });
 

@@ -200,6 +200,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
 
+    // Alkoholgehalt-Erkennung ist Teil von "KI-Erkennung-Runde 3" (Commit
+    // 16d9f2c) und damit ab jetzt Ultra-exklusiv (siehe canUseAdvancedAiFeatures
+    // in planLimits.ts) - Pro behaelt die normale Etikett-Erkennung. Echte
+    // serverseitige Sperre direkt am fertigen KI-Ergebnis, BEVOR es an den
+    // Client geht: ein Pro-Nutzer kann das ueber einen direkten API-Call nicht
+    // umgehen, genau nach dem Muster der Plan-Pruefung oben. Bei 'ultra'
+    // bleibt alles unveraendert.
+    if (accessRow?.plan === 'pro') {
+      parsed.alcoholContent = null;
+      parsed.uncertainFields = parsed.uncertainFields.filter((f) => f !== 'alcoholContent');
+      // Die KI erwaehnt Alkoholgehalt manchmal zusaetzlich als freien "chip"
+      // (siehe SYSTEM_PROMPT) statt nur im strukturierten Feld - auch dort
+      // entfernen, sonst waere die Sperre oben leicht zu umgehen.
+      parsed.chips = parsed.chips.filter((c) => !/\d{1,2}([.,]\d)?\s?%/.test(c));
+    }
+
     // Nebeneffekt, kein kritischer Schritt - schlaegt das Loggen fehl, wird
     // trotzdem das Ergebnis zurueckgegeben (nur das Tageslimit ist dann
     // etwas ungenauer, kein Grund den Nutzer warten zu lassen).

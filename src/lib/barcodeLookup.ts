@@ -12,6 +12,15 @@ export interface BarcodeProductInfo {
   wineType?: WineType;
   /** Produktfoto von Open Food Facts, falls vorhanden - nur ein Vorschlag, wird nie automatisch uebernommen. */
   imageUrl?: string;
+  /**
+   * Nur befuellt, wenn KEIN Land ueber Region/Referenzabgleich gefunden wurde
+   * - grober Rueckfall ueber das GS1-EAN-Praefix (siehe lookupCountryFromEanPrefix).
+   * Bewusst NICHT in `country` selbst geschrieben: diese Faehigkeit ist Teil
+   * von "KI-Erkennung-Runde 3" und damit Ultra-exklusiv (siehe
+   * canUseAdvancedAiFeatures in planLimits.ts) - der Aufrufer (useBarcodeLookup)
+   * entscheidet je nach Abo-Stufe, ob dieser Wert uebernommen wird.
+   */
+  countryFromEanPrefix?: string;
 }
 
 const CATEGORY_TYPE_MAP: Array<{ type: WineType; pattern: RegExp }> = [
@@ -86,7 +95,7 @@ export async function lookupBarcodeProduct(ean: string): Promise<BarcodeProductI
     // ueberschreibt nie ein bereits gefundenes Land - niedrigste Prioritaet.
     if (!result.country) {
       const prefixCountry = lookupCountryFromEanPrefix(ean);
-      if (prefixCountry) result.country = prefixCountry;
+      if (prefixCountry) result.countryFromEanPrefix = prefixCountry;
     }
 
     return result;

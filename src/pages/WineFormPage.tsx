@@ -19,7 +19,7 @@ import { preloadLabelEmbeddingModel, computeLabelEmbedding } from '../lib/labelE
 import { listRecognitionRefs, upsertRecognitionRef, bestEmbeddingMatch, bestTextMatch, type RecognitionRef } from '../lib/recognitionRefs';
 import { lookupWineKnowledge } from '../lib/wineKnowledgeCache';
 import { getAccessStatus } from '../lib/accessControl';
-import { canUseAiScan, getMaxWines, PLAN_LABELS, type Plan } from '../lib/planLimits';
+import { canUseAdvancedAiFeatures, canUseAiScan, getMaxWines, PLAN_LABELS, type Plan } from '../lib/planLimits';
 import { WINE_TYPE_LABELS, type Wine, type WineType } from '../types';
 import { PhotoCapture } from '../components/PhotoCapture';
 import { OcrChipTray } from '../components/OcrChipTray';
@@ -257,6 +257,12 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
   // langsamer Ladevorgang nicht faelschlich die Funktion fuer einen
   // berechtigten Nutzer ausblendet; wird gleich beim Laden korrigiert.
   const [aiScanAllowed, setAiScanAllowed] = useState(true);
+  // Ob die "schlaueren" KI-Faehigkeiten aus KI-Erkennung-Runde 3 erlaubt sind
+  // (nur Ultra, siehe canUseAdvancedAiFeatures): Alkoholgehalt-Vorschlag aus
+  // KI-Scan/Tesseract-Fallback, automatischer "Passt zu"-Vorschlag,
+  // EAN-Laenderfallback beim Barcode-Scan. Gleiches "optimistic default
+  // allow"-Muster wie bei aiScanAllowed oben.
+  const [advancedAiAllowed, setAdvancedAiAllowed] = useState(true);
 
   const {
     setExistingWinesForCheck,
@@ -301,6 +307,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
     setPhotoPreviewUrl,
     setPendingPhotoBlob,
     objectUrlRef,
+    advancedAiAllowed,
     updateField,
     setForm,
     setSuggested,
@@ -319,7 +326,10 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
     // faelschlich eine erlaubte Funktion sperren.
     const accessStatusPromise = getAccessStatus().catch(() => null);
     accessStatusPromise.then((status) => {
-      if (status) setAiScanAllowed(canUseAiScan(status.plan));
+      if (status) {
+        setAiScanAllowed(canUseAiScan(status.plan));
+        setAdvancedAiAllowed(canUseAdvancedAiFeatures(status.plan));
+      }
     });
 
     if (mode === 'create') {
@@ -491,9 +501,11 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
   // Sauvignon -> "Rind, Lamm, gereifter Käse") - nur falls "Passt zu" noch
   // leer ist, nie eine eigene Eingabe ueberschreiben. Rein synchron (siehe
   // grapeFoodPairing.ts), trotzdem debounced wie die anderen Vorschlaege
-  // hier, damit nicht bei jedem Tastenanschlag nachgeschlagen wird.
+  // hier, damit nicht bei jedem Tastenanschlag nachgeschlagen wird. Teil der
+  // "schlaueren" KI-Erkennung-Runde-3-Faehigkeiten - nur ab Ultra (siehe
+  // canUseAdvancedAiFeatures), Pro/Basis fuellen "Passt zu" nur noch manuell.
   useEffect(() => {
-    if (!form.grapeVariety.trim() || form.foodPairing.trim()) return;
+    if (!advancedAiAllowed || !form.grapeVariety.trim() || form.foodPairing.trim()) return;
     const handle = setTimeout(() => {
       const pairing = lookupFoodPairingForGrape(form.grapeVariety);
       if (pairing) {
@@ -502,7 +514,7 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
     }, 500);
     return () => clearTimeout(handle);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.grapeVariety]);
+  }, [form.grapeVariety, advancedAiAllowed]);
 
   function handlePhotoSelect(file: File) {
     if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
@@ -646,14 +658,26 @@ export function WineFormPage({ mode }: { mode: 'create' | 'edit' }) {
           next.wineType = suggestions.wineType;
           nextSuggested.wineType = suggestions.confidence.wineType ?? 'low';
         }
-        if (suggestions.alcoholContent) {
+        // Alkoholgehalt-Erkennung ist Teil der "schlaueren" KI-Erkennung-Runde
+        // 3 und damit Ultra-exklusiv (siehe canUseAdvancedAiFeatures) - egal
+        // ob der Wert vom KI-Vision-Pfad oder vom Tesseract-Fallback kommt
+        // (beide laufen durch recognizeLabel() oben). Das Feld bleibt fuer
+        // Pro/Basis normal manuell ausfuellbar, nur die automatische
+        // Vorbefuellung entfaellt.
+        if (advancedAiAllowed && suggestions.alcoholContent) {
           next.alcoholContent = String(suggestions.alcoholContent);
           nextSuggested.alcoholContent = suggestions.confidence.alcoholContent ?? 'high';
         }
         return next;
       });
       setSuggested(nextSuggested);
-      setChips(suggestions.chips);
+      // Gleiche Sperre wie oben, hier fuer die freien "Chips": ohne das wuerde
+      // ein Pro-Nutzer den automatisch erkannten Prozent-Chip einfach von Hand
+      // auf das Feld ziehen koennen (siehe handleChipAssign) und die Sperre so
+      // umgehen. Gleiches Muster wie die serverseitige Filterung in
+      // api/recognize-label.ts fuer den KI-Pfad - hier zusaetzlich noetig,
+      // weil der Tesseract-Fallback komplett clientseitig laeuft.
+      setChips(advancedAiAllowed ? suggestions.chips : suggestions.chips.filter((c) => !/\d{1,2}([.,]\d)?\s?%/.test(c)));
       // Wurde eines der "erweiterten" Felder erkannt, gleich aufklappen -
       // sonst sieht der Nutzer nicht, dass die Erkennung dort etwas
       // eingetragen hat.

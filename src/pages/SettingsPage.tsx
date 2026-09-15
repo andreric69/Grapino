@@ -29,7 +29,7 @@ import { listMyPaymentRequests } from '../lib/paymentRequestRepository';
 import { listMyOrders, ORDER_CATEGORY_INFO, SELECTABLE_ORDER_CATEGORIES } from '../lib/orderRepository';
 import { getPricingConfig, computeOrderPrice, type PricingConfig } from '../lib/pricingConfig';
 import { getAccessStatus } from '../lib/accessControl';
-import { canUseProFeatures, getMaxWines, PLAN_LABELS, type Plan } from '../lib/planLimits';
+import { canUseProFeatures, getMaxWines, PLAN_DESCRIPTIONS, PLAN_LABELS, type Plan } from '../lib/planLimits';
 import { getPlanPrices, formatPlanPrice, formatTaxHint, type PlanPrices } from '../lib/planPrices';
 import { startCheckout, openBillingPortal, startPaymentRequestCheckout } from '../lib/billing';
 import { daysUntil } from '../lib/trialDays';
@@ -789,6 +789,7 @@ export function SettingsPage() {
                 <div style={{ fontSize: 12, opacity: 0.6 }}>
                   {getMaxWines(plan) === null ? 'Unbegrenzt viele Weine' : `Bis ${getMaxWines(plan)} Weine`}
                 </div>
+                <div style={{ fontSize: 12, opacity: 0.6 }}>{PLAN_DESCRIPTIONS[plan]}</div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
                   {(['basis', 'pro', 'ultra'] as const)
                     .filter((tier) => tier !== plan)

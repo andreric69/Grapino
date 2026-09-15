@@ -17,6 +17,13 @@ interface UseBarcodeLookupOptions {
   setPhotoPreviewUrl: (url: string | null) => void;
   setPendingPhotoBlob: (blob: Blob) => void;
   objectUrlRef: MutableRefObject<string | null>;
+  /**
+   * Ob die "schlaueren" KI-Erkennungsfaehigkeiten aus Runde 3 erlaubt sind
+   * (nur Ultra, siehe canUseAdvancedAiFeatures in planLimits.ts) - steuert
+   * hier konkret, ob der grobe EAN-Praefix-Laenderfallback (siehe
+   * barcodeLookup.ts, countryFromEanPrefix) ins Formular uebernommen wird.
+   */
+  advancedAiAllowed: boolean;
   updateField: <K extends keyof FormState>(key: K, value: FormState[K]) => void;
   setForm: Dispatch<SetStateAction<FormState>>;
   setSuggested: Dispatch<SetStateAction<Partial<Record<OcrField, FieldConfidence>>>>;
@@ -34,6 +41,7 @@ export function useBarcodeLookup({
   setPhotoPreviewUrl,
   setPendingPhotoBlob,
   objectUrlRef,
+  advancedAiAllowed,
   updateField,
   setForm,
   setSuggested,
@@ -120,8 +128,13 @@ export function useBarcodeLookup({
           next.region = info.region;
           nextSuggested.region = 'high';
         }
-        if (info.country && !next.country.trim()) {
-          next.country = info.country;
+        // Der EAN-Praefix-Laenderfallback (info.countryFromEanPrefix) ist Teil
+        // der "schlaueren" KI-Erkennung-Runde 3 und damit Ultra-exklusiv - der
+        // normale, ueber Region/Referenzabgleich gefundene info.country bleibt
+        // fuer alle Stufen verfuegbar (siehe UseBarcodeLookupOptions oben).
+        const countryValue = info.country ?? (advancedAiAllowed ? info.countryFromEanPrefix : undefined);
+        if (countryValue && !next.country.trim()) {
+          next.country = countryValue;
           nextSuggested.country = 'high';
         }
         if (info.grapeVariety && !next.grapeVariety.trim()) {

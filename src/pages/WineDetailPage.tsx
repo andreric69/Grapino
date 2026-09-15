@@ -15,7 +15,7 @@ import { shareOrDownloadWineCard } from '../lib/shareCard';
 import { lookupVintageInfo, VINTAGE_RATING_LABELS, type VintageRating } from '../lib/vintageChart';
 import { trackEvent } from '../lib/usageTracking';
 import { getAccessStatus } from '../lib/accessControl';
-import { canUseProFeatures, type Plan } from '../lib/planLimits';
+import { canUseAdvancedAiFeatures, canUseProFeatures, type Plan } from '../lib/planLimits';
 
 export function WineDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -51,6 +51,10 @@ export function WineDetailPage() {
   // "default allow" waehrend die Stufe noch laedt (siehe accessControl.ts) -
   // erst nach eindeutig bestaetigtem "basis" wird der Teilen-Button gesperrt.
   const shareLocked = plan !== null && !canUseProFeatures(plan);
+  // Gleiches "default allow"-Muster fuer die Jahrgangs-Einschaetzung (Teil der
+  // "schlaueren" KI-Erkennung-Runde 3, siehe canUseAdvancedAiFeatures) - nur
+  // ab Ultra, bei Basis/Pro erscheint stattdessen ein kurzer Hinweistext.
+  const advancedAiAllowed = plan === null || canUseAdvancedAiFeatures(plan);
 
   async function load() {
     if (!id) return;
@@ -160,7 +164,7 @@ export function WineDetailPage() {
     );
   }
 
-  const vintageInfo = wine.region && wine.vintage ? lookupVintageInfo(wine.region, wine.vintage) : null;
+  const vintageInfo = wine.region && wine.vintage && advancedAiAllowed ? lookupVintageInfo(wine.region, wine.vintage) : null;
 
   return (
     <div className="app-screen" style={{ paddingBottom: 40, position: 'relative' }}>
@@ -480,6 +484,11 @@ export function WineDetailPage() {
                 Gilt allgemein als Einschätzung für {wine.region} {wine.vintage}, keine Garantie für diese Flasche.
               </span>
             </span>
+          </div>
+        )}
+        {wine.region && wine.vintage && !advancedAiAllowed && (
+          <div style={{ fontSize: 12.5, opacity: 0.6, marginTop: 10 }}>
+            Jahrgangs-Einschätzung ab der Ultra-Stufe verfügbar.
           </div>
         )}
 

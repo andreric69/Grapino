@@ -8,6 +8,20 @@ export type Plan = 'basis' | 'pro' | 'ultra';
 export const PLAN_LABELS: Record<Plan, string> = { basis: 'Basis', pro: 'Pro', ultra: 'Ultra' };
 
 /**
+ * Kurze, fuer nicht-technische Kundschaft (45+, siehe Projektvorgabe)
+ * verstaendliche Beschreibung je Stufe - ohne Fachbegriffe wie "OCR". Wird
+ * sowohl in ChoosePlanScreen.tsx (Stufenauswahl nach Ablauf der Testphase)
+ * als auch in SettingsPage.tsx (Abo-Karte) genutzt, damit beide Stellen
+ * immer denselben Text zeigen. Die Wein-Obergrenze wird bewusst NICHT hier
+ * eingebaut, sondern von den Aufrufern separat ueber getMaxWines() angehaengt.
+ */
+export const PLAN_DESCRIPTIONS: Record<Plan, string> = {
+  basis: 'Weine von Hand erfassen (Foto ohne Bilderkennung)',
+  pro: 'KI-Etikett-Scan (Name, Produzent, Jahrgang, Region ...)',
+  ultra: 'Smarter KI-Scan inkl. Alkoholgehalt, Passt-zu-Vorschlag & Jahrgangs-Einschätzung',
+};
+
+/**
  * Maximale Anzahl Weine in der Sammlung je Stufe: Basis 100, Pro 400,
  * Ultra unbegrenzt (null = keine Obergrenze).
  */
@@ -32,4 +46,21 @@ export function canUseAiScan(plan: Plan): boolean {
  */
 export function canUseProFeatures(plan: Plan): boolean {
   return plan !== 'basis';
+}
+
+/**
+ * Ob die "schlaueren" KI-Erkennungsfaehigkeiten aus KI-Erkennung-Runde 3
+ * (Commit 16d9f2c, 2026-09-10) genutzt werden duerfen - nur in der
+ * Ultra-Stufe, waehrend Pro weiterhin die normale KI-Etikett-Erkennung
+ * (Name/Produzent/Jahrgang/Rebsorte/Region/Subregion/Land/Weintyp) hat:
+ * 1. Alkoholgehalt-Erkennung vom Etikett (KI-Vision-Pfad + Tesseract-Fallback)
+ * 2. Automatischer "Passt zu"-Vorschlag aus der Rebsorte
+ * 3. Jahrgangs-Einschaetzung (Jahrgangs-Chart)
+ * 4. EAN-Laenderfallback beim Barcode-Scan
+ * Unabhaengig von der separaten, zusaetzlich bezahlten Aktualisierungs-
+ * Auftrag/Web-Recherche-Funktion (Andrins manuelle Online-Recherche via
+ * payment_requests) - die bleibt fuer alle Abo-Stufen unveraendert verfuegbar.
+ */
+export function canUseAdvancedAiFeatures(plan: Plan): boolean {
+  return plan === 'ultra';
 }
