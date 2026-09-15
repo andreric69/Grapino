@@ -6,8 +6,17 @@ import { logError } from './_errorLog.js';
 
 // Gegenstueck zu create-checkout-session.ts: Preis-ID -> Abo-Stufe (fuer den
 // Ruecksschluss, welche Stufe ein Nutzer nach dem Checkout/einer Aenderung
-// tatsaechlich hat).
+// tatsaechlich hat). Enthaelt bewusst sowohl die neuen (seit 2026-09-15,
+// siehe create-checkout-session.ts) als auch die alten Preis-IDs - bereits
+// laufende Test-Abos auf den alten Preisen muessen weiterhin korrekt
+// aufgeloest werden koennen, auch wenn neue Checkouts nur noch die neuen
+// IDs verwenden.
 const PLAN_BY_PRICE_ID: Record<string, 'basis' | 'pro' | 'ultra'> = {
+  // Neu, ab 2026-09-15 (CHF 19/25/39):
+  price_1UG0VOCA1Lpg114O40ZwSbaU: 'basis',
+  price_1UG0WqCA1Lpg114OE1yA6aMc: 'pro',
+  price_1UG0WqCA1Lpg114OlimXMY6B: 'ultra',
+  // Alt, bis 2026-09-15 (CHF 10/20/45) - fuer bestehende Abos:
   price_1UFKjwCA1Lpg114OukUSXThO: 'basis',
   price_1UFKjwCA1Lpg114ORHMZ5qJJ: 'pro',
   price_1UFKjxCA1Lpg114OBMZ6aObX: 'ultra',
