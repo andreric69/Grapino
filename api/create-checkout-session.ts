@@ -34,7 +34,13 @@ const LIVE_PRICE_IDS: Record<'basis' | 'pro' | 'ultra', string> = {
   ultra: 'price_1UGKyvCB7LuxNExVblETrl7s',
 };
 
-export const PRICE_IDS: Record<'basis' | 'pro' | 'ultra', string> = process.env.STRIPE_SECRET_KEY?.startsWith('sk_live_')
+// Stripe gibt inzwischen auch fuer "Vollständiger Zugriff"-Schluessel ein
+// "rk_"-Praefix statt "sk_" aus (restricted key statt klassischem Secret
+// Key) - "_live_" statt nur "sk_live_" zu pruefen erkennt beide Faelle
+// gleichermassen (rk_live_..., sk_live_... - Stripes eigentliche
+// Modus-Kennzeichnung steckt im "_live_"/"_test_"-Segment, nicht im
+// Buchstaben davor).
+export const PRICE_IDS: Record<'basis' | 'pro' | 'ultra', string> = process.env.STRIPE_SECRET_KEY?.includes('_live_')
   ? LIVE_PRICE_IDS
   : TEST_PRICE_IDS;
 
