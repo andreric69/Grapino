@@ -5,23 +5,38 @@ import { logError } from './_errorLog.js';
 
 // Ein Stripe-Preis pro Abo-Stufe (siehe planLimits.ts) - eigenes Produkt pro
 // Stufe angelegt (nicht mehrere Preise auf einem Produkt), damit Checkout/
-// Rechnung fuer jede Stufe den richtigen Namen zeigen. IDs stammen aus dem
-// einmaligen Setup im Stripe-Test-Modus, siehe Commit-Beschreibung.
+// Rechnung fuer jede Stufe den richtigen Namen zeigen.
 //
 // Preise am 2026-09-15 auf CHF 19/25/39 (statt 10/20/45) geaendert -
 // Preispsychologie-Ueberlegung: der Abstand Basis->Pro ist jetzt klein (nur
 // +6/Jahr fuer die volle KI-Erkennung), waehrend Ultra trotz mehr Funktionen
 // GUENSTIGER als vorher ist (die "smarten Extras" verursachen praktisch
 // keine zusaetzlichen Kosten - derselbe KI-Aufruf laeuft fuer Pro/Ultra
-// ohnehin schon). Alte Preise (price_...ukUSXThO/...RHMZ5qJJ/...OBMZ6aObX)
-// bleiben fuer bereits laufende Test-Abos gueltig, werden aber fuer neue
-// Checkouts nicht mehr verwendet - siehe die zugehoerigen UI-Nudges
-// (POPULAR_PLAN etc. in planLimits.ts).
-export const PRICE_IDS: Record<'basis' | 'pro' | 'ultra', string> = {
+// ohnehin schon).
+//
+// Test- und Live-Modus sind bei Stripe komplett getrennte Datenbereiche -
+// eine Live-Preis-ID existiert im Test-Modus schlicht nicht und umgekehrt.
+// Damit lokale Entwicklung (laeuft mit dem Test-Schluessel aus .env.local)
+// weiter funktioniert, WAEHREND die Produktion (Vercel, Live-Schluessel ab
+// 2026-09-16) automatisch die richtigen Live-Preise verwendet, wird anhand
+// des tatsaechlich aktiven STRIPE_SECRET_KEY ausgewaehlt - keine manuelle
+// Umschaltung noetig, kein Risiko, das beim naechsten Deploy zu vergessen.
+const TEST_PRICE_IDS: Record<'basis' | 'pro' | 'ultra', string> = {
   basis: 'price_1UG0VOCA1Lpg114O40ZwSbaU',
   pro: 'price_1UG0WqCA1Lpg114OE1yA6aMc',
   ultra: 'price_1UG0WqCA1Lpg114OlimXMY6B',
 };
+
+// Live-Preise, angelegt 2026-09-16 im echten ("Grapino") Stripe-Konto.
+const LIVE_PRICE_IDS: Record<'basis' | 'pro' | 'ultra', string> = {
+  basis: 'price_1UGKwECB7LuxNExVFTkDbSnr',
+  pro: 'price_1UGKyVCB7LuxNExVRflhgmEu',
+  ultra: 'price_1UGKyvCB7LuxNExVblETrl7s',
+};
+
+export const PRICE_IDS: Record<'basis' | 'pro' | 'ultra', string> = process.env.STRIPE_SECRET_KEY?.startsWith('sk_live_')
+  ? LIVE_PRICE_IDS
+  : TEST_PRICE_IDS;
 
 function isValidPlan(value: unknown): value is keyof typeof PRICE_IDS {
   return value === 'basis' || value === 'pro' || value === 'ultra';

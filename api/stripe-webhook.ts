@@ -12,11 +12,15 @@ import { logError } from './_errorLog.js';
 // aufgeloest werden koennen, auch wenn neue Checkouts nur noch die neuen
 // IDs verwenden.
 const PLAN_BY_PRICE_ID: Record<string, 'basis' | 'pro' | 'ultra'> = {
-  // Neu, ab 2026-09-15 (CHF 19/25/39):
+  // Live, ab 2026-09-16 (echtes Stripe-Konto "Grapino", CHF 19/25/39):
+  price_1UGKwECB7LuxNExVFTkDbSnr: 'basis',
+  price_1UGKyVCB7LuxNExVRflhgmEu: 'pro',
+  price_1UGKyvCB7LuxNExVblETrl7s: 'ultra',
+  // Test-Modus, ab 2026-09-15 (CHF 19/25/39):
   price_1UG0VOCA1Lpg114O40ZwSbaU: 'basis',
   price_1UG0WqCA1Lpg114OE1yA6aMc: 'pro',
   price_1UG0WqCA1Lpg114OlimXMY6B: 'ultra',
-  // Alt, bis 2026-09-15 (CHF 10/20/45) - fuer bestehende Abos:
+  // Alt, bis 2026-09-15 (CHF 10/20/45) - fuer bestehende Test-Abos:
   price_1UFKjwCA1Lpg114OukUSXThO: 'basis',
   price_1UFKjwCA1Lpg114ORHMZ5qJJ: 'pro',
   price_1UFKjxCA1Lpg114OBMZ6aObX: 'ultra',
