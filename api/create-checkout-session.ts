@@ -125,6 +125,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // liefern - live so vorgefunden und behoben.
   try {
     let customerId = accessRow?.stripe_customer_id ?? null;
+
+    // Ein gespeicherter customerId koennte aus dem Test-Modus stammen (Test-
+    // und Live-Kunden sind bei Stripe komplett getrennte Namespaces, genau
+    // wie Preise - siehe _stripeEnv.ts). Live beobachtet: "No such customer"
+    // beim Live-Umstieg, weil ein waehrend fruehrer Tests angelegter
+    // Test-Kunde weiterverwendet werden sollte. Vor der Wiederverwendung
+    // deshalb pruefen, ob der Kunde im AKTUELL aktiven Modus ueberhaupt
+    // (noch) existiert - sonst neu anlegen, statt hart zu scheitern.
+    if (customerId) {
+      try {
+        const existing = await stripe.customers.retrieve(customerId);
+        if (existing.deleted) customerId = null;
+      } catch {
+        customerId = null;
+      }
+    }
+
     if (!customerId) {
       const customer = await stripe.customers.create({
         email: user.email ?? undefined,

@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from './_types.js';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { getStripeSecretKey } from './_stripeEnv.js';
+import { logError } from './_errorLog.js';
 
 /**
  * Leitet zum Stripe-Kundenportal weiter - dort kann ein Nutzer selbststaendig
@@ -66,6 +67,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
     res.status(200).json({ url: session.url });
   } catch (e) {
-    res.status(500).json({ error: e instanceof Error ? e.message : 'Kundenportal konnte nicht geoeffnet werden.' });
+    // Ein gespeicherter customerId kann aus dem Test-Modus stammen (Test-
+    // und Live-Kunden sind komplett getrennte Stripe-Namespaces, siehe
+    // create-checkout-session.ts) - dann meldet Stripe "No such customer".
+    // Fachlich dasselbe wie "noch kein Abo" (nichts zu verwalten), deshalb
+    // hier bewusst kein 500/Fehler-Log, sondern dieselbe freundliche
+    // 400-Meldung wie oben.
+    const message = e instanceof Error ? e.message : 'Kundenportal konnte nicht geoeffnet werden.';
+    if (message.toLowerCase().includes('no such customer')) {
+      res.status(400).json({ error: 'Noch kein Abo abgeschlossen - dafuer gibt es hier noch nichts zu verwalten.' });
+      return;
+    }
+    await logError('create-portal-session', e);
+    res.status(500).json({ error: message });
   }
 }
