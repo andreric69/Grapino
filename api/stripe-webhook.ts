@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { isStripeManagedBlock } from '../src/lib/stripeBlockReasons.js';
 import { logError } from './_errorLog.js';
+import { getStripeSecretKey, getStripeWebhookSecret } from './_stripeEnv.js';
 
 // Gegenstueck zu create-checkout-session.ts: Preis-ID -> Abo-Stufe (fuer den
 // Ruecksschluss, welche Stufe ein Nutzer nach dem Checkout/einer Aenderung
@@ -59,8 +60,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const stripeSecretKey = getStripeSecretKey();
+  const webhookSecret = getStripeWebhookSecret();
   const supabaseUrl = process.env.VITE_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!stripeSecretKey || !webhookSecret || !supabaseUrl || !serviceRoleKey) {

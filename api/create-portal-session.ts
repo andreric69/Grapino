@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from './_types.js';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
+import { getStripeSecretKey } from './_stripeEnv.js';
 
 /**
  * Leitet zum Stripe-Kundenportal weiter - dort kann ein Nutzer selbststaendig
@@ -26,7 +27,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const supabaseUrl = process.env.VITE_SUPABASE_URL;
   const anonKey = process.env.VITE_SUPABASE_ANON_KEY;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  const stripeSecretKey = getStripeSecretKey();
   const appUrl = process.env.VITE_APP_URL ?? 'https://weinsammlung-two.vercel.app';
   if (!supabaseUrl || !anonKey || !serviceRoleKey || !stripeSecretKey) {
     res.status(500).json({ error: 'Server-Konfiguration fehlt.' });

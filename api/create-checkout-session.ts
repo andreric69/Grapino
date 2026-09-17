@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from './_types.js';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { logError } from './_errorLog.js';
+import { getStripeSecretKey, isStripeLiveMode } from './_stripeEnv.js';
 
 // Ein Stripe-Preis pro Abo-Stufe (siehe planLimits.ts) - eigenes Produkt pro
 // Stufe angelegt (nicht mehrere Preise auf einem Produkt), damit Checkout/
@@ -34,15 +35,10 @@ const LIVE_PRICE_IDS: Record<'basis' | 'pro' | 'ultra', string> = {
   ultra: 'price_1UGKyvCB7LuxNExVblETrl7s',
 };
 
-// Stripe gibt inzwischen auch fuer "Vollständiger Zugriff"-Schluessel ein
-// "rk_"-Praefix statt "sk_" aus (restricted key statt klassischem Secret
-// Key) - "_live_" statt nur "sk_live_" zu pruefen erkennt beide Faelle
-// gleichermassen (rk_live_..., sk_live_... - Stripes eigentliche
-// Modus-Kennzeichnung steckt im "_live_"/"_test_"-Segment, nicht im
-// Buchstaben davor).
-export const PRICE_IDS: Record<'basis' | 'pro' | 'ultra', string> = process.env.STRIPE_SECRET_KEY?.includes('_live_')
-  ? LIVE_PRICE_IDS
-  : TEST_PRICE_IDS;
+// Live/Test-Erkennung und das Lesen des Secret Keys laufen ueber
+// _stripeEnv.ts - siehe dort fuer den Hintergrund (mehrere moegliche
+// Vercel-Variablennamen wegen der "_Original"-Verwirrung vom 2026-09-17).
+export const PRICE_IDS: Record<'basis' | 'pro' | 'ultra', string> = isStripeLiveMode() ? LIVE_PRICE_IDS : TEST_PRICE_IDS;
 
 function isValidPlan(value: unknown): value is keyof typeof PRICE_IDS {
   return value === 'basis' || value === 'pro' || value === 'ultra';
@@ -70,7 +66,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const supabaseUrl = process.env.VITE_SUPABASE_URL;
   const anonKey = process.env.VITE_SUPABASE_ANON_KEY;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  const stripeSecretKey = getStripeSecretKey();
   const appUrl = process.env.VITE_APP_URL ?? 'https://weinsammlung-two.vercel.app';
   if (!supabaseUrl || !anonKey || !serviceRoleKey || !stripeSecretKey) {
     res.status(500).json({ error: 'Server-Konfiguration fehlt.' });

@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from './_types.js';
 import Stripe from 'stripe';
 import { PRICE_IDS } from './create-checkout-session.js';
+import { getStripeSecretKey } from './_stripeEnv.js';
 
 type TaxBehavior = 'inclusive' | 'exclusive' | 'unspecified';
 
@@ -53,7 +54,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  const stripeSecretKey = getStripeSecretKey();
   if (!stripeSecretKey) {
     res.status(500).json({ error: 'Server-Konfiguration fehlt.' });
     return;
