@@ -135,7 +135,7 @@ export function ChoosePlanScreen() {
                 )}
                 <span>{busyPlan === plan ? 'Wird geöffnet ...' : `${PLAN_LABELS[plan]} wählen`}</span>
                 <span style={{ fontSize: 12.5, fontWeight: 600 }}>
-                  {prices?.[plan] ? `${formatPlanPrice(prices[plan])} · ${formatTaxHint(prices[plan])}` : 'Preis im nächsten Schritt'}
+                  {prices?.[plan] ? `${formatPlanPrice(prices[plan])} · ${formatTaxHint()}` : 'Preis im nächsten Schritt'}
                 </span>
                 {monthlyHint && (
                   <span style={{ fontSize: 10.5, fontWeight: 400, opacity: 0.7 }}>({monthlyHint})</span>

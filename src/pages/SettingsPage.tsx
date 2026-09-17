@@ -806,7 +806,7 @@ export function SettingsPage() {
                 </div>
                 {planPrices?.[plan] && (
                   <div style={{ fontSize: 12, opacity: 0.6 }}>
-                    {formatPlanPrice(planPrices[plan])} · {formatTaxHint(planPrices[plan])}
+                    {formatPlanPrice(planPrices[plan])} · {formatTaxHint()}
                     {formatMonthlyEquivalentHint(planPrices[plan]) && (
                       <span style={{ display: 'block', fontSize: 10.5, opacity: 0.85, marginTop: 2 }}>
                         ({formatMonthlyEquivalentHint(planPrices[plan])})

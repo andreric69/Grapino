@@ -100,9 +100,23 @@ export function formatMonthlyEquivalentHint(price: PlanPriceInfo): string | null
   return `entspricht ca. ${price.currency.toUpperCase()} ${monthly.toFixed(2)}/Monat`;
 }
 
-/** Neutraler Hinweistext zur Mehrwertsteuer - keine Steuerberatung, nur Weitergabe dessen, was bei Stripe hinterlegt ist. */
-export function formatTaxHint(price: PlanPriceInfo): string {
-  if (price.taxBehavior === 'inclusive') return 'inkl. MWST';
-  if (price.taxBehavior === 'exclusive') return 'zzgl. MWST';
-  return 'zzgl. allfälliger Steuern';
+/**
+ * Hinweistext zur Mehrwertsteuer - keine Steuerberatung. Ignoriert BEWUSST
+ * das "taxBehavior"-Feld des Stripe-Preises (price.taxBehavior): das
+ * beschreibt nur, wie ein Betrag zu interpretieren WAERE, falls Stripe
+ * automatisch Steuer berechnet - passiert bei uns aber nirgends
+ * ("automatic_tax" wird in keiner Checkout-Session gesetzt, siehe
+ * api/create-checkout-session.ts). Der angezeigte Preis ist deshalb IMMER
+ * der tatsaechliche Endbetrag, unabhaengig davon, was Stripes eigene
+ * Preis-Metadaten sagen - live beobachtet: Stripe setzte "exclusive" auf
+ * den Preisen, ohne dass wir das veranlasst haben, was faelschlich
+ * "zzgl. MWST" angezeigt haette (2026-09-17).
+ *
+ * Aktueller Stand: nicht MWST-pflichtig (siehe NOTFALL/README.md), daher
+ * keine MWST im Preis enthalten. Falls sich das durch Wachstum aendert
+ * (siehe README, ca. ab CHF 100'000 Jahresumsatz) UND automatic_tax aktiv
+ * geschaltet wird, muss diese Funktion angepasst werden.
+ */
+export function formatTaxHint(): string {
+  return 'Gesamtpreis, keine MWST';
 }

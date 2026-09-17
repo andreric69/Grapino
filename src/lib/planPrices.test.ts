@@ -20,12 +20,8 @@ describe('formatPlanPrice', () => {
 });
 
 describe('formatTaxHint', () => {
-  it('zeigt "inkl. MWST" bei inclusive', () => {
-    expect(formatTaxHint(yearlyPrice)).toBe('inkl. MWST');
-  });
-
-  it('zeigt "zzgl. MWST" bei exclusive', () => {
-    expect(formatTaxHint({ ...yearlyPrice, taxBehavior: 'exclusive' })).toBe('zzgl. MWST');
+  it('ignoriert Stripes taxBehavior-Feld, da automatic_tax nie aktiviert wird (keine echte MWST-Berechnung)', () => {
+    expect(formatTaxHint()).toBe('Gesamtpreis, keine MWST');
   });
 });
 
