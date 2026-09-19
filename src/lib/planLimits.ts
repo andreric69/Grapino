@@ -5,7 +5,11 @@
  */
 export type Plan = 'basis' | 'pro' | 'ultra';
 
-export const PLAN_LABELS: Record<Plan, string> = { basis: 'Basis', pro: 'Pro', ultra: 'Ultra' };
+// Anzeige-Name "Light" statt "Basis" (2026-09-19) - passt jetzt zum Namen des
+// Stripe-Produkts ("Grapino Light", siehe api/create-checkout-session.ts) -
+// der interne Schluessel bleibt bewusst "basis" (DB-Wert/Code unveraendert),
+// nur der angezeigte Text aendert sich.
+export const PLAN_LABELS: Record<Plan, string> = { basis: 'Light', pro: 'Pro', ultra: 'Ultra' };
 
 /**
  * Die Stufe, die als "Beliebteste Wahl"/"Empfohlen" hervorgehoben wird

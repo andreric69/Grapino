@@ -50,6 +50,6 @@ describe('canUseAdvancedAiFeatures', () => {
 
 describe('PLAN_LABELS', () => {
   it('enthaelt lesbare deutsche Bezeichnungen fuer alle drei Stufen', () => {
-    expect(PLAN_LABELS).toEqual({ basis: 'Basis', pro: 'Pro', ultra: 'Ultra' });
+    expect(PLAN_LABELS).toEqual({ basis: 'Light', pro: 'Pro', ultra: 'Ultra' });
   });
 });
